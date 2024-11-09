@@ -10,7 +10,8 @@ const Login = () => {
 						<p className="font-semibold">Don't have an account yet?</p>
 						<p className="text-blue-500 font-semibold cursor-pointer">
 							Sign Up
-						</p>
+                        </p>
+                        
 					</div>
 				</div>
 
