@@ -2,7 +2,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { MenuLink } from "./Navbar";
 import { Link, NavLink } from "react-router-dom";
 
-const ResponsiveMenu = ({ showMenu }) => {
+const ResponsiveMenu = ({ showMenu }:any ) => {
   return (
     <div
       className={`${showMenu ? "left-0" : "left-[-100%]"}
