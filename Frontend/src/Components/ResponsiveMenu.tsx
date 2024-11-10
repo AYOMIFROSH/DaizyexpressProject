@@ -1,3 +1,4 @@
+import { FaUserCircle } from "react-icons/fa";
 import { MenuLink } from "./Navbar";
 import { Link, NavLink } from "react-router-dom";
 
@@ -7,7 +8,16 @@ const ResponsiveMenu = ({ showMenu }) => {
       className={`${showMenu ? "left-0" : "left-[-100%]"}
     fixed bottom-0 top-0 w-[75%] transition-all duration-200 pt-16  px-8 bg-gray-500  z-50 md:hidden shadow-md flex flex-col justify-between pb-5`}
     >
-      <div className="">
+      <div className="flex items-center justify-start gap-3 ">
+        <FaUserCircle className="text-4xl" />
+        <div>
+          <h1 className="">Hello User</h1>
+          <h1 className="text-sm font-semibold text-yellow-500">
+            Welcome back
+          </h1>
+        </div>
+      </div>
+      <div className="mt-auto">
         <ul className="inline-block  ">
           {MenuLink.map(({ paths, link }) => {
             return (
