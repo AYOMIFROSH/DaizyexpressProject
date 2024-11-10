@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Input from "../Components/Input";
 
 const Login = () => {
@@ -8,9 +9,12 @@ const Login = () => {
 					<div></div>
 					<div className="flex items-center gap-x-2">
 						<p className="font-semibold">Don't have an account yet?</p>
-						<p className="text-blue-500 font-semibold cursor-pointer">
+						<Link
+							to={"/register"}
+							className="text-blue-500 font-semibold cursor-pointer"
+						>
 							Sign Up
-						</p>
+						</Link>
 					</div>
 				</div>
 
