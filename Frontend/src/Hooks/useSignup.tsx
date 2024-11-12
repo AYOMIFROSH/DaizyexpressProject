@@ -3,7 +3,7 @@ import { useAuth } from "../Context/useContext";
 import { message } from "antd";
 
 interface RegisterValues {
-  username: string;
+  userName: string;
   email: string;
   password: string;
   passwordConfirm: string;
@@ -21,9 +21,9 @@ const UseRegister = () => {
 
     try {
       setError(null);
-      setLoading(true); // Set loading to true when request starts
+      setLoading(true); // Set loading to tr
 
-      const res = await fetch("http://localhost:3000/api/auth/signup", {
+      const res = await fetch(`http://localhost:3000/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,7 +34,7 @@ const UseRegister = () => {
       const data = await res.json();
       if (res.status === 201) {
         message.success(data.message);
-        login(data.token, data.user); // Assuming `data` has token and user details
+        login(data.token, data.user); 
       } else if (res.status === 400) {
         setError(data.message);
       } else {

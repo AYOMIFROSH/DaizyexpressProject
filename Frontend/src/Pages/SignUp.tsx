@@ -6,14 +6,14 @@ import UseRegister from "../Hooks/useSignup";
 import "../index.css";
 
 type FormValues = {
-  username: string;
+  userName: string;
   email: string;
   password: string;
   confirmPassword: string;
 };
 
 type Errors = {
-  username?: string;
+  userName?: string;
   email?: string;
   password?: string;
   confirmPassword?: string;
@@ -21,25 +21,25 @@ type Errors = {
 
 const SignUp = () => {
   const [formValues, setFormValues] = useState<FormValues>({
-    username: "",
+    userName: "", // Ensure this key matches everywhere
     email: "",
     password: "",
     confirmPassword: "",
   });
 
   const [errors, setErrors] = useState<Errors>({});
-  const { loading, error, registeruser } = UseRegister(); // Use hook here
+  const { loading, error, registeruser } = UseRegister();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    console.log("Input change:", name, value); // Check if this logs correctly
     setFormValues({ ...formValues, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = () => {
     const newErrors: Errors = {};
-
-    if (!formValues.username) newErrors.username = "Username is required";
+    if (!formValues.userName) newErrors.userName = "Username is required";
     if (!formValues.email) newErrors.email = "Email address is required";
     if (!formValues.password) newErrors.password = "Password is required";
     if (!formValues.confirmPassword) {
@@ -52,7 +52,7 @@ const SignUp = () => {
 
     if (Object.keys(newErrors).length === 0) {
       registeruser({
-        username: formValues.username,
+        userName: formValues.userName, // Ensure this matches the backend expectations
         email: formValues.email,
         password: formValues.password,
         passwordConfirm: formValues.confirmPassword,
@@ -60,7 +60,6 @@ const SignUp = () => {
     }
   };
 
-  // Display error message with Ant Design's message component
   useEffect(() => {
     if (error) {
       message.error({
@@ -88,11 +87,11 @@ const SignUp = () => {
 
           <div className="flex flex-col gap-y-4 pb-10">
             <Input
-              name="username"
+              name="userName" // Ensure the name matches state property
               label="Username"
-              value={formValues.username}
+              value={formValues.userName}
               onChange={handleChange}
-              error={errors.username}
+              error={errors.userName}
             />
             <Input
               name="email"
@@ -118,7 +117,7 @@ const SignUp = () => {
             <button
               onClick={handleSubmit}
               className="border border-yellow-500 lg:text-base text-[14px] w-full bg-yellow-300 px-4 duration-500 hover:bg-yellow-500/80 font-semibold rounded-[8px] lg:py-2 py-2"
-              disabled={loading} // Disable button when loading
+              disabled={loading}
             >
               {loading ? <Spin /> : "Sign Up"}
             </button>
@@ -133,3 +132,5 @@ const SignUp = () => {
 };
 
 export default SignUp;
+
+

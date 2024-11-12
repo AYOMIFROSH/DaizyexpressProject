@@ -4,6 +4,7 @@ type AuthContextType = {
   token: string | null;
   isAuthenticated: boolean;
   userData: any;
+  userRole: any;
   login: (newToken: string, newData: any) => void;
   logout: () => void;
 };
@@ -19,6 +20,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userData, setUserData] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const storedData = JSON.parse(localStorage.getItem("user_data") || "null");
+  const [userRole, setUserRole] = useState(null);
+
 
   useEffect(() => {
     if (storedData) {
@@ -26,6 +29,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setToken(userToken);
       setUserData(user);
       setIsAuthenticated(true);
+      setUserRole(user.role);
+
     }
   }, []);
 
@@ -37,6 +42,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setToken(newToken);
     setUserData(newData);
     setIsAuthenticated(true);
+    setUserRole(newData.role);
+
   };
 
   const logout = () => {
@@ -44,10 +51,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setToken(null);
     setUserData(null);
     setIsAuthenticated(false);
+    setUserRole(null);
+
   };
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, userData, login, logout }}>
+    <AuthContext.Provider value={{ token, isAuthenticated, userData, login, logout, userRole }}>
       {children}
     </AuthContext.Provider>
   );

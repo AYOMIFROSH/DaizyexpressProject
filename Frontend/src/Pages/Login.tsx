@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Spin } from "antd";  
+import { Spin, message } from "antd";
 import Input from "../Components/Input";
+import useLogin from "../Hooks/useLogin"; // Import the hook
 
 type LoginFormValues = {
   email: string;
@@ -20,12 +21,12 @@ const Login = () => {
   });
 
   const [errors, setErrors] = useState<LoginErrors>({});
-  const [loading, setLoading] = useState(false);  
+  const { loginUser, loading, error } = useLogin(); // Use the hook
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
-    setErrors({ ...errors, [name]: "" }); 
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = () => {
@@ -37,19 +38,19 @@ const Login = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      setLoading(true);  
-
-      // Simulate form submission
-      setTimeout(() => {
-        console.log("Form submitted", formValues);
-        setLoading(false); 
-      }, 2000);  
+      loginUser(formValues); // Call loginUser from the hook
     }
   };
 
+  useEffect(() => {
+    if (error) {
+      message.error(error);
+    }
+  }, [error]);
+
   return (
     <div className="pt-16 px-6">
-      <div className="max-w-[600px] mx-auto ">
+      <div className="max-w-[600px] mx-auto">
         <div className="flex flex-col lg:flex-row justify-between items-center">
           <div></div>
           <div className="flex items-center gap-x-2">
@@ -81,7 +82,7 @@ const Login = () => {
             <button
               onClick={handleSubmit}
               className="border border-yellow-500 lg:text-base text-[14px] w-full bg-yellow-300 px-4 duration-500 hover:bg-yellow-500/80 font-semibold rounded-[8px] lg:py-2 py-2"
-              disabled={loading}  
+              disabled={loading}
             >
               {loading ? <Spin /> : "Sign In"}
             </button>
