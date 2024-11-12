@@ -10,7 +10,7 @@ const dbHost = process.env.DB_HOST;
 const dbName = process.env.DB_NAME;
 
 //MIDDLEWARES
-app.use(cors);
+app.use(cors());
 app.use(express.json());
 
 //ROUTES
@@ -22,7 +22,7 @@ mongoose.connect(`${dbHost}/${dbName}`)
   .catch((error) => console.error('Failed to connect to MongoDB:', error));
 
 // General Global Handler
-app.use((err, res, req, next)=> {
+app.use((err, req, res, next)=> {
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
