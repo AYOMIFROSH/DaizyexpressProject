@@ -42,7 +42,7 @@ exports.signup = async (req, res, next) => {
     }
 };
 
-// REGISTER USER || ADMIN
+// LOGIN USER || ADMIN
 exports.login = async (req, res, next) => {
     try {
         const {email, password} = req.body;
