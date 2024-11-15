@@ -37,10 +37,10 @@ const Navbar = () => {
 
 	return (
 		<div
-			className={`px-10 fixed top-0 duration-500 z-[9999] ${color} left-0 w-full flex items-center justify-between`}
+			className={`lg:px-10 fixed top-0 duration-500 z-[9999] ${color} left-0 w-full flex items-center justify-between`}
 		>
-			<img className="w-[180px]" src={Logo} alt="" />
-			<div className="pr-5 flex items-center gap-x-10">
+			<img className="lg:w-[180px] h-[60px] lg:h-full" src={Logo} alt="" />
+			<div className="pr-5 lg:flex hidden items-center gap-x-10">
 				<div className="flex items-center gap-x-8">
 					{MenuLink.map((item, index) => {
 						return (

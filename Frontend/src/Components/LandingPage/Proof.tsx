@@ -6,31 +6,31 @@ import Art1 from "../../assets/art1.avif";
 
 const Proof = () => {
 	return (
-		<div className="px-10 pt-20 pb-32">
+		<div className="lg:px-10 px-5 pt-20 pb-32">
 			<div className="max-w-[1240px] mx-auto">
-				<div className="flex items-center justify-between">
-					<h2 className="font-semibold text-[28px]">As seen in</h2>
-					<div className="flex items-center gap-x-8 justify-between">
-						<img className="h-[75px] object-cover" src={Img} alt="" />
-						<img className="h-[75px] object-cover" src={Img1} alt="" />
-						<img className="h-[75px] object-cover" src={Img2} alt="" />
-						<img className="h-[75px] object-cover" src={Img3} alt="" />
+				<div className="flex lg:flex-row flex-col gap-y-4 lg:items-center justify-between">
+					<h2 className="font-semibold text-[18px] lg:text-[28px]">As seen in</h2>
+					<div className="flex items-center lg:gap-x-8 justify-between">
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img} alt="" />
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img1} alt="" />
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img2} alt="" />
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img3} alt="" />
 					</div>
 				</div>
 
-				<div className="pt-20">
-					<h2 className="text-[42px] font-semibold">Hear from Proof</h2>
+				<div className="lg:pt-20 pt-16">
+					<h2 className="lg:text-[42px] text-[30px] font-semibold">Hear from Proof</h2>
 
-					<div className="grid grid-cols-2 pt-10">
-						<div className="relative  mr-10 ">
+					<div className="grid lg:grid-cols-2  gap-y-6 pt-10">
+						<div className="relative  lg:mr-10 ">
 							<img
-								className="h-[500px] z-[-9] object-cover"
+								className="lg:h-[500px] h-[300px] z-[-9] object-cover"
 								src={Art1}
 								alt=""
 							/>
 							<div className="absolute top-0 left-0 w-full h-full bg-[#1a2b3a6e]" />
 
-							<div className="absolute flex flex-col items-start justify-end top-0 left-0 w-full h-full p-14">
+							<div className="absolute flex flex-col items-start justify-end top-0 left-0 w-full h-full p-8 lg:p-14">
 								<div className="text-white flex flex-col items-start ">
 									<p className="text-white text-[18px]">10 min read</p>
 									<p className="capitalize text-[32px] font-semibold leading-[40px]">
@@ -42,7 +42,7 @@ const Proof = () => {
 								</div>
 							</div>
 						</div>
-						<div className="pl-8 border-dashed flex flex-col justify-center border-l ">
+						<div className="lg:pl-8 lg:border-dashed flex flex-col justify-center lg:border-l ">
 							<div className="flex items-center border-dashed border-b gap-x-6 pb-8">
 								<img className="size-[120px] object-cover" src={Art1} alt="" />
 								<div>
