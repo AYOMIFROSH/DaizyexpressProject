@@ -4,11 +4,12 @@ import { AuthProvider, useAuth } from "./Context/useContext.tsx";
 import "./index.css";
 import App from "./App.tsx";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
-import Dashboard from "./Pages/Dashboard.tsx";
+// import Dashboard from "./Pages/Dashboard.tsx";
 import Login from "./Pages/Login.tsx";
 import SignUp from "./Pages/SignUp.tsx";
 import UserPages from "./Pages/AuthorizedPages/UserPage.tsx";
 import AdminPages from "./Pages/AuthorizedPages/AdminPages.tsx";
+import LandingPage from "./Pages/LandingPage.tsx";
 
 function AppRouter() {
 	const { isAuthenticated, userRole } = useAuth();
@@ -20,7 +21,7 @@ function AppRouter() {
 			children: [
 				{
 					path: "/",
-					element: <Dashboard />,
+					element: <LandingPage />,
 				},
 				{
 					path: "/login",
