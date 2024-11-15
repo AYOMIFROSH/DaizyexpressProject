@@ -1,3 +1,6 @@
+import Foot from "../Components/LandingPage/Foot";
+import Footer from "../Components/LandingPage/Footer";
+import Hero from "../Components/LandingPage/Hero";
 import Process from "../Components/LandingPage/Process";
 import Proof from "../Components/LandingPage/Proof";
 import Serve from "../Components/LandingPage/Serve";
@@ -5,11 +8,14 @@ import Navbar from "../Components/Navbar";
 
 const LandingPage = () => {
 	return (
-		<div className="px-10">
+		<div className="">
 			<Navbar />
-            <Serve />
-            <Process />
-            <Proof />
+			<Hero />
+			<Serve />
+			<Process />
+			<Proof />
+			<Foot />
+			<Footer />
 		</div>
 	);
 };

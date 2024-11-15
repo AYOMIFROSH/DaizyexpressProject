@@ -2,7 +2,7 @@ import Img from "../../assets/serve.avif";
 
 const Serve = () => {
 	return (
-		<div className="px-10">
+		<div className="px-10 pt-20">
 			<div className="max-w-[1240px] grid grid-cols-2 mx-auto">
 				<div className="flex flex-col w-[85%] gap-y-6 justify-center">
 					<h2 className="text-[45px] leading-[50px] font-semibold">

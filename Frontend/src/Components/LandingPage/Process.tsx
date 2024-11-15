@@ -2,7 +2,7 @@ import Img from "../../assets/phone.avif";
 
 const Process = () => {
 	return (
-		<div className="px-10">
+		<div className="px-10 pt-20">
 			<div className="max-w-[1240px] grid grid-cols-2 mx-auto">
 				<div className="flex flex-col w-[85%] items-start gap-y-6 justify-center">
 					<h2 className="text-yellow-500 font-semibold text-[18px]">

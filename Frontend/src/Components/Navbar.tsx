@@ -1,7 +1,9 @@
-import React from "react";
+import { useState } from "react";
 import Logo from "../assets/logo.png";
 
 const Navbar = () => {
+	const [color, setColor] = useState("bg-[#f6f3f0]");
+
 	const MenuLink = [
 		{
 			paths: "/",
@@ -25,8 +27,18 @@ const Navbar = () => {
 		},
 	];
 
+	window.addEventListener("scroll", () => {
+		if (scrollY > 10) {
+			setColor("bg-[#fff]");
+		} else {
+			setColor("bg-[#f6f3f0]");
+		}
+	});
+
 	return (
-		<div className=" flex items-center justify-between">
+		<div
+			className={`px-10 fixed top-0 duration-500 z-[9999] ${color} left-0 w-full flex items-center justify-between`}
+		>
 			<img className="w-[180px]" src={Logo} alt="" />
 			<div className="pr-5 flex items-center gap-x-10">
 				<div className="flex items-center gap-x-8">
