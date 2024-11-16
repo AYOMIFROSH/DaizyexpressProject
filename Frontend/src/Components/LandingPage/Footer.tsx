@@ -6,7 +6,7 @@ const Footer = () => {
 			<div className="max-w-[1240px] gap-y-10 grid lg:grid-cols-2 mx-auto">
 				<div className="">
 					<img className="w-[180px]" src={Logo} alt="" />
-					<p className="lg:text-[30px] text-[20px] mb-8 w-[400px] lg:leading-[35px] leading-[25px] font-semibold">
+					<p className="lg:text-[30px] text-[20px] mb-8 lg:w-[400px] lg:leading-[35px] leading-[25px] font-semibold">
 						The smarter way to serve legal documents
 					</p>
 					<button className="px-5 py-2.5 rounded-[5px] bg-yellow-400 font-semibold">

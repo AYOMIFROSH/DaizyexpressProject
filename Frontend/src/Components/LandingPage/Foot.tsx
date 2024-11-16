@@ -5,16 +5,16 @@ const Foot = () => {
 		<div className="bg-[#001829] px-5 mb-10 py-16">
 			<div className="max-w-[1240px] mx-auto grid lg:gap-x-10 lg:grid-cols-2">
 				<div className="space-y-5 ">
-					<h2 className="text-white text-[32px] leading-[35px] lg:text-[45px] lg:leading-[45px] font-semibold w-[400px]">
+					<h2 className="text-white text-[32px] leading-[35px] lg:text-[45px] lg:leading-[45px] font-semibold lg:w-[400px]">
 						Serve smarter with Proof
 					</h2>
 					<div className="flex lg:flex-row flex-col gap-y-5 lg:gap-x-5">
 						<input
-							className="lg:flex-1 py-4 px-5 w-[85%] bg-white rounded-[5px] outline-none font-medium"
+							className="lg:flex-1 py-4 px-5  bg-white rounded-[5px] outline-none font-medium"
 							placeholder="Enter your email address"
 							type="email"
 						/>
-						<button className="px-5 py-2.5 w-[85%] rounded-[5px] bg-yellow-400 font-semibold">
+						<button className="px-5 py-2.5   rounded-[5px] bg-yellow-400 font-semibold">
 							Get started
 						</button>
 					</div>
