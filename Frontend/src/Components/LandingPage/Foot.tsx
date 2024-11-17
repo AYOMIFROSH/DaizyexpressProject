@@ -5,8 +5,8 @@ const Foot = () => {
 		<div className="bg-[#001829] px-5 mb-10 py-16">
 			<div className="max-w-[1240px] mx-auto grid lg:gap-x-10 lg:grid-cols-2">
 				<div className="space-y-5 ">
-					<h2 className="text-white text-[32px] leading-[35px] lg:text-[45px] lg:leading-[45px] font-semibold lg:w-[400px]">
-						Serve smarter with Proof
+					<h2 className="text-white text-[32px] leading-[35px] lg:text-[45px] lg:leading-[45px] font-semibold lg:w-fit">
+						Accuracy and speed unmatched
 					</h2>
 					<div className="flex lg:flex-row flex-col gap-y-5 lg:gap-x-5">
 						<input

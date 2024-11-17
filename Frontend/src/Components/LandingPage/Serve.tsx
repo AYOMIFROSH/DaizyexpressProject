@@ -6,7 +6,7 @@ const Serve = () => {
 			<div className="max-w-[1240px] grid gap-y-7 lg:grid-cols-2 mx-auto">
 				<div className="flex flex-col lg:w-[85%] gap-y-4 lg:gap-y-6 justify-center">
 					<h2 className="lg:text-[45px] text-[28px] leading-[35px] lg:leading-[50px] font-semibold">
-						Get a dedicated Proof Specialist with every serve
+						Get an  <span className="text-green-400">Express</span> Specialist with every serve
 					</h2>
 					<p>
 						From fast updates to quick problem-solving, your dedicated

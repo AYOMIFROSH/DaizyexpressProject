@@ -24,7 +24,7 @@ const Footer = () => {
 						</div>
 					</div>
 					<div>
-						<h2 className="font-semibold">Why Proof</h2>
+						<h2 className="font-semibold">Why Daizy </h2>
 						<div className="text-neutral-500 space-y-3 font-medium pt-3 text-[14px]">
 							<p className="cursor-pointer hover:text-black">For Law Firms</p>
 							<p className="cursor-pointer text-wrap hover:text-black">

@@ -6,7 +6,7 @@ const NationWide = () => {
 			<div className="max-w-[1000px] mx-auto">
 				<div className="text-center">
 					<h2 className="lg:text-[45px] text-[32px] font-semibold">
-						Nationwide network of process servers
+						Our Legal Document Processing Services
 					</h2>
 					<p className="lg:text-[18px] pt-3">
 						Our servers are rigorously vetted for experience, jurisdictional

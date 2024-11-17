@@ -19,7 +19,7 @@ const Proof = () => {
 				</div>
 
 				<div className="lg:pt-20 pt-16">
-					<h2 className="lg:text-[42px] text-[30px] font-semibold">Hear from Proof</h2>
+					<h2 className="lg:text-3xl text-2xl font-semibold">Expert Legal Document Processing Services </h2>
 
 					<div className="grid lg:grid-cols-2  gap-y-6 pt-10">
 						<div className="relative  lg:mr-10 ">
@@ -47,7 +47,7 @@ const Proof = () => {
 								<img className="size-[120px] object-cover" src={Art1} alt="" />
 								<div>
 									<p className="text-[20px] font-semibold">
-										Arizona Service of Process Rules - from A to Z
+										Document scanning and digitization
 									</p>
 									<p>3 min read</p>
 								</div>
@@ -56,7 +56,7 @@ const Proof = () => {
 								<img className="size-[120px] object-cover" src={Art1} alt="" />
 								<div>
 									<p className="text-[20px] font-semibold">
-										Arizona Service of Process Rules - from A to Z
+										OCR and data extraction 
 									</p>
 									<p>3 min read</p>
 								</div>
@@ -65,7 +65,7 @@ const Proof = () => {
 								<img className="size-[120px] object-cover" src={Art1} alt="" />
 								<div>
 									<p className="text-[20px] font-semibold">
-										Arizona Service of Process Rules - from A to Z
+										E-filing and court services
 									</p>
 									<p>3 min read</p>
 								</div>
