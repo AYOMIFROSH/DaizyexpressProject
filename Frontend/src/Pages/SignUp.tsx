@@ -121,9 +121,7 @@ const SignUp = () => {
             >
               {loading ? <Spin /> : "Sign Up"}
             </button>
-            <p className="text-blue-500 lg:text-base text-[14px] -mt-2 text-center font-semibold cursor-pointer">
-               <Link to={"/forgot"}> Forgot Password</Link>
-            </p>
+            
           </div>
         </div>
       </div>

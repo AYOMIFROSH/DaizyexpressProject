@@ -19,14 +19,14 @@ const ForgottenPwd = () => {
 
         <div className="lg:pt-[120px] pt-[100px] max-w-[500px] space-y-10 mx-auto">
           <h1 className="font-medium text-[36px] text-center">
-            Forgotten Password
+            Forgot Password
           </h1>
-          <p className="text-center text-sm text-green-700">
-            We`ll Send You An Email With Instructions
+          <p className="text-center text-sm text-gray-700">
+            Please enter your email address below and we`ll send you an email with instructions
           </p>
           <div className="flex flex-col gap-y-4">
             <label className="block">
-              <h1 className="">Email Address</h1>
+              <h1 className="font-medium">Email Address</h1>
               <input
                 type="email"
                 placeholder="example@gmail.com"

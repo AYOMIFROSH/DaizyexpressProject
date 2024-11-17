@@ -63,10 +63,12 @@ const Footer = () => {
 							<p className="cursor-pointer hover:text-black">Facebook</p>
 							<p className="cursor-pointer hover:text-black">Twitter</p>
 							<p className="cursor-pointer hover:text-black">LinkedIn</p>
+							
 						</div>
 					</div>
 				</div>
 			</div>
+			<p> © Copyright 2024 Daizy Express  Inc.</p>
 		</div>
 	);
 };

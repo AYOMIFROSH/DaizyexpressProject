@@ -115,6 +115,7 @@ const Navbar = () => {
           >
             Get started
           </button>
+		  <p> © Copyright 2024 Daizy Express  Inc.</p>
         </div>
       </div>
     </div>
