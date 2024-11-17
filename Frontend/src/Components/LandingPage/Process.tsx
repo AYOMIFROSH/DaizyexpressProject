@@ -5,7 +5,7 @@ const Process = () => {
 		<div className="lg:px-10 px-5 pt-20">
 			<div className="max-w-[1240px]  grid gap-y-7 lg:grid-cols-2 mx-auto">
 				<div className="flex flex-col lg:w-[85%] items-start gap-y-4 lg:gap-y-6 justify-center">
-					<h2 className="text-yellow-500 font-semibold lg:text-[18px]">
+					<h2 className="text-green-500 font-semibold lg:text-[18px]">
 						FOR PROCESS SERVERS
 					</h2>
 					<h2 className="lg:text-[45px] text-[28px] leading-[35px] lg:leading-[50px] font-semibold">

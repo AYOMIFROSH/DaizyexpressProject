@@ -12,7 +12,7 @@ const ResponsiveMenu = ({ showMenu }:any ) => {
         <FaUserCircle className="text-4xl" />
         <div>
           <h1 className="">Welcome Back</h1>
-          <h1 className="text-sm font-semibold text-yellow-500">
+          <h1 className="text-sm font-semibold text-green-500">
             uchekevin02@gmail.com
           </h1>
           <p className="">2148991771</p>

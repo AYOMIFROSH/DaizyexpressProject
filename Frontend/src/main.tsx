@@ -10,6 +10,8 @@ import SignUp from "./Pages/SignUp.tsx";
 import UserPages from "./Pages/AuthorizedPages/UserPage.tsx";
 import AdminPages from "./Pages/AuthorizedPages/AdminPages.tsx";
 import LandingPage from "./Pages/LandingPage.tsx";
+import ForgottenPwd from "./Pages/ForgottenPwd.tsx";
+
 
 function AppRouter() {
 	const { isAuthenticated, userRole } = useAuth();
@@ -22,6 +24,10 @@ function AppRouter() {
 				{
 					path: "/",
 					element: <LandingPage />,
+				},
+				{
+					path: "/forgot",
+					element: <ForgottenPwd />,
 				},
 				{
 					path: "/login",

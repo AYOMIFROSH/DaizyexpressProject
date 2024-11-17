@@ -14,7 +14,7 @@ const Foot = () => {
 							placeholder="Enter your email address"
 							type="email"
 						/>
-						<button className="px-5 py-2.5   rounded-[5px] bg-yellow-400 font-semibold">
+						<button className="px-5 py-2.5   rounded-[5px] bg-green-400 font-semibold">
 							Get started
 						</button>
 					</div>

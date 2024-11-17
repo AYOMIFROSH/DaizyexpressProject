@@ -11,10 +11,10 @@ const Uploads = () => {
                 Uche Otuya
               </h1>
 
-              <button className="border border-yellow-500 rounded-md px-2 ">
+              <button className="border border-green-500 rounded-md px-2 ">
                 Jobs
               </button>
-              <button className="border border-yellow-500 rounded-md px-2">
+              <button className="border border-green-500 rounded-md px-2">
                 Server Pay
               </button>
               <button className="  bg-blue-300 px-3 rounded-md">Edit</button>

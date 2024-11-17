@@ -12,7 +12,7 @@ const Hero = () => {
 					<div className="space-y-16">
 						<h2 className="lg:text-[45px] leading-[35px] text-[30px] font-semibold lg:leading-[50px]">
 							Serve documents nationwide in 24h with{" "}
-							<span className="text-yellow-500">open communication</span>
+							<span className="text-green-500">open communication</span>
 						</h2>
 						<div className="space-y-4">
 							<p className="text-[18px]">
@@ -20,10 +20,10 @@ const Hero = () => {
 								service of process nationwide — now you can too!
 							</p>
 							<div className="flex lg:flex-row flex-col items-center gap-y-4 gap-x-4">
-								<button className="bg-[#001829] hover:bg-yellow-500 duration-500 py-3 px-6 hover:text-black rounded-[5px] w-full lg:w-fit text-white font-medium">
+								<button className="bg-[#001829] hover:bg-green-500 duration-500 py-3 px-6 hover:text-black rounded-[5px] w-full lg:w-fit text-white font-medium">
 									Create your free account
 								</button>
-								<button className="border-yellow-500 w-full border-2 hover:bg-yellow-500 lg:w-fit duration-500 py-3 px-6 rounded-[5px] font-medium">
+								<button className="border-green-500 w-full border-2 hover:bg-green-500 lg:w-fit duration-500 py-3 px-6 rounded-[5px] font-medium">
 									Get a demo
 								</button>
 							</div>
