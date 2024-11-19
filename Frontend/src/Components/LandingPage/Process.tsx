@@ -1,4 +1,5 @@
 import Img from "../../assets/phone.avif";
+import { FaCheck } from "react-icons/fa";
 
 const Process = () => {
   return (
@@ -8,25 +9,15 @@ const Process = () => {
           <h2 className="text-green-500 font-semibold text-2xl lg:text-3xl">
             Why choose Daizey Express?
           </h2>
-          {/* <h2 className="lg:text-[45px] text-[28px] leading-[35px] lg:leading-[50px] font-semibold">
-						Make money by becoming a process server with Proof
-					</h2> */}
-          {/* <p>
-						With Proof, you’ll get notified of nearby jobs, all managed through
-						the highest-rated process serving app in the industry. Our efficient
-						platform and operations team empower you to succeed on every job.
-					</p>
-					<p className="border-b-4 cursor-pointer font-medium hover:border-black duration-500">
-						Become a process server with Proof
-					</p> */}
+        
 
-          <div className="block ">
+          <div className="block mt-5 ">
             <ol className="space-y-4 ">
-              <li><span className="text-green-500 text-2xl mr-2">*</span>Fast turnaround times</li>
-              <li><span className="text-green-500 text-2xl mr-2">*</span>High accuracy rates</li>
-              <li><span className="text-green-500 text-2xl mr-2">*</span>Secure and confidential processing</li>
-              <li><span className="text-green-500 text-2xl mr-2">*</span>Cost-effective solutions</li>
-              <li><span className="text-green-500 text-2xl mr-2">*</span>Expert customer support</li>
+              <li className="flex items-center gap-3"><span className="text-green-500 text-2xl mr-2"><FaCheck className="text-xl" /></span>Fast turnaround times</li>
+              <li className="flex items-center gap-3"><span className="text-green-500 text-2xl mr-2"><FaCheck className="text-xl" /></span>High accuracy rates</li>
+              <li className="flex items-center gap-3"><span className="text-green-500 text-2xl mr-2"><FaCheck className="text-xl" /></span>Secure and confidential processing</li>
+              <li className="flex items-center gap-3"><span className="text-green-500 text-2xl mr-2"><FaCheck className="text-xl" /></span>Cost-effective solutions</li>
+              <li className="flex items-center gap-3"><span className="text-green-500 text-2xl mr-2"><FaCheck className="text-xl" /></span>Expert customer support</li>
             </ol>
           </div>
         </div>

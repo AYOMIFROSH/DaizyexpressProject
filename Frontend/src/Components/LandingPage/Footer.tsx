@@ -1,4 +1,6 @@
 import Logo from "../../assets/logo.png";
+import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
+
 
 const Footer = () => {
 	return (
@@ -59,10 +61,10 @@ const Footer = () => {
 					</div>
 					<div>
 						<h2 className="font-semibold">Socials</h2>
-						<div className="text-neutral-500 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-black">Facebook</p>
-							<p className="cursor-pointer hover:text-black">Twitter</p>
-							<p className="cursor-pointer hover:text-black">LinkedIn</p>
+						<div className="text-neutral-500  font-medium pt-3 text-2xl gap-5 mb-10 flex items-center">
+							<p className="cursor-pointer hover:text-black"><a href=""><FaFacebook /></a></p>
+							<p className="cursor-pointer hover:text-black"><a href=""><FaTwitter /></a></p>
+							<p className="cursor-pointer hover:text-black"><a href=""><FaLinkedin /></a></p>
 							
 						</div>
 					</div>
