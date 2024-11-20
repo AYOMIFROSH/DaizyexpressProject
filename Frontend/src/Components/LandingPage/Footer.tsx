@@ -11,7 +11,7 @@ const Footer = () => {
 					<p className="lg:text-[30px] text-[20px] mb-8 lg:w-[400px] lg:leading-[35px] leading-[25px] font-semibold">
 						The smarter way to serve legal documents
 					</p>
-					<button className="px-5 py-2.5 rounded-[5px] bg-green-400 font-semibold">
+					<button className="px-5 py-2.5 rounded-[5px] bg-yellow-300 font-semibold">
 						How it works
 					</button>
 				</div>
