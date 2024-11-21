@@ -56,7 +56,7 @@ const Navbar = () => {
             return (
               <p
                 key={index}
-                className="font-medium hover:text-green-400 duration-500 cursor-pointer"
+                className="font-medium hover:text-yellow-300 duration-500 cursor-pointer"
               >
                 {item.link}
               </p>
@@ -72,7 +72,7 @@ const Navbar = () => {
           </button>
           <button
             onClick={() => navigate("/register")}
-            className="px-5 py-2.5 rounded-[5px] bg-green-400 font-semibold"
+            className="px-5 py-2.5 rounded-[5px] bg-yellow-300 font-semibold"
           >
             Get started
           </button>
@@ -95,7 +95,7 @@ const Navbar = () => {
             return (
               <p
                 key={index}
-                className="font-medium hover:text-green-400 duration-500 cursor-pointer"
+                className="font-medium hover:text-yellow-300 duration-500 cursor-pointer"
               >
                 {item.link}
               </p>
@@ -111,7 +111,7 @@ const Navbar = () => {
           </button>
           <button
             onClick={() => navigate("/register")}
-            className="px-5 py-2.5 w-full rounded-[5px] bg-green-400 font-semibold"
+            className="px-5 py-2.5 w-full rounded-[5px] bg-yellow-300 font-semibold"
           >
             Get started
           </button>

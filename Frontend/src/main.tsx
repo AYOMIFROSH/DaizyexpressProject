@@ -11,6 +11,7 @@ import UserPages from "./Pages/AuthorizedPages/UserPage.tsx";
 import AdminPages from "./Pages/AuthorizedPages/AdminPages.tsx";
 import LandingPage from "./Pages/LandingPage.tsx";
 import ForgottenPwd from "./Pages/ForgottenPwd.tsx";
+import Dashboard from "./Pages/Dashboard.tsx";
 
 
 function AppRouter() {
@@ -44,6 +45,10 @@ function AppRouter() {
 				{
 					path: "/admin",
 					element: isAuthenticated && userRole === "admin" ? <AdminPages /> : <Navigate to={isAuthenticated ? "/user" : "/login"} />,
+				},
+				{
+					path: "/dashboard",
+					element: <Dashboard />,
 				},
 			],
 		},

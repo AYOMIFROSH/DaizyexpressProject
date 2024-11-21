@@ -3,8 +3,7 @@ import Img1 from "../../assets/2.svg";
 import Img2 from "../../assets/3.svg";
 import Img3 from "../../assets/4.svg";
 import Img4 from "../../assets/5.svg";
-import art2 from "../../assets/art2.webp"
-
+import { Link } from "react-router-dom";
 const Hero = () => {
 	return (
 		<div className="bg-[#f6f3f0] px-5 mt-[50px] lg:mt-[103px]">
@@ -12,7 +11,7 @@ const Hero = () => {
 				<div className="grid lg:grid-cols-2">
 					<div className="space-y-16">
 						<h2 className="lg:text-[45px] leading-[35px] text-[30px] font-semibold lg:leading-[50px]">
-							Streamline Your Legal Document  <span className="text-green-500 ">Processing</span>
+							Streamline Your Legal Document  <span className="text-yellow-300 ">Processing</span>
 						
 						</h2>
 						<div className="space-y-4">
@@ -23,9 +22,9 @@ const Hero = () => {
 								{/* <button className="bg-[#001829] hover:bg-green-500 duration-500 py-3 px-6 hover:text-black rounded-[5px] w-full lg:w-fit text-white font-medium">
 									Create your free account
 								</button> */}
-								<button className="border-green-500 w-full border-2 mt-10 hover:bg-green-500 lg:w-fit duration-500 py-3 px-6 rounded-[5px] font-medium">
+								<Link to={'/login'} className="border-yellow-300 w-full border-2 mt-10 hover:bg-yellow-500 lg:w-fit duration-500 py-3 px-6 rounded-[5px] font-medium">
 									Get Started Today
-								</button>
+								</Link>
 							</div>
 						</div>
 					</div>
