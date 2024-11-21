@@ -1,19 +1,21 @@
-import img1 from '../../assets/img1.svg'
-import img2 from '../../assets/img2.svg'
-import img3 from '../../assets/img3.svg'
-import img4 from '../../assets/img4.svg'
+import Img from "../../assets/seen1.avif";
+import Img1 from "../../assets/seen2.avif";
+import Img2 from "../../assets/seen3.avif";
+import Img3 from "../../assets/seen4.avif";
+import Art1 from "../../assets/art1.avif";
+
 const Proof = () => {
 	return (
 		<div className="lg:px-10 px-5 pt-20 pb-32">
 			<div className="max-w-[1240px] mx-auto">
 				<div className="flex lg:flex-row flex-col gap-y-4 lg:items-center justify-between">
 					<h2 className="font-semibold text-[18px] lg:text-[28px]">As seen in</h2>
-					{/* <div className="flex items-center lg:gap-x-8 justify-between">
-						<img className="lg:h-[75px] w-[20%] object-cover" src={img2} alt="" />
-						<img className="lg:h-[75px] w-[20%] object-cover" src={img2} alt="" />
-						<img className="lg:h-[75px] w-[20%] object-cover" src={img3} alt="" />
-						<img className="lg:h-[75px] w-[20%] object-cover" src={img4} alt="" />
-					</div> */}
+					<div className="flex items-center lg:gap-x-8 justify-between">
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img} alt="" />
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img1} alt="" />
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img2} alt="" />
+						<img className="lg:h-[75px] w-[20%] object-cover" src={Img3} alt="" />
+					</div>
 				</div>
 
 				<div className="lg:pt-20 pt-16">
@@ -23,7 +25,7 @@ const Proof = () => {
 						<div className="relative  lg:mr-10 ">
 							<img
 								className="lg:h-[500px] h-[300px] z-[-9] object-cover"
-								src={img1}
+								src={Art1}
 								alt=""
 							/>
 							<div className="absolute top-0 left-0 w-full h-full bg-[#1a2b3a6e]" />
@@ -42,7 +44,7 @@ const Proof = () => {
 						</div>
 						<div className="lg:pl-8 lg:border-dashed flex flex-col justify-center lg:border-l ">
 							<div className="flex items-center border-dashed border-b gap-x-6 pb-8">
-								<img className="size-[120px] object-cover" src={img2} alt="" />
+								<img className="size-[120px] object-cover" src={Art1} alt="" />
 								<div>
 									<p className="text-[20px] font-semibold">
 										Document scanning and digitization
@@ -51,7 +53,7 @@ const Proof = () => {
 								</div>
 							</div>
 							<div className="flex items-center pt-6 border-dashed border-b gap-x-6 pb-8">
-								<img className="size-[120px] object-cover" src={img3} alt="" />
+								<img className="size-[120px] object-cover" src={Art1} alt="" />
 								<div>
 									<p className="text-[20px] font-semibold">
 										OCR and data extraction 
@@ -60,7 +62,7 @@ const Proof = () => {
 								</div>
 							</div>
 							<div className="flex items-center pt-6 gap-x-6">
-								<img className="size-[120px] object-cover" src={img4} alt="" />
+								<img className="size-[120px] object-cover" src={Art1} alt="" />
 								<div>
 									<p className="text-[20px] font-semibold">
 										E-filing and court services
