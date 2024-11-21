@@ -70,7 +70,7 @@ const Footer = () => {
 					</div>
 				</div>
 			</div>
-			<p> © Copyright 2024 Daizy Express  Inc.</p>
+			<p> © Copyright 2024 DeizyexpressLLC.</p>
 		</div>
 	);
 };

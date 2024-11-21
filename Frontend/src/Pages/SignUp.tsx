@@ -82,7 +82,7 @@ const SignUp = () => {
           </div>
         </div>
 
-        <div className="lg:pt-[180px] pt-[100px] max-w-[500px] space-y-10 mx-auto">
+        <div className="lg:pt-32 pt-[100px] max-w-[500px] space-y-10 mx-auto">
           <h1 className="font-medium text-[36px] text-center">Welcome Back</h1>
 
           <div className="flex flex-col gap-y-4 pb-10">
