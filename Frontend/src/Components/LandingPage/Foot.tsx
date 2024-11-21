@@ -1,9 +1,9 @@
-import Img from "../../assets/footer.avif";
+import img6 from "../../assets/img6.png";
 
 const Foot = () => {
 	return (
 		<div className="bg-[#001829] px-5 mb-10 py-16">
-			<div className="max-w-[1240px] mx-auto grid lg:gap-x-10 lg:grid-cols-2">
+			<div className="max-w-[1240px] mx-auto flex items-center justify-center gap-10">
 				<div className="space-y-5 ">
 					<h2 className="text-white text-[32px] leading-[35px] lg:text-[45px] lg:leading-[45px] font-semibold lg:w-fit">
 						Accuracy and speed unmatched
@@ -14,7 +14,7 @@ const Foot = () => {
 							placeholder="Enter your email address"
 							type="email"
 						/>
-						<button className="px-5 py-2.5   rounded-[5px] bg-green-400 font-semibold">
+						<button className="px-5 py-2.5   rounded-[5px] bg-yellow-300 font-semibold">
 							Get started
 						</button>
 					</div>
@@ -24,7 +24,7 @@ const Foot = () => {
 						</p>
 					</div>
 				</div>
-				<img className="lg:block hidden" src={Img} alt="" />
+				<img className="lg:block hidden object-fit w-[50%]" src={img6} alt="" />
 			</div>
 		</div>
 	);
