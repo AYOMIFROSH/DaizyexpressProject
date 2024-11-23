@@ -13,3 +13,8 @@
 .antd-error{
 	color: red;
 }
+
+.sidebar {
+	border-top-left-radius: 50px;
+	border-bottom-left-radius: 50px;
+}
