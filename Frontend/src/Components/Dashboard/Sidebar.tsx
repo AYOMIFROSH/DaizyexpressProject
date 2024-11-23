@@ -18,7 +18,7 @@ type SideLink = {
 
 const Sidebar = () => {
 
-  const SideLink = [
+  const SideLink: SideLink[]  = [
     {
       id: 1,
       name: "Dashboard",
