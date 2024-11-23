@@ -12,6 +12,12 @@ import AdminPages from "./Pages/AuthorizedPages/AdminPages.tsx";
 import LandingPage from "./Pages/LandingPage.tsx";
 import ForgottenPwd from "./Pages/ForgottenPwd.tsx";
 import Dashboard from "./Pages/Dashboard.tsx";
+import JobsPage from "./Pages/JobsPage.tsx";
+import CompanyPage from "./Pages/CompanyPage.tsx";
+import ServerPage from "./Pages/ServerPage.tsx";
+import InvoicePage from "./Pages/InvoicePage.tsx";
+import Court from "./Pages/Court.tsx";
+import Account from "./Pages/Account.tsx";
 
 
 function AppRouter() {
@@ -46,9 +52,34 @@ function AppRouter() {
 					path: "/admin",
 					element: isAuthenticated && userRole === "admin" ? <AdminPages /> : <Navigate to={isAuthenticated ? "/user" : "/login"} />,
 				},
+				// 
 				{
 					path: "/dashboard",
 					element: <Dashboard />,
+				},
+				{
+					path: "/jobs",
+					element: <JobsPage />,
+				},
+				{
+					path: "/company",
+					element: <CompanyPage />,
+				},
+				{
+					path: "/server",
+					element: <ServerPage />,
+				},
+				{
+					path: "/invoice",
+					element: <InvoicePage />,
+				},
+				{
+					path: "/court",
+					element: <Court />,
+				},
+				{
+					path: "/account",
+					element: <Account />,
 				},
 			],
 		},
