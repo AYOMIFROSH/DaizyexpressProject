@@ -66,7 +66,7 @@ const Sidebar = () => {
     isActive ? "flex items-center px-6 max-sm:px-3 max-sm:py-2 bg-[#407BBB] py-4 ml-5 max-sm:ml-1 sidebar" : "flex items-center px-6 max-sm:px-3 max-sm:py-2 ml-5 max-sm:ml-1 rounded-lg";
 
   return (
-    <div className='flex-1'>
+    <div className=''>
       <aside className='sticky top-0 left-0 z-40 w-64 h-screen bg-[#1F64AE] border-r border-gray-200 max-md:w-60 max-sm:w-[60px]'>
         <div className='h-full pb-4 overflow-y-auto'>
           <div className="flex items-center justify-between">
