@@ -15,7 +15,7 @@ type PieChatProps = {
 // Register required components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const PieChart: React.FC<PieChatProps> = ({ title }) => {
+const Metrics: React.FC<PieChatProps> = ({ title }) => {
   // dummy data 
   const data = {
     labels: [],
@@ -43,7 +43,7 @@ const PieChart: React.FC<PieChatProps> = ({ title }) => {
   };
 
   return (
-    <div style={{ width: "200px", margin: "auto" }}>
+    <div style={{ width: "150px", margin: "auto" }}>
       <h2 className="text-center">{title}</h2>
       <Pie data={data} />
       <Link to="/jobs"><p className="text-center mt-3">view jobs</p></Link>
@@ -51,4 +51,4 @@ const PieChart: React.FC<PieChatProps> = ({ title }) => {
   );
 };
 
-export default PieChart;
+export default Metrics;

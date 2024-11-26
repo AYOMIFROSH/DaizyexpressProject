@@ -1,8 +1,6 @@
-
-
 const Main = ({ children } : {children : any}) => {
   return (
-    <div className="bg-white px-4">{children}</div>
+    <div className="bg-white px-12 flex flex-col flex-1">{children}</div>
   )
 }
 
