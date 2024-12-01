@@ -18,7 +18,7 @@ const Analytic = () => {
             </div>
             <div className="flex items-center justify-center my-10">
             <Link to="/document" className="px-5 py-2.5 rounded-[5px] bg-yellow-300 text-white font-semibold">
-				How it works
+				View All
 			</Link>
             </div>
         </div>

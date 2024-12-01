@@ -11,7 +11,6 @@ import UserPages from "./Pages/AuthorizedPages/UserPage.tsx";
 import AdminPages from "./Pages/AuthorizedPages/AdminPages.tsx";
 import LandingPage from "./Pages/LandingPage.tsx";
 import ForgottenPwd from "./Pages/ForgottenPwd.tsx";
-import Account from "./Pages/Account.tsx";
 import UploadPage from "./Pages/AuthorizedPages/UploadPage.tsx";
 import DocumentPage from "./Pages/AuthorizedPages/DocumentPage.tsx";
 
@@ -52,10 +51,6 @@ function AppRouter() {
 				{
 					path: "/user",
 					element: <UserPages />
-				},
-				{
-					path: "/account",
-					element: <Account />,
 				},
 				{
 					path: "/upload",

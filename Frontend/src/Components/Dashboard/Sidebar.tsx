@@ -4,7 +4,6 @@ import { NavLink } from "react-router-dom"
 import { AiFillDashboard } from "react-icons/ai";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { FaFileUpload } from "react-icons/fa";
-import { FaCircleUser } from "react-icons/fa6";
 
 type SideLink = {
   id: number;
@@ -34,12 +33,6 @@ const Sidebar = () => {
       path: "/upload",
       icon: <FaFileUpload />
     },
-    {
-      id: 4,
-      name: "My Account",
-      path: "/account",
-      icon: <FaCircleUser />
-    },
   ]
   const linkclass = ({ isActive }: {isActive: boolean}) =>
     isActive ? "flex items-center px-6 max-sm:px-3 max-sm:py-2 py-4 ml-5 max-sm:ml-1 sidebar" : "flex items-center px-6 max-sm:px-3 max-sm:py-2 ml-5 max-sm:ml-1 rounded-lg";
@@ -50,7 +43,7 @@ const Sidebar = () => {
         <div className='h-full pb-4 overflow-y-auto'>
          
           <div className='bg-[#407BBB] h-[1px] w-full mb-10'/>
-          <ul className="list-none flex flex-col gap-10 mt-28">
+          <ul className="list-none flex flex-col gap-10 mt-36">
             {SideLink.map(({name, id, path, icon})=>(
               <NavLink to={path} key={id} className={linkclass}>
                 <span className='text-2xl mr-4 text-white font-bold '>{icon}</span>
