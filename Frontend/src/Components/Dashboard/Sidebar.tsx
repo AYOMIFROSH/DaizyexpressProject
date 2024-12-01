@@ -19,7 +19,7 @@ const Sidebar = () => {
     {
       id: 1,
       name: "Dashboard",
-      path: "/dashboard",
+      path: "/user",
       icon: <AiFillDashboard />
     },
     {
@@ -50,7 +50,7 @@ const Sidebar = () => {
         <div className='h-full pb-4 overflow-y-auto'>
          
           <div className='bg-[#407BBB] h-[1px] w-full mb-10'/>
-          <ul className="list-none flex flex-col gap-7">
+          <ul className="list-none flex flex-col gap-10 mt-28">
             {SideLink.map(({name, id, path, icon})=>(
               <NavLink to={path} key={id} className={linkclass}>
                 <span className='text-2xl mr-4 text-white font-bold '>{icon}</span>

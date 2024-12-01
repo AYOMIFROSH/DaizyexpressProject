@@ -10,7 +10,8 @@ interface DataType {
   fileUrl?: string;
 }
 
-const App: React.FC = () => {
+
+const App  = ({isHome}: {isHome : boolean}) => {
   const data: DataType[] = [
     {
       key: "1",
@@ -82,7 +83,7 @@ const App: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 bg-gray-100 mt-10 min-w-[1000px] max-sm:min-w-[150px]">
+    <div className={`${isHome ? "mt-36" : "mt-10"} p-6 bg-gray-100  min-w-[1000px] max-sm:min-w-[150px]`}>
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Document Table</h2>
       <Table
         dataSource={data}
