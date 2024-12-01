@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
 
 const UploadForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
+
+  // Ref for file input
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -13,21 +16,31 @@ const UploadForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
+
+    // Form submission logic
     console.log("Name:", name);
     console.log("File:", file);
-    toast.success("your document have been successfully uploaded, you will get notification once it has been processed")
-    setName("")
-    setFile(null)
+    toast.success(
+      "Your document has been successfully uploaded. You will get a notification once it has been processed."
+    );
+
+    // Clear input fields
+    setName("");
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear file input
+    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 w-full">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-[500px] bg-white p-6 rounded-lg shadow-md h-[auto]"
+        className="w-full max-w-[500px] bg-white p-6 rounded-lg shadow-md h-auto"
       >
-        <h2 className="text-2xl font-bold  text-gray-800 text-center mb-16">Upload A Document</h2>
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-16">
+          Upload A Document
+        </h2>
 
         {/* Name Field */}
         <div className="mb-10">
@@ -61,6 +74,7 @@ const UploadForm: React.FC = () => {
             id="file"
             name="file"
             onChange={handleFileChange}
+            ref={fileInputRef} // Attach the ref
             className="mt-1 block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
               file:rounded-full file:border-0
@@ -76,7 +90,7 @@ const UploadForm: React.FC = () => {
           type="submit"
           className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
         >
-          Submit
+          Upload
         </button>
       </form>
     </div>
