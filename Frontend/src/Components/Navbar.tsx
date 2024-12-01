@@ -43,8 +43,7 @@ const Navbar = () => {
 
   return (
     <div
-      className={`lg:px-10 fixed pr-5 top-0 duration-500 z-[9999] ${color} left-0 w-full flex items-center justify-between`}
-    >
+      className={`lg:px-10 fixed pr-5 top-0 duration-500 z-[9999] ${color} left-0 w-full flex items-center justify-between`}>
       <img className="lg:w-[180px] h-[60px] lg:h-full" src={Logo} alt="" />
       <HiOutlineMenuAlt4
         onClick={() => setNav(true)}
