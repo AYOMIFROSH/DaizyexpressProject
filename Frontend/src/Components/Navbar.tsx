@@ -70,7 +70,7 @@ const Navbar = () => {
             Log in
           </button>
           <button
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/register")}
             className="px-5 py-2.5 rounded-[5px] bg-yellow-300 font-semibold"
           >
             Get started
