@@ -1,14 +1,14 @@
-import Analytic from "../../Components/Dashboard/Analytic";
-import Sidebar from "../../Components/Dashboard/Sidebar";
-import Top from "../../Components/Dashboard/Top";
+import Analytic from "../../Components/DashboardUser/Analytic";
+import Sidebar from "../../Components/Sidebar";
+import Top from "../../Components/Top";
 
 
 const UserPage = () => {
     return (
       <>
-        <Top />
+        <Top isAdmin={false} />
         <div className="flex ">
-          <Sidebar />
+          <Sidebar isAdmin = {false} />
           <Analytic />
         </div>
         

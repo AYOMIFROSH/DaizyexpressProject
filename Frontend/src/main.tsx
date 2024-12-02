@@ -35,21 +35,25 @@ function AppRouter() {
 					path: "/login",
 					element: !isAuthenticated ? <Login /> : userRole === "admin" ? <Navigate to="/admin" /> : <Navigate to="/user" />,
 				},
-				{
-					path: "/register",
-					element: !isAuthenticated ? <SignUp /> : userRole === "admin" ? <Navigate to="/admin" /> : <Navigate to="/user" />,
-				},
+				// {
+				// 	path: "/register",
+				// 	element: !isAuthenticated ? <SignUp /> : userRole === "admin" ? <Navigate to="/admin" /> : <Navigate to="/user" />,
+				// },
 				// {
 				// 	path: "/user",
 				// 	element: isAuthenticated && userRole === "user" ? <UserPages /> : <Navigate to={isAuthenticated ? "/admin" : "/login"} />,
 				// },
 				{
 					path: "/admin",
-					element: isAuthenticated && userRole === "admin" ? <AdminPages /> : <Navigate to={isAuthenticated ? "/user" : "/login"} />,
+					element: <AdminPages />,
 				},
-				// 
+				//
 				{
-					path: "/user",
+					path: "/register",
+					element: !isAuthenticated ? <SignUp /> : userRole === "admin" ? <Navigate to="/admin" /> : <Navigate to="/user" />,
+				}, 
+				{
+					path: "/userdashboard",
 					element: <UserPages />
 				},
 				{

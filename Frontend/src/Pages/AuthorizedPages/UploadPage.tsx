@@ -1,6 +1,6 @@
-import Sidebar from "../../Components/Dashboard/Sidebar"
-import Top from "../../Components/Dashboard/Top"
-import UploadForm from "../../Components/Dashboard/UploadForm"
+import Sidebar from "../../Components/Sidebar"
+import Top from "../../Components/Top"
+import UploadForm from "../../Components/DashboardUser/UploadForm"
 
 const UploadPage = () => {
   return (

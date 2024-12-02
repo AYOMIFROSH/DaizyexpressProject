@@ -1,6 +1,6 @@
-import Sidebar from "../../Components/Dashboard/Sidebar"
-import Top from "../../Components/Dashboard/Top"
-import Table from "../../Components/Table"
+import Sidebar from "../../Components/Sidebar"
+import Top from "../../Components/Top"
+import Table from "../../Components/DashboardUser/Table"
 
 const DocumentPage = () => {
   return (
