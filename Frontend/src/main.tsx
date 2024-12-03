@@ -14,6 +14,7 @@ import ForgottenPwd from "./Pages/ForgottenPwd.tsx";
 import UploadPage from "./Pages/AuthorizedPages/UploadPage.tsx";
 import DocumentPage from "./Pages/AuthorizedPages/DocumentPage.tsx";
 import TotalDocuments from "./Pages/AuthorizedPages/TotalDocuments.tsx";
+import ManageUsers from "./Pages/AuthorizedPages/ManageUserss.tsx";
 
 
 function AppRouter() {
@@ -68,6 +69,10 @@ function AppRouter() {
 				{
 					path: "/totaldocuments",
 					element: <TotalDocuments />,
+				},
+				{
+					path: "/manageusers",
+					element: <ManageUsers />,
 				},
 			],
 		},

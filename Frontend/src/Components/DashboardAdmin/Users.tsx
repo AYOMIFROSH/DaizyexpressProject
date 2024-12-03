@@ -1,109 +1,82 @@
-import { Table, Button } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
-interface DataType {
-  key: string;
+interface User {
+  id: number;
   name: string;
-  date: string;
-  status: string;
-  fileUrl?: string;
+  email: string;
+  document: number
+
 }
 
+const data: User[] = [
+  { id: 1, name: "Gerald Brain",  email: "gerald@gmail.com", document: 9},
+  { id: 2, name: "John Smith",  email: "admin@gmail.com", document:8 },
+  { id: 3, name: "Faruq Oloyede", email: "faruq@gmail.com", document:4 },
+ 
+];
 
-const Users  = () => {
-  const data: DataType[] = [
-    {
-      key: "1",
-      name: "faruq oloyede",
-      date: "30-11-2024 10:00am",
-      status: "Processed",
-      fileUrl: "https://example.com/document1.pdf",
-    },
-    {
-      key: "2",
-      name: "john doe",
-      date: "29-11-2024 9:20pm",
-      status: "Not Processed",
-    },
-    {
-      key: "3",
-      name: "Legal 2",
-      date: "29-11-2024 9:20pm",
-      status: "Not Processed",
-    },
-    {
-      key: "2",
-      name: "Legal 2",
-      date: "29-11-2024 9:20pm",
-      status: "Not Processed",
-    },
-  ];
+const Users: React.FC = () => {
+  const [searchText, setSearchText] = useState("");
 
-  const columns = [
-    {
-      title: "File Name",
-      dataIndex: "name",
-      key: "name",
-      render: (name: string) => (
-        <span className="text-gray-800 font-medium text-[18px] mb-10">{name}</span>
-      ),
-    },
-    {
-      title: "Date and Time",
-      dataIndex: "date",
-      key: "date",
-      render: (date: string) => (
-        <span className="text-gray-600 text-sm">{date}</span>
-      ),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <span
-          className={`px-3 py-1 rounded-full font-semibold text-sm ${
-            status === "Processed"
-              ? "bg-green-100 text-green-600"
-              : "bg-red-100 text-red-600"
-          }`}
-        >
-          {status}
-        </span>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: DataType) => (
-        <Button
-          type="link"
-          icon={<DownloadOutlined />}
-          disabled={!record.fileUrl}
-          className="text-blue-500"
-          onClick={() => {
-            if (record.fileUrl) {
-              window.open(record.fileUrl, "_blank");
-            }
-          }}
-        >
-          Download
-        </Button>
-      ),
-    },
-  ];
+  const filteredData = data.filter((user) =>
+    Object.values(user).join(" ").toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
-    <div className=" px-16 mt-10 p-6 bg-gray-100  min-w-[1000px] max-sm:min-w-[150px]">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Users</h2>
-      <Table
-        dataSource={data}
-        columns={columns}
-        pagination={{ pageSize: 5 }}
-        className="rounded-lg shadow overflow-hidden bg-white w-full"
-      />
+    <div className="p-8 bg-gray-100 min-h-screen mt-32 mx-32 w-[1000px]">
+      <div className="flex items-center justify-between">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Users</h1>
+
+<div className="mb-4">
+  <input
+    type="text"
+    placeholder="Search..."
+    value={searchText}
+    onChange={(e) => setSearchText(e.target.value)}
+    className="w-full max-w-sm px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+  />
+</div>
+
+      </div>
+
+      <div className="overflow-x-auto bg-white rounded-lg shadow-lg ">
+        <table className="w-full table-auto text-left border-collapse">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="px-4 py-2 border border-gray-300">#</th>
+              <th className="px-4 py-2 border border-gray-300">Name</th>
+              <th className="px-4 py-2 border border-gray-300">Email</th>
+              <th className="px-4 py-2 border border-gray-300">NO. of Doc Uploaded</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.length > 0 ? (
+              filteredData.map((user, index) => (
+                <tr
+                  key={user.id}
+                  className={`hover:bg-gray-100 ${
+                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                  }`}
+                >
+                  <td className="px-4 py-2 border border-gray-300">{user.id}</td>
+                  <td className="px-4 py-2 border border-gray-300"><Link to={`userdetails${user.id}`}>{user.name}</Link></td>
+                  <td className="px-4 py-2 border border-gray-300">{user.email}</td>
+                  <td className="px-4 py-2 border border-gray-300 text-center">{user.document}</td>
+                  
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="px-4 py-2 text-center border border-gray-300">
+                  No users found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
-    
   );
 };
 
