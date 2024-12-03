@@ -5,9 +5,9 @@ import UploadForm from "../../Components/DashboardUser/UploadForm"
 const UploadPage = () => {
   return (
     <>
-        <Top />
+        <Top isAdmin={false} />
         <div className="flex">
-            <Sidebar />
+            <Sidebar isAdmin={false} />
             <UploadForm />
         </div>
 

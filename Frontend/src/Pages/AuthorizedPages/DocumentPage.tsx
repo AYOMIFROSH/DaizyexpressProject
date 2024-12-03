@@ -5,9 +5,9 @@ import Table from "../../Components/DashboardUser/Table"
 const DocumentPage = () => {
   return (
     <>
-    <Top />
+    <Top isAdmin={false} />
     <div className="flex">
-        <Sidebar />
+        <Sidebar isAdmin={false} />
         <Table isHome = {true} />
     </div>
     </>
