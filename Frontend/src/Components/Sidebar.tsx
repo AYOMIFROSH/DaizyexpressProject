@@ -30,7 +30,7 @@ const Sidebar = ({isAdmin}: {isAdmin : boolean}) => {
     {
       id: 3,
       name: isAdmin ? "Users" : "Create",
-      path: isAdmin ? "/users" : "/upload",
+      path: isAdmin ? "/manageusers" : "/upload",
       icon: isAdmin ?<FaUsers /> : <FaFileUpload />
     },
   ]

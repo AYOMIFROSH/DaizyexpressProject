@@ -1,17 +1,17 @@
-import DocumentsDetails from "../../Components/DashboardAdmin/DocumentsDetails"
+import Users from "../../Components/DashboardAdmin/Users"
 import Sidebar from "../../Components/Sidebar"
 import Top from "../../Components/Top"
 
-const TotalDocuments = () => {
+const ManageUsers = () => {
   return (
     <div className="bg-gray-100">
         <Top isAdmin={true} />
         <div className="flex">
             <Sidebar isAdmin={true} />
-            <DocumentsDetails />
+            <Users />
         </div>
     </div>
   )
 }
 
-export default TotalDocuments
+export default ManageUsers
