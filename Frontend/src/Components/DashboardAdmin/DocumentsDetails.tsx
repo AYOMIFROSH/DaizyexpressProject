@@ -67,7 +67,7 @@ const App: React.FC = () => {
                 >
                   <td className="px-4 py-2 border border-gray-300">{user.id}</td>
                   <td className="px-4 py-2 border border-gray-300">{user.title}</td>
-                  <td className="px-4 py-2 border border-gray-300"><Link to="/users">{user.user}</Link></td>
+                  <td className="px-4 py-2 border border-gray-300"><Link to={`/userdetails/${user.id}`}>{user.user}</Link></td>
                   <td className="px-4 py-2 border border-gray-300">{user.Date}</td>
                   <td className={`px-4 py-2 border border-gray-300 ${user.status === "processed" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>{user.status}</td>
                 </tr>

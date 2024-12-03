@@ -15,6 +15,7 @@ import UploadPage from "./Pages/AuthorizedPages/UploadPage.tsx";
 import DocumentPage from "./Pages/AuthorizedPages/DocumentPage.tsx";
 import TotalDocuments from "./Pages/AuthorizedPages/TotalDocuments.tsx";
 import ManageUsers from "./Pages/AuthorizedPages/ManageUserss.tsx";
+import UserDetails from "./Pages/AuthorizedPages/UserDetails.tsx";
 
 
 function AppRouter() {
@@ -73,6 +74,10 @@ function AppRouter() {
 				{
 					path: "/manageusers",
 					element: <ManageUsers />,
+				},
+				{
+					path: "/userdetails/:id",
+					element: <UserDetails />,
 				},
 			],
 		},
