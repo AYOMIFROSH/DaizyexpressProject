@@ -9,8 +9,7 @@ interface DataType {
   fileUrl?: string;
 }
 
-
-const App  = ({isHome}: {isHome : boolean}) => {
+const App = ({ isHome }: { isHome: boolean }) => {
   const data: DataType[] = [
     {
       key: "1",
@@ -33,7 +32,7 @@ const App  = ({isHome}: {isHome : boolean}) => {
       dataIndex: "name",
       key: "name",
       render: (name: string) => (
-        <span className="text-gray-800 font-medium text-[18px] mb-10">{name}</span>
+        <span className="text-gray-800 font-medium text-base sm:text-lg">{name}</span>
       ),
     },
     {
@@ -41,7 +40,7 @@ const App  = ({isHome}: {isHome : boolean}) => {
       dataIndex: "date",
       key: "date",
       render: (date: string) => (
-        <span className="text-gray-600 text-sm">{date}</span>
+        <span className="text-gray-600 text-sm sm:text-base">{date}</span>
       ),
     },
     {
@@ -50,7 +49,7 @@ const App  = ({isHome}: {isHome : boolean}) => {
       key: "status",
       render: (status: string) => (
         <span
-          className={`px-3 py-1 rounded-full font-semibold text-sm ${
+          className={`px-3 py-1 rounded-full font-semibold text-sm sm:text-base ${
             status === "Processed"
               ? "bg-green-100 text-green-600"
               : "bg-red-100 text-red-600"
@@ -82,16 +81,19 @@ const App  = ({isHome}: {isHome : boolean}) => {
   ];
 
   return (
-    <div className={`${isHome ? "mt-52 px-16" : "mt-10"} p-6 bg-gray-100  min-w-[1000px] max-sm:min-w-[150px]`}>
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Document Table</h2>
-      <Table
-        dataSource={data}
-        columns={columns}
-        pagination={{ pageSize: 5 }}
-        className="rounded-lg shadow overflow-hidden bg-white w-full"
-      />
+    <div
+      className={`${isHome ? "mt-52 px-4 sm:px-16" : "mt-10"} p-4 sm:p-6 bg-gray-100 w-full max-sm:w-[250px]`}
+    >
+      <h2 className="text-[12px] sm:text-2xl font-bold text-gray-800 mb-4">Document Table</h2>
+      <div className="overflow-x-auto">
+        <Table
+          dataSource={data}
+          columns={columns}
+          pagination={{ pageSize: 5 }}
+          className="rounded-lg shadow  bg-white max-w-full max-sm:max-w-[250px] max-sm:overflow-scroll"
+        />
+      </div>
     </div>
-    
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { toast } from "react-toastify";
 
 interface User {
   id: number;
@@ -11,10 +12,10 @@ interface User {
 const initialData: User[] = [];
 
 const UserDocuments: React.FC = () => {
-  const [data, setData] = useState<User[]>(initialData); 
-  const [searchText, setSearchText] = useState(""); 
-  const [documentTitle, setDocumentTitle] = useState(""); 
-  const [file, setFile] = useState<File | null>(null); 
+  const [data, setData] = useState<User[]>(initialData);
+  const [searchText, setSearchText] = useState("");
+  const [documentTitle, setDocumentTitle] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +25,7 @@ const UserDocuments: React.FC = () => {
         setFile(selectedFile);
       } else {
         alert("Please upload a valid PDF file!");
-        if (fileInputRef.current) fileInputRef.current.value = ""; 
+        if (fileInputRef.current) fileInputRef.current.value = "";
         setFile(null);
       }
     }
@@ -33,17 +34,19 @@ const UserDocuments: React.FC = () => {
   const handleFileUpload = () => {
     if (file && documentTitle) {
       const newDocument: User = {
-        id: data.length + 1, 
-        title: documentTitle, 
-        documentBlob: new Blob([file], { type: file.type }), 
-        Date: new Date().toLocaleDateString(), 
-        status: "processed", 
+        id: data.length + 1,
+        title: documentTitle,
+        documentBlob: new Blob([file], { type: file.type }),
+        Date: new Date().toLocaleDateString(),
+        status: "processed",
+  
       };
+      toast.success("file processed")
 
-      setData([...data, newDocument]); 
-      setFile(null); 
-      setDocumentTitle(""); 
-      if (fileInputRef.current) fileInputRef.current.value = ""; 
+      setData([...data, newDocument]);
+      setFile(null);
+      setDocumentTitle("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } else {
       alert("Please provide a document title and select a PDF file to upload!");
     }
@@ -53,7 +56,7 @@ const UserDocuments: React.FC = () => {
     const url = window.URL.createObjectURL(documentBlob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${title}.pdf`; 
+    link.download = `${title}.pdf`;
     link.click();
     window.URL.revokeObjectURL(url);
   };
@@ -63,22 +66,20 @@ const UserDocuments: React.FC = () => {
   );
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen mt-32 mx-24">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Documents</h1>
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            className="w-full max-w-sm px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-          />
-        </div>
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen mt-12 sm:mt-16 lg:mt-20 max-sm:w-[400px] w-full">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Documents</h1>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          className="w-full sm:w-1/2 lg:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+        />
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
-        <table className="w-[800px] table-auto text-left border-collapse">
+      <div className="overflow-x-auto mt-6 bg-white rounded-lg shadow-lg">
+        <table className="w-full table-auto text-left border-collapse">
           <thead className="bg-gray-200">
             <tr>
               <th className="px-4 py-2 border border-gray-300">#</th>
@@ -121,7 +122,10 @@ const UserDocuments: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-2 text-center border border-gray-300">
+                <td
+                  colSpan={5}
+                  className="px-4 py-2 text-center border border-gray-300"
+                >
                   No documents found
                 </td>
               </tr>
@@ -130,34 +134,23 @@ const UserDocuments: React.FC = () => {
         </table>
       </div>
 
-      <div className="my-6">
-        <label htmlFor="documentTitle" className="block text-sm font-medium text-gray-700">
-          Document Title
-        </label>
+      <div className="mt-8 space-y-4">
         <input
           type="text"
           id="documentTitle"
           value={documentTitle}
           onChange={(e) => setDocumentTitle(e.target.value)}
-          className="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
           placeholder="Enter document title"
         />
-        <label htmlFor="file" className="block text-sm font-medium text-gray-700 mt-4">
-          Upload PDF File
-        </label>
         <input
           type="file"
           id="file"
           name="file"
           onChange={handleFileChange}
-          ref={fileInputRef} 
-          className="mt-1 block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-full file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-gray-700
-            hover:file:bg-blue-100"
-          accept="application/pdf" 
+          ref={fileInputRef}
+          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-gray-700 hover:file:bg-blue-100"
+          accept="application/pdf"
         />
         <button
           onClick={handleFileUpload}

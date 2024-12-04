@@ -13,8 +13,8 @@ const UserDetails = () => {
           <Sidebar isAdmin ={true} />
             <div className="flex flex-col items-start mt-32 px-12">
                 <h2 className="mb-10 text-[#5A5C69] font-bold text-[20px]">profile</h2>
-                <div className="flex items-center justify-between  gap-52 w-full">
-                    <Avatar size={200} icon={<UserOutlined />}></Avatar>
+                <div className="flex items-center justify-between  gap-52 w-full max-sm:flex-col max-sm:gap-5 max-sm:items-center">
+                    <Avatar size={100} icon={<UserOutlined />}></Avatar>
                     <div className="flex flex-col items-center">
                         <p className="font-bold text-[18px]">Name</p>
                         <span className="text-[#5A5C69] text-[16px]">Faruq</span>
