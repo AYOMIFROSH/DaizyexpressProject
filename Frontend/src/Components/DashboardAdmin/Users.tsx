@@ -22,7 +22,7 @@ const Users: React.FC = () => {
   );
 
   return (
-    <div className="p-4 sm:p-8 bg-gray-100 min-h-screen">
+    <div className="p-4 sm:p-8 bg-gray-100 min-h-screen mt-32 w-full">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Users</h1>
@@ -36,7 +36,7 @@ const Users: React.FC = () => {
       </div>
 
       {/* Table Section */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
+      <div className="overflow-x-auto bg-white rounded-lg shadow-lg mt-10 max-sm:max-w-[300px] max-w-full">
         <table className="min-w-full table-auto text-left border-collapse">
           <thead className="bg-gray-200">
             <tr>

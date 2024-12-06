@@ -66,7 +66,7 @@ const UserDocuments: React.FC = () => {
   );
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen mt-12 sm:mt-16 lg:mt-20 max-sm:w-[400px] w-full">
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen mt-12 sm:mt-16 lg:mt-20 max-sm:w-[320px] w-full">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Documents</h1>
         <input

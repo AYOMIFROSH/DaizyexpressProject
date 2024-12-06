@@ -40,7 +40,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Table Section */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow-lg">
+      <div className="overflow-x-auto bg-white rounded-lg shadow-lg  max-lg:w-[300px] w-full">
         <table className="min-w-[1000px] max-sm:min-w-full table-auto text-left border-collapse max-sm:overflow-scroll">
           <thead className="bg-gray-200">
             <tr>
