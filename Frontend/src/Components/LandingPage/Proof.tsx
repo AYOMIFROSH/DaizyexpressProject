@@ -32,7 +32,7 @@ const Proof = () => {
 								<div className="text-white flex flex-col items-start ">
 									<p className="text-white text-[18px]">10 min read</p>
 									<p className="capitalize text-[32px] font-semibold leading-[40px]">
-										What does Daizy Express actually do?
+										What does Deizyexpress actually do?
 									</p>
 									<p className="border-b-4 border-yellow-500 cursor-pointer font-semibold hover:border-black  duration-500">
 										Read More
