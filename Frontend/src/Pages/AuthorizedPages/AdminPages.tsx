@@ -5,13 +5,12 @@ import Top from "../../Components/Top";
 
 const AdminPages = () => {
     return (
-      <div className="bg-[#FAFDFB]">
+      <div className="bg-gray-100">
         <Top isAdmin={true} />
         <div className="flex ">
           <Sidebar isAdmin ={true} />
           <Analytic />
         </div>
-        
       </div>
     )
   }

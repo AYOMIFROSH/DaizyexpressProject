@@ -9,7 +9,9 @@ const UserPage = () => {
         <Top isAdmin={false} />
         <div className="flex ">
           <Sidebar isAdmin = {false} />
+          <div className="flex flex-col">
           <Analytic />
+          </div>
         </div>
         
       </>

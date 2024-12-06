@@ -82,7 +82,7 @@ const App = ({ isHome }: { isHome: boolean }) => {
 
   return (
     <div
-      className={`${isHome ? "mt-52 px-4 sm:px-16" : "mt-10"} p-4 sm:p-6 bg-gray-100 w-full max-sm:w-[250px]`}
+      className={`${isHome ? "mt-32 px-4 sm:px-16" : "mt-10"} p-4 sm:p-6 bg-gray-100 w-full max-sm:w-full`}
     >
       <h2 className="text-[12px] sm:text-2xl font-bold text-gray-800 mb-4">Document Table</h2>
       <div className="overflow-x-auto">
@@ -90,7 +90,7 @@ const App = ({ isHome }: { isHome: boolean }) => {
           dataSource={data}
           columns={columns}
           pagination={{ pageSize: 5 }}
-          className="rounded-lg shadow  bg-white max-w-full max-sm:max-w-[250px] max-sm:overflow-scroll"
+          className="rounded-lg shadow  bg-white max-w-full max-sm:max-w-full max-sm:overflow-scroll"
         />
       </div>
     </div>

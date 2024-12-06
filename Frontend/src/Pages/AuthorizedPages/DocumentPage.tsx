@@ -8,7 +8,9 @@ const DocumentPage = () => {
     <Top isAdmin={false} />
     <div className="flex">
         <Sidebar isAdmin={false} />
-        <Table isHome = {true} />
+        <div className="flex flex-col">
+          <Table isHome = {true} />
+        </div>
     </div>
     </>
   )
