@@ -23,7 +23,7 @@ type SideLink = {
 
  const Top = ({isAdmin} : {isAdmin: boolean}) => {
   const [toggle, setToggle] =  useState(false)
-  const [name, setName] = useState("faruq oloyede")
+  const [name] = useState("faruq oloyede")
   const navigate = useNavigate();
 
   const SideLink: SideLink[]  = [
