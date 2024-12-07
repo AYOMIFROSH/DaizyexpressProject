@@ -36,3 +36,6 @@
 	margin-top: 0;
 }
 
+.sidenav {
+	transition: .3s ease-in-out;
+}

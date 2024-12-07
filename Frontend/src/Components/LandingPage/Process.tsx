@@ -7,7 +7,7 @@ const Process = () => {
       <div className="max-w-[1240px]  grid gap-y-7 lg:grid-cols-2 mx-auto">
         <div className="flex flex-col lg:w-[85%] items-start gap-y-4 lg:gap-y-6 justify-center pl-6">
           <h2 className="text-yellow-300 font-semibold text-2xl lg:text-3xl">
-            Why choose Daizey Express?
+            Why choose Deizyexpress?
           </h2>
         
 

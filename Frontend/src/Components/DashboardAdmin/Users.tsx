@@ -5,15 +5,13 @@ interface User {
   id: number;
   name: string;
   email: string;
-  document: number
-
+  document: number;
 }
 
 const data: User[] = [
-  { id: 1, name: "Gerald Brain",  email: "gerald@gmail.com", document: 9},
-  { id: 2, name: "John Smith",  email: "admin@gmail.com", document:8 },
-  { id: 3, name: "Faruq Oloyede", email: "faruq@gmail.com", document:4 },
- 
+  { id: 1, name: "Gerald Brain", email: "gerald@gmail.com", document: 9 },
+  { id: 2, name: "John Smith", email: "admin@gmail.com", document: 8 },
+  { id: 3, name: "Faruq Oloyede", email: "faruq@gmail.com", document: 4 },
 ];
 
 const Users: React.FC = () => {
@@ -24,30 +22,30 @@ const Users: React.FC = () => {
   );
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen mt-32 mx-32 w-[1000px]">
-      <div className="flex items-center justify-between">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Users</h1>
-
-<div className="mb-4">
-  <input
-    type="text"
-    placeholder="Search..."
-    value={searchText}
-    onChange={(e) => setSearchText(e.target.value)}
-    className="w-full max-w-sm px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-  />
-</div>
-
+    <div className="p-4 sm:p-8 bg-gray-100 min-h-screen mt-32 w-full">
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-0">Users</h1>
+        <input
+          type="text"
+          placeholder="Search..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          className="w-full sm:max-w-sm px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
+        />
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow-lg ">
-        <table className="w-full table-auto text-left border-collapse">
+      {/* Table Section */}
+      <div className="overflow-x-auto bg-white rounded-lg shadow-lg mt-10 max-sm:max-w-[300px] max-w-full">
+        <table className="min-w-full table-auto text-left border-collapse">
           <thead className="bg-gray-200">
             <tr>
-              <th className="px-4 py-2 border border-gray-300">#</th>
-              <th className="px-4 py-2 border border-gray-300">Name</th>
-              <th className="px-4 py-2 border border-gray-300">Email</th>
-              <th className="px-4 py-2 border border-gray-300">NO. of Doc Uploaded</th>
+              <th className="px-4 py-2 border border-gray-300 text-sm sm:text-base">#</th>
+              <th className="px-4 py-2 border border-gray-300 text-sm sm:text-base">Name</th>
+              <th className="px-4 py-2 border border-gray-300 text-sm sm:text-base">Email</th>
+              <th className="px-4 py-2 border border-gray-300 text-sm sm:text-base text-center">
+                NO. of Doc Uploaded
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -59,16 +57,31 @@ const Users: React.FC = () => {
                     index % 2 === 0 ? "bg-gray-50" : "bg-white"
                   }`}
                 >
-                  <td className="px-4 py-2 border border-gray-300">{user.id}</td>
-                  <td className="px-4 py-2 border border-gray-300"><Link to={`/userdetails/${user.id}`}>{user.name}</Link></td>
-                  <td className="px-4 py-2 border border-gray-300">{user.email}</td>
-                  <td className="px-4 py-2 border border-gray-300 text-center">{user.document}</td>
-                  
+                  <td className="px-4 py-2 border border-gray-300 text-sm sm:text-base">
+                    {user.id}
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300 text-sm sm:text-base">
+                    <Link
+                      to={`/userdetails/${user.id}`}
+                      className="text-blue-500 hover:underline"
+                    >
+                      {user.name}
+                    </Link>
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300 text-sm sm:text-base">
+                    {user.email}
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300 text-sm sm:text-base text-center">
+                    {user.document}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-2 text-center border border-gray-300">
+                <td
+                  colSpan={4}
+                  className="px-4 py-2 text-center border border-gray-300 text-sm sm:text-base"
+                >
                   No users found
                 </td>
               </tr>
