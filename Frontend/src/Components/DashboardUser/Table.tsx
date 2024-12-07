@@ -82,7 +82,7 @@ const App  = ({isHome}: {isHome : boolean}) => {
   ];
 
   return (
-    <div className={`${isHome ? "mt-52 px-16" : "mt-10"} p-6 bg-gray-100  min-w-[1000px] max-sm:min-w-[150px]`}>
+    <div className={`${isHome ? "mt-52 px-16" : "mt-10"} p-6 bg-gray-100  min-w-[950px] max-sm:min-w-[150px]`}>
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Document Table</h2>
       <Table
         dataSource={data}

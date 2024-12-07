@@ -18,7 +18,7 @@ const Sidebar = ({isAdmin}: {isAdmin : boolean}) => {
     {
       id: 1,
       name: "Dashboard",
-      path: isAdmin ? "/admin" : "/userdashboard",
+      path: isAdmin ? "/admin" : "/user",
       icon: <AiFillDashboard />
     },
     {

@@ -5,6 +5,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   userData: any;
   userRole: any;
+  isVerified: boolean;
   login: (newToken: string, newData: any) => void;
   logout: () => void;
 };
@@ -19,23 +20,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const storedData = JSON.parse(localStorage.getItem("user_data") || "null");
-  const [userRole, setUserRole] = useState(null);
-
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState<boolean>(false);
 
   useEffect(() => {
+    const storedData = JSON.parse(sessionStorage.getItem("user_data") || "null");
     if (storedData) {
       const { userToken, user } = storedData;
       setToken(userToken);
       setUserData(user);
       setIsAuthenticated(true);
       setUserRole(user.role);
-
+      setIsVerified(user.verified); // Load verified status from stored user data
     }
   }, []);
 
   const login = (newToken: string, newData: any) => {
-    localStorage.setItem(
+    sessionStorage.setItem(
       "user_data",
       JSON.stringify({ userToken: newToken, user: newData })
     );
@@ -43,20 +44,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUserData(newData);
     setIsAuthenticated(true);
     setUserRole(newData.role);
-
+    setIsVerified(newData.verified); // Update verified status
   };
 
   const logout = () => {
-    localStorage.removeItem("user_data");
+    sessionStorage.removeItem("user_data");
     setToken(null);
     setUserData(null);
     setIsAuthenticated(false);
     setUserRole(null);
-
+    setIsVerified(false);
   };
 
   return (
-    <AuthContext.Provider value={{ token, isAuthenticated, userData, login, logout, userRole }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        isAuthenticated,
+        userData,
+        userRole,
+        isVerified,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from "./Context/useContext.tsx";
 import "./index.css";
 import App from "./App.tsx";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
-// import Dashboard from "./Pages/Dashboard.tsx";
+// Importing Pages
 import Login from "./Pages/Login.tsx";
 import SignUp from "./Pages/SignUp.tsx";
 import UserPages from "./Pages/AuthorizedPages/UserPage.tsx";
@@ -16,80 +16,114 @@ import DocumentPage from "./Pages/AuthorizedPages/DocumentPage.tsx";
 import TotalDocuments from "./Pages/AuthorizedPages/TotalDocuments.tsx";
 import ManageUsers from "./Pages/AuthorizedPages/ManageUserss.tsx";
 import UserDetails from "./Pages/AuthorizedPages/UserDetails.tsx";
-
+import VerificationPage from "./Pages/AuthorizedPages/VerificationPage.tsx";
 
 function AppRouter() {
-	const { isAuthenticated, userRole } = useAuth();
+  const { isAuthenticated, userRole, isVerified } = useAuth();
 
-	const router = createBrowserRouter([
-		{
-			path: "/",
-			element: <App />,
-			children: [
-				{
-					path: "/",
-					element: <LandingPage />,
-				},
-				{
-					path: "/forgot",
-					element: <ForgottenPwd />,
-				},
-				{
-					path: "/login",
-					element: !isAuthenticated ? <Login /> : userRole === "admin" ? <Navigate to="/admin" /> : <Navigate to="/user" />,
-				},
-				// {
-				// 	path: "/register",
-				// 	element: !isAuthenticated ? <SignUp /> : userRole === "admin" ? <Navigate to="/admin" /> : <Navigate to="/user" />,
-				// },
-				// {
-				// 	path: "/user",
-				// 	element: isAuthenticated && userRole === "user" ? <UserPages /> : <Navigate to={isAuthenticated ? "/admin" : "/login"} />,
-				// },
-				{
-					path: "/admin",
-					element: <AdminPages />,
-				},
-				//
-				{
-					path: "/register",
-					element: !isAuthenticated ? <SignUp /> : userRole === "admin" ? <Navigate to="/admin" /> : <Navigate to="/user" />,
-				}, 
-				{
-					path: "/userdashboard",
-					element: <UserPages />
-				},
-				{
-					path: "/upload",
-					element: <UploadPage />,
-				},
-				{
-					path: "/document",
-					element: <DocumentPage />,
-				},
-				{
-					path: "/totaldocuments",
-					element: <TotalDocuments />,
-				},
-				{
-					path: "/manageusers",
-					element: <ManageUsers />,
-				},
-				{
-					path: "/userdetails/:id",
-					element: <UserDetails />,
-				},
-			],
-		},
-	]);
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <App />,
+      children: [
+        {
+          path: "/",
+          element: <LandingPage />,
+        },
+        {
+          path: "/forgot",
+          element: <ForgottenPwd />,
+        },
+        {
+          path: "/login",
+          element: !isAuthenticated ? (
+            <Login />
+          ) : isVerified ? (
+            userRole === "admin" ? (
+              <Navigate to="/admin" />
+            ) : (
+              <Navigate to="/user" />
+            )
+          ) : (
+            <Navigate to="/verify" />
+          ),
+        },
+        {
+          path: "/register",
+          element: !isAuthenticated ? <SignUp /> : <Navigate to="/verify" />,
+        },
+        {
+          path: "/verify",
+          element: !isAuthenticated || isVerified ? (
+            <Navigate to="/login" />
+          ) : (
+            <VerificationPage />
+          ),
+        },
+        {
+          path: "/user",
+          element: isAuthenticated && userRole === "user" ? (
+            isVerified ? (
+              <UserPages />
+            ) : (
+              <Navigate to="/verify" />
+            )
+          ) : (
+            <Navigate to={isAuthenticated ? "/admin" : "/login"} />
+          ),
+        },
+        {
+          path: "/admin",
+          element: isAuthenticated && userRole === "admin" ? (
+            isVerified ? (
+              <AdminPages />
+            ) : (
+              <Navigate to="/verify" />
+            )
+          ) : (
+            <Navigate to="/login" />
+          ),
+        },
+		
+        {
+          path: "/upload",
+          element: isAuthenticated && isVerified ? <UploadPage /> : <Navigate to="/verify" />,
+        },
+        {
+          path: "/document",
+          element: isAuthenticated && isVerified ? <DocumentPage /> : <Navigate to="/verify" />,
+        },
+        {
+          path: "/totaldocuments",
+          element: isAuthenticated && isVerified ? <TotalDocuments /> : <Navigate to="/verify" />,
+        },
+        {
+          path: "/manageusers",
+          element: isAuthenticated && isVerified && userRole === "admin" ? (
+            <ManageUsers />
+          ) : (
+            <Navigate to="/verify" />
+          ),
+        },
+        {
+          path: "/userdetails/:id",
+          element: isAuthenticated && isVerified && userRole === "admin" ? (
+            <UserDetails />
+          ) : (
+            <Navigate to="/verify" />
+          ),
+        },
+      ],
+    },
+  ]);
 
-	return <RouterProvider router={router} />;
+  return <RouterProvider router={router} />;
 }
 
 createRoot(document.getElementById("root")!).render(
-	<StrictMode>
-		<AuthProvider>
-			<AppRouter />
-		</AuthProvider>
-	</StrictMode>
+  <StrictMode>
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
+  </StrictMode>
 );

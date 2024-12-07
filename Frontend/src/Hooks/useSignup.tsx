@@ -21,7 +21,7 @@ const UseRegister = () => {
 
     try {
       setError(null);
-      setLoading(true); // Set loading to tr
+      setLoading(true);
 
       const res = await fetch(`http://localhost:3000/api/auth/signup`, {
         method: "POST",
@@ -34,16 +34,17 @@ const UseRegister = () => {
       const data = await res.json();
       if (res.status === 201) {
         message.success(data.message);
-        login(data.token, data.user); 
+        login(data.token, data.user); // Store token and user data in context
       } else if (res.status === 400) {
         setError(data.message);
       } else {
         message.error("Registration failed");
       }
     } catch (error: any) {
+      setError(error.message || "An error occurred during registration");
       message.error(error.message || "An error occurred during registration");
     } finally {
-      setLoading(false); // Ensure loading is set to false when request completes
+      setLoading(false);
     }
   };
 
@@ -51,3 +52,4 @@ const UseRegister = () => {
 };
 
 export default UseRegister;
+
