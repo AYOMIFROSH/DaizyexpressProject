@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const { v4: uuidv4 } = require('uuid'); // Corrected UUID import
+const { v4: uuidv4 } = require('uuid'); 
 const path = require('path');
 const User = require('../models/userModel');
 const UserVerification = require('../models/UserVerification');
@@ -24,13 +24,13 @@ const transporter = nodemailer.createTransport({
 });
 
 // TEST TRANSPORTER
-transporter.verify((error, success) => {
-    if (error) {
-        console.log('Transporter Error:', error);
-    } else {
-        console.log('Ready to send emails:', success);
-    }
-});
+// transporter.verify((error, success) => {
+//     if (error) {
+//         console.log('Transporter Error:', error);
+//     } else {
+//         console.log('Ready to send emails:', success);
+//     }
+// });
 
 // HELPER: SEND VERIFICATION EMAIL
 const sendVerificationEmail = async ({ _id, email }) => {
@@ -177,6 +177,8 @@ exports.login = async (req, res, next) => {
                 userName: user.userName,
                 email: user.email,
                 role: user.role,
+                verified: user.verified, // Make sure you send the verified status here
+
             },
         });
     } catch (error) {

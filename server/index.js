@@ -1,42 +1,62 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
 const authRouter = require('./routes/authRoutes');
 
-const app  = express();
+const app = express();
 require('dotenv').config();
 
-const dbHost = process.env.DB_HOST;
-const dbName = process.env.DB_NAME;
+const dbAltHost = process.env.DB_ALT_HOST;
 
-//MIDDLEWARES
-app.use(cors());
+// MIDDLEWARES
+
+// Define CORS options
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Use the production frontend URL in Vercel
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+};
+
+// Apply CORS middleware with options
+app.use(cors(corsOptions));
+
+// Preflight request handling
+app.options('*', cors(corsOptions));
+
+// Body parsing middleware
+app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
 
-//ROUTES
+// ROUTES
 app.use('/api/auth', authRouter);
 
-//MONGO DB CONNECTION
-mongoose.connect(`${dbHost}/${dbName}`)
-  .then(() => console.log('Connected to MongoDB!'))
-  .catch((error) => console.error('Failed to connect to MongoDB:', error));
-
-// General Global Handler
-app.use((err, req, res, next)=> {
-    err.statusCode = err.statusCode || 500;
-    err.status = err.status || 'error';
-
-    res.status(err.statusCode).json({
-        status: err.status,
-        message: err.message,
-    });
+// MONGO DB ATLAS COMPASS CONNECTION
+mongoose.connect(dbAltHost, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => {
+  console.log('Connected to MongoDb Cluster');
+})
+.catch((error) => {
+  console.error('Failed to connect to MongoDb Atlas Cluster', error);
 });
 
-//SERVERS
-  const PORT = process.env.PORT;
-  app.listen(PORT, () => {
-    console.log(`App running on ${PORT}`);
-  })
+// General Global Handler
+app.use((err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
 
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+});
 
-
+// SERVERS (on Vercel, use process.env.PORT)
+const PORT = process.env.PORT || 3000; // Fallback for local testing
+app.listen(PORT, () => {
+  console.log(`App running on port ${PORT}`);
+});
