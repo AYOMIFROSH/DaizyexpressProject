@@ -25,7 +25,7 @@
       }
     ],
     "env": {
-      "DB_ALT_HOST": "@db_alt_host",
+      "DB_ALT_HOST": "@dbAltHost",
       "SECRET_KEY": "@secret_key",
       "AUTH_EMAIL": "@auth_email",
       "AUTH_PASSWORD": "@auth_password"
