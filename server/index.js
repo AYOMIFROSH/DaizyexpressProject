@@ -29,6 +29,11 @@ app.options('*', cors(corsOptions));
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.json());
 
+// Define a root route
+app.get('/', (req, res) => {
+  res.send('Welcome to the API!');
+});
+
 // ROUTES
 app.use('/api/auth', authRouter);
 
