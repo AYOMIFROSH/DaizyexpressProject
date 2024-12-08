@@ -13,10 +13,10 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // Define CORS options
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Use the production frontend URL in Vercel
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+    origin: 'http://localhost:5173', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+    credentials: true,
 };
 
 // Apply CORS middleware with options
