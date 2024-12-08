@@ -1,35 +1,33 @@
 {
     "version": 2,
     "builds": [
-      {
-        "src": "index.js",
-        "use": "@vercel/node"
-      },
-      {
-        "src": "views/**",
-        "use": "@vercel/static"
-      }
+        {
+            "src": "index.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "views/**",
+            "use": "@vercel/static"
+        }
     ],
     "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "/index.js"
-      },
-      {
-        "src": "/views/(.*)",
-        "dest": "/views/$1"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/index.js"
-      }
+        {
+            "src": "/api/(.*)",
+            "dest": "/index.js"
+        },
+        {
+            "src": "/views/(.*)",
+            "dest": "/views/$1"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/index.js"
+        }
     ],
     "env": {
-      "DB_ALT_HOST": "@dbAltHost",
-      "SECRET_KEY": "@secret_key",
-      "AUTH_EMAIL": "@auth_email",
-      "AUTH_PASSWORD": "@auth_password"
+        "DB_ALT_HOST": "DB_ALT_HOST",
+        "SECRET_KEY": "SECRET_KEY",
+        "AUTH_EMAIL": "AUTH_EMAIL",
+        "AUTH_PASSWORD": "AUTH_PASSWORD"
     }
-  }
-  
-  
+}
