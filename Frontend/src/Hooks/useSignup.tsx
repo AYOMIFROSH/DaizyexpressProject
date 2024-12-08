@@ -23,7 +23,8 @@ const UseRegister = () => {
       setError(null);
       setLoading(true);
 
-      const res = await fetch(`http://localhost:3000/api/auth/signup`, {
+      // const res = await fetch(`http://localhost:3000/api/auth/signup`, {
+      const res = await fetch(`https://daizyexserver.vercel.app/api/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
