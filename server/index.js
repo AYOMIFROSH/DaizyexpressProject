@@ -14,11 +14,22 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // Define CORS options
 const corsOptions = {
-    origin: 'https://daizyexpress.vercel.app', 
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
-    allowedHeaders: ['Content-Type', 'Authorization'], 
-    credentials: true,
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'https://daizyexpress.vercel.app',
+      'https://www.daizyexpress.vercel.app',
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 };
+
 
 // Apply CORS middleware with options
 app.use(cors(corsOptions));
@@ -52,6 +63,7 @@ mongoose.connect(dbAltHost, {
 
 // General Global Handler
 app.use((err, req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 

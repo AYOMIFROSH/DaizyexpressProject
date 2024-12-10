@@ -12,7 +12,6 @@ require('dotenv').config();
 const Secret_Key = process.env.SECRET_KEY;
 const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
 const Auth_Password = process.env.AUTH_PASSWORD ;
-const Port = process.env.PORT || 3000;
 
 // NODEMAILER TRANSPORTER
 const transporter = nodemailer.createTransport({
