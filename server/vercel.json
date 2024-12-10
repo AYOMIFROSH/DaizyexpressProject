@@ -23,11 +23,5 @@
             "src": "/(.*)",
             "dest": "/index.js"
         }
-    ],
-    "env": {
-        "DB_ALT_HOST": "DB_ALT_HOST",
-        "SECRET_KEY": "SECRET_KEY",
-        "AUTH_EMAIL": "AUTH_EMAIL",
-        "AUTH_PASSWORD": "AUTH_PASSWORD"
-    }
+    ]
 }
