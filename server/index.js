@@ -14,7 +14,7 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // Define CORS options
 const corsOptions = {
-    origin: 'https://daizyexpress.vercel.app/', 
+    origin: 'https://daizyexpress.vercel.app', 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
     allowedHeaders: ['Content-Type', 'Authorization'], 
     credentials: true,
