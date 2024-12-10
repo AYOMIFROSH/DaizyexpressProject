@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaRegUserCircle } from "react-icons/fa";
+// import { FaRegUserCircle } from "react-icons/fa";
 import logo from "../assets/logo.png"
 import { Image, Typography } from "antd";
 
