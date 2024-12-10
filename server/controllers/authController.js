@@ -22,15 +22,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// TEST TRANSPORTER
-// transporter.verify((error, success) => {
-//     if (error) {
-//         console.log('Transporter Error:', error);
-//     } else {
-//         console.log('Ready to send emails:', success);
-//     }
-// });
-
 // HELPER: SEND VERIFICATION EMAIL
 const sendVerificationEmail = async ({ _id, email }) => {
     try {
