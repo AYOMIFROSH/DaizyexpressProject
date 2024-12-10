@@ -17,7 +17,7 @@ const useLogin = () => {
       setLoading(true);
       setError(null);
       // const response = await fetch(`http://localhost:3000/api/auth/login`, {
-      const response = await fetch(`https://daizyexserver.vercel.app/pi/auth/login`, {
+      const response = await fetch(`https://daizyexserver.vercel.app/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
