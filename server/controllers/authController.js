@@ -25,8 +25,7 @@ const transporter = nodemailer.createTransport({
 // HELPER: SEND VERIFICATION EMAIL
 const sendVerificationEmail = async ({ _id, email }) => {
     try {
-        const currentUrl = `http://localhost:3000/api/auth/verify/`;
-        // const currentUrl = `https://daizyexserver.vercel.app/api/auth/verify/`;
+        const currentUrl = `https://daizyexserver.vercel.app/api/auth/verify/`;
         const uniqueString = `${uuidv4()}${_id}`;
         const hashedUniqueString = await bcrypt.hash(uniqueString, 10);
 
