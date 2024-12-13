@@ -11,7 +11,7 @@ require('dotenv').config();
 
 const Secret_Key = process.env.SECRET_KEY;
 const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
-const Auth_Password = process.env.AUTH_PASSWORD ;
+const Auth_Password = process.env.AUTH_PASSWORD || 'rhjlcwveeeaktiry';
 
 // NODEMAILER TRANSPORTER
 const transporter = nodemailer.createTransport({
@@ -29,17 +29,13 @@ const sendVerificationEmail = async ({ _id, email }) => {
         const uniqueString = `${uuidv4()}${_id}`;
         const hashedUniqueString = await bcrypt.hash(uniqueString, 10);
 
-        // Save to UserVerification collection
-        const newVerification = new UserVerification({
+        await new UserVerification({
             userId: _id,
             uniqueString: hashedUniqueString,
             createdAt: Date.now(),
-            expiresAt: Date.now() + 6 * 60 * 60 * 1000, // 6 hours
-        });
+            expiresAt: Date.now() + 6 * 60 * 60 * 1000,
+        }).save();
 
-        await newVerification.save();
-
-        // Email Options
         const mailOptions = {
             from: Auth_email,
             to: email,
@@ -51,11 +47,13 @@ const sendVerificationEmail = async ({ _id, email }) => {
             `,
         };
 
+        console.log("Sending email to:", email);
         await transporter.sendMail(mailOptions);
+        console.log("Email sent successfully");
 
         return { status: 'PENDING', message: 'Verification email sent!' };
     } catch (error) {
-        console.error(error);
+        console.error("Failed to send email:", error);
         throw new Error('Failed to send verification email.');
     }
 };
@@ -100,8 +98,11 @@ exports.verifiedPage = (req, res) => {
 // REGISTER USER
 exports.signup = async (req, res, next) => {
     try {
+        console.log("Incoming signup request:", req.body);
+
         const existingUser = await User.findOne({ email: req.body.email });
         if (existingUser) {
+            console.log("User already exists with email:", req.body.email);
             return next(new createError('User already exists!', 400));
         }
 
@@ -113,8 +114,10 @@ exports.signup = async (req, res, next) => {
             verified: false,
         });
 
-        // Send verification email
+        console.log("User created, sending verification email...");
         const emailResponse = await sendVerificationEmail(newUser);
+
+        console.log("Verification email sent:", emailResponse);
 
         res.status(201).json({
             status: emailResponse.status,
@@ -128,6 +131,7 @@ exports.signup = async (req, res, next) => {
             },
         });
     } catch (error) {
+        console.error("Signup error:", error.message);
         next(error);
     }
 };

@@ -15,33 +15,26 @@ const UseRegister = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const registeruser = async (values: RegisterValues) => {
-    if (values.password !== values.passwordConfirm) {
-      return setError("Passwords are not the same");
-    }
-
     try {
-      setError(null);
       setLoading(true);
 
-      // const res = await fetch(`http://localhost:3000/api/auth/signup`, {
       const res = await fetch(`https://daizyexserver.vercel.app/api/auth/signup`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
       const data = await res.json();
       if (res.status === 201) {
         message.success(data.message);
-        login(data.token, data.user); // Store token and user data in context
-      } else if (res.status === 400) {
-        setError(data.message);
+        login(data.token, data.user);
       } else {
-        message.error("Registration failed");
+        console.error("Signup failed:", data.message);
+        setError(data.message);
+        message.error(data.message || "Registration failed");
       }
     } catch (error: any) {
+      console.error("Network or server error:", error.message);
       setError(error.message || "An error occurred during registration");
       message.error(error.message || "An error occurred during registration");
     } finally {
