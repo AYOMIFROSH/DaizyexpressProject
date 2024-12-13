@@ -13,6 +13,8 @@ const dbAltHost = process.env.DB_ALT_HOST;
 // Define CORS options
 const corsOptions = {
     origin: 'https://daizyexpress.vercel.app',
+    // origin: 'http://localhost:5173',
+
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -38,7 +40,7 @@ app.use('/api/auth', authRouter);
 
 // General Global Error Handler
 app.use((err, req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
+    // res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 

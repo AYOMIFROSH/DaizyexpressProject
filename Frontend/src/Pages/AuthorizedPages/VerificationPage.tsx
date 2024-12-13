@@ -7,7 +7,8 @@ const VerificationPage = () => {
   const resendVerification = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/api/auth/resend-verification", {
+      // const res = await fetch("http://localhost:3000/api/auth/resend-verification", {
+        const res = await fetch("https://daizyexserver.vercel.app/api/auth/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: sessionStorage.getItem("user_email") }),
