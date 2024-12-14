@@ -17,6 +17,7 @@ import TotalDocuments from "./Pages/AuthorizedPages/TotalDocuments.tsx";
 import ManageUsers from "./Pages/AuthorizedPages/ManageUserss.tsx";
 import UserDetails from "./Pages/AuthorizedPages/UserDetails.tsx";
 import VerificationPage from "./Pages/AuthorizedPages/VerificationPage.tsx";
+import CheckEmailPage from "./Pages/PasswordReset.tsx";
 
 function AppRouter() {
   const { isAuthenticated, userRole, isVerified } = useAuth();
@@ -33,6 +34,10 @@ function AppRouter() {
         {
           path: "/forgot",
           element: <ForgottenPwd />,
+        },
+        {
+          path: "/check-email",
+          element: <CheckEmailPage />,
         },
         {
           path: "/login",

@@ -21,7 +21,15 @@ const userSchema = new mongoose.Schema({
     verified: {
         type: Boolean,
         required: true, 
-    }
+    },
+    resetToken: {
+        type: String, // Stores the hashed reset token
+        default: null,
+    },
+    resetTokenExpiry: {
+        type: Date, // Stores the expiry time of the reset token
+        default: null,
+    },
 });
 
 const User = mongoose.model('User', userSchema);

@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path')
 
 const authRouter = require('./routes/authRoutes');
 
@@ -13,7 +14,6 @@ const dbAltHost = process.env.DB_ALT_HOST;
 // Define CORS options
 const corsOptions = {
     origin: 'https://daizyexpress.vercel.app',
-    // origin: 'http://localhost:5173',
 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -38,9 +38,12 @@ app.get('/', (req, res) => {
 // ROUTES
 app.use('/api/auth', authRouter);
 
+app.set('views', path.join(__dirname, 'views'));  // Correct path to 'views' folder
+app.set('view engine', 'ejs');  // Set EJS as view engine
+
 // General Global Error Handler
 app.use((err, req, res, next) => {
-    // res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
+    res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
