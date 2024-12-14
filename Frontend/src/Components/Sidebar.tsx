@@ -60,7 +60,7 @@ const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
                 </span>
               </NavLink>
             ))}
-            <div onClick={handleLogout} className="flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1 ">
+            <div onClick={handleLogout} className="flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1 cursor-pointer ">
               <span className="text-2xl mr-4 text-[#5A5C69] font-bold ">
                 <FaArrowLeft />
               </span>
