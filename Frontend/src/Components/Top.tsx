@@ -1,4 +1,4 @@
-// import { FaRegUserCircle } from "react-icons/fa";
+import { useState } from "react";
 import logo from "../assets/logo.png"
 import { Image, Typography } from "antd";
 
@@ -8,6 +8,9 @@ import { FaBars } from "react-icons/fa6";
 
  const Top = ({isAdmin} : {isAdmin: boolean}) => {
   const {  userData } = useAuth();
+  const [isNavbarOpen, setIsNavbarOpen] = useState<boolean>(false);
+
+  const toggleNavbar = (prev:boolean)=> setIsNavbarOpen(!prev);
 
   
    return (
@@ -15,9 +18,9 @@ import { FaBars } from "react-icons/fa6";
         <Image src={logo} alt="logo" width={200} preview={false} style={{cursor: "pointer"}}></Image>
           <div className="flex gap-3 ">
             {/* <FaRegUserCircle className="text-4xl" /> */}
-              <Typography.Paragraph className=" text-[10px]">{isAdmin ? `Welcome! ${userData.userName}` : `welcome! ${userData.userName}`}</Typography.Paragraph>
+              <Typography.Paragraph className=" text-[16px] hidden sm:block">{isAdmin ? `Welcome! ${userData.userName}` : `welcome! ${userData.userName}`}</Typography.Paragraph>
             </div>
-            <FaBars/>
+            <FaBars className="w-10 h-10 block md:hidden cursor-pointer" onClick={()=> toggleNavbar}/>
     </header>
    )
  }

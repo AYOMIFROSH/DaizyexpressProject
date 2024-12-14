@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { FaArrowLeft, FaUsers } from "react-icons/fa6";
 import { AiFillDashboard } from "react-icons/ai";
 import { IoDocumentTextOutline } from "react-icons/io5";
-import { FaFileUpload } from "react-icons/fa";
+import { FaFileUpload, FaStar } from "react-icons/fa";
 import { useAuth } from "../Context/useContext";
 
 type SideLink = {
@@ -12,7 +12,7 @@ type SideLink = {
   icon: React.ReactNode; // Type for JSX elements
 };
 
-const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
+const MobileNav = ({ isAdmin }: { isAdmin: boolean }) => {
   const { logout } = useAuth();
 
   const handleLogout = async () => {
@@ -46,7 +46,8 @@ const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
 
   return (
     <div className="">
-      <aside className="sticky top-0 left-0 z-0 w-64 h-screen bg-white border-r border-gray-200  max-md:w-[60px] max-sm:hidden">
+      <aside className="relative top-0 left-0 z-0 w-64 h-screen bg-white border-r border-gray-200  max-md:w-[60px] max-sm:hidden">
+        <FaStar className='text-right h-10 w-6'/>
         <div className="h-full pb-4 overflow-y-auto">
           <div className="bg-[#407BBB] h-[1px] w-full mb-10" />
           <ul className="list-none flex flex-col gap-10 mt-36">
@@ -75,4 +76,4 @@ const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
   );
 };
 
-export default Sidebar;
+export default MobileNav;
