@@ -22,7 +22,7 @@ import MobileNav from "./MobileNav";
               <Typography.Paragraph className=" text-[16px] hidden sm:block">{isAdmin ? `Welcome! ${userData.userName}` : `welcome! ${userData.userName}`}</Typography.Paragraph>
             </div>
             <FaBars className="w-10 h-10 block md:hidden cursor-pointer" onClick={()=> toggleNavbar}/>
-              {isNavbarOpen ? <MobileNav isAdmin='false'/>  : ''}
+              {isNavbarOpen ? <MobileNav isAdmin={false} />  : null}
     </header>
    )
  }
