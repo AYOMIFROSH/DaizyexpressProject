@@ -32,6 +32,10 @@ function AppRouter() {
           element: <LandingPage />,
         },
         {
+          path: "/user1",
+          element: <UserPages/>,
+        },
+        {
           path: "/forgot",
           element: <ForgottenPwd />,
         },

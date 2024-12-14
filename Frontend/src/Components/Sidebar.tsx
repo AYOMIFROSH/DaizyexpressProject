@@ -1,9 +1,10 @@
 
 import { NavLink } from "react-router-dom"
-import { FaUsers } from "react-icons/fa6";
+import { FaArrowLeft, FaUsers } from "react-icons/fa6";
 import { AiFillDashboard } from "react-icons/ai";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { FaFileUpload } from "react-icons/fa";
+import { useAuth } from "../Context/useContext";
 
 type SideLink = {
   id: number;
@@ -12,7 +13,15 @@ type SideLink = {
   icon: React.ReactNode; // Type for JSX elements
 };
 
+
+
 const Sidebar = ({isAdmin}: {isAdmin : boolean}) => {
+
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+};
 
   const SideLink: SideLink[]  = [
     {
@@ -33,6 +42,7 @@ const Sidebar = ({isAdmin}: {isAdmin : boolean}) => {
       path: isAdmin ? "/manageusers" : "/upload",
       icon: isAdmin ?<FaUsers /> : <FaFileUpload />
     },
+
   ]
   const linkclass = ({ isActive }: {isActive: boolean}) =>
     isActive ? "flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1" : "flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1 ";
@@ -50,6 +60,10 @@ const Sidebar = ({isAdmin}: {isAdmin : boolean}) => {
                 <span className='flex-1 me-3 text-[18px] text-[#5A5C69] max-md:hidden'>{name}</span>
               </NavLink>
             ))}
+            <NavLink to='/logout' onClick={handleLogout} className={linkclass}>
+                <span className='text-2xl mr-4 text-[#5A5C69] font-bold '><FaArrowLeft/></span>
+                <span className='flex-1 me-3 text-[18px] text-[#5A5C69] max-md:hidden'>Logout</span>
+              </NavLink>
           </ul>
         </div>
       </aside>
