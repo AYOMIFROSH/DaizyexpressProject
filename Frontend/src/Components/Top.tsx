@@ -11,7 +11,7 @@ import MobileNav from "./MobileNav";
   const {  userData } = useAuth();
   const [isNavbarOpen, setIsNavbarOpen] = useState<boolean>(false);
 
-  const toggleNavbar = (prev:boolean)=> setIsNavbarOpen(!prev);
+  // const toggleNavbar = (prev:boolean)=> setIsNavbarOpen(!prev);
 
   
    return (
@@ -21,7 +21,7 @@ import MobileNav from "./MobileNav";
             {/* <FaRegUserCircle className="text-4xl" /> */}
               <Typography.Paragraph className=" text-[16px] hidden sm:block">{isAdmin ? `Welcome! ${userData.userName}` : `welcome! ${userData.userName}`}</Typography.Paragraph>
             </div>
-            <FaBars className="w-5 h-5 block md:hidden cursor-pointer" onClick={()=> toggleNavbar}/>
+            <FaBars className="w-5 h-5 block md:hidden cursor-pointer" onClick={()=> setIsNavbarOpen((prev)=> !prev)}/>
               {isNavbarOpen ? <MobileNav isAdmin={false} />  : null}
     </header>
    )
