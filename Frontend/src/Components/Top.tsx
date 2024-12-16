@@ -1,3 +1,33 @@
+// import { useState } from "react";
+// import logo from "../assets/logo.png"
+// import { Image, Typography } from "antd";
+
+// import { useAuth } from "../Context/useContext";
+// import { FaBars } from "react-icons/fa6";
+// import MobileNav from "./MobileNav";
+
+
+//  const Top = ({isAdmin} : {isAdmin: boolean}) => {
+//   const {  userData } = useAuth();
+//   const [isNavbarOpen, setIsNavbarOpen] = useState<boolean>(false);
+
+//   // const toggleNavbar = (prev:boolean)=> setIsNavbarOpen(!prev);
+
+  
+//    return (
+//     <header className="h-[100px] flex items-center justify-between fixed top-0 z-40 w-full bg-white px-6 py-4 nav">
+//         <Image src={logo} alt="logo" width={200} preview={false} style={{cursor: "pointer"}}></Image>
+//           <div className="flex gap-3 ">
+//             {/* <FaRegUserCircle className="text-4xl" /> */}
+//               <Typography.Paragraph className=" text-[16px] hidden sm:block">{isAdmin ? `Welcome! ${userData.userName}` : `welcome! ${userData.userName}`}</Typography.Paragraph>
+//             </div>
+//             <FaBars className="w-5 h-5 block md:hidden cursor-pointer" onClick={()=> setIsNavbarOpen((prev)=> !prev)}/>
+//               {isNavbarOpen ? <MobileNav isAdmin={false} />  : null}
+//     </header>
+//    )
+//  }
+ 
+//  export default Top
 
 import { Link } from "react-router-dom";
 import { FaRegUserCircle } from "react-icons/fa";
@@ -11,7 +41,6 @@ import { FaUsers } from "react-icons/fa6";
 import { AiFillDashboard } from "react-icons/ai";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { FaFileUpload } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/useContext";
 
 
@@ -26,9 +55,13 @@ type SideLink = {
 
  const Top = ({isAdmin} : {isAdmin: boolean}) => {
   const [toggle, setToggle] =  useState<boolean>(false)
-  const navigate = useNavigate();
   const {  userData } = useAuth();
 
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
   const SideLink: SideLink[]  = [
     {
       id: 1,
@@ -56,7 +89,7 @@ type SideLink = {
           <div className="flex gap-3 max-sm:hidden ">
             <FaRegUserCircle className="text-4xl max-sm:text-2xl" />
               <Typography.Paragraph className=" text-[20px] max-sm:text-[16px]">{isAdmin ? `welcome${userData.userName}` : `welcome${userData.userName}`}</Typography.Paragraph>
-            <Link to='/login' className="text-[20px] max-sm:text-[16px] font-medium text-yellow-400">Logout</Link>
+            <span className="text-[20px] max-sm:text-[16px] font-medium text-yellow-400" onClick={handleLogout}>Logout</span>
             </div>
            
             <div className="hidden max-sm:flex flex-1 items-center justify-end">
@@ -72,7 +105,7 @@ type SideLink = {
                   ))}
               </ul>
                   <div className="flex flex-col items-center justify-center">
-                    <button className="bg-yellow-400 px-10 py-3 mt-5 text-white" onClick={()=> navigate("/login")}>Logout</button>
+                    <button className="bg-yellow-400 px-10 py-3 mt-5 text-white" onClick={handleLogout}>Logout</button>
                   </div>
               </div>
             </div>
