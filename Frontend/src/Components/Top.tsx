@@ -1,33 +1,3 @@
-// import { useState } from "react";
-// import logo from "../assets/logo.png"
-// import { Image, Typography } from "antd";
-
-// import { useAuth } from "../Context/useContext";
-// import { FaBars } from "react-icons/fa6";
-// import MobileNav from "./MobileNav";
-
-
-//  const Top = ({isAdmin} : {isAdmin: boolean}) => {
-//   const {  userData } = useAuth();
-//   const [isNavbarOpen, setIsNavbarOpen] = useState<boolean>(false);
-
-//   // const toggleNavbar = (prev:boolean)=> setIsNavbarOpen(!prev);
-
-  
-//    return (
-//     <header className="h-[100px] flex items-center justify-between fixed top-0 z-40 w-full bg-white px-6 py-4 nav">
-//         <Image src={logo} alt="logo" width={200} preview={false} style={{cursor: "pointer"}}></Image>
-//           <div className="flex gap-3 ">
-//             {/* <FaRegUserCircle className="text-4xl" /> */}
-//               <Typography.Paragraph className=" text-[16px] hidden sm:block">{isAdmin ? `Welcome! ${userData.userName}` : `welcome! ${userData.userName}`}</Typography.Paragraph>
-//             </div>
-//             <FaBars className="w-5 h-5 block md:hidden cursor-pointer" onClick={()=> setIsNavbarOpen((prev)=> !prev)}/>
-//               {isNavbarOpen ? <MobileNav isAdmin={false} />  : null}
-//     </header>
-//    )
-//  }
- 
-//  export default Top
 
 import { Link } from "react-router-dom";
 import { FaRegUserCircle } from "react-icons/fa";
@@ -63,7 +33,7 @@ type SideLink = {
     {
       id: 1,
       name: "Dashboard",
-      path: isAdmin ? "/admin" : "/userdashboard",
+      path: isAdmin ? "/admin" : "/user",
       icon: <AiFillDashboard />
     },
     {
@@ -90,7 +60,7 @@ type SideLink = {
             </div>
            
             <div className="hidden max-sm:flex flex-1 items-center justify-end">
-            <span className="text-2xl" onClick={()=> setToggle((prev)=> !prev)}>{toggle ?<CloseOutlined /> :<MenuOutlined />}</span>
+            <span className="text-2xl cursor-pointer" onClick={()=> setToggle((prev)=> !prev)}>{toggle ?<CloseOutlined /> :<MenuOutlined />}</span>
               <div className={`${toggle ? 'right-0' : 'right-[-600px]'} bg-white shadow-md fixed top-24  p-6 h-screen w-64 sidenav`}>
               <div className="flex flex-col items-center justify-center">
                 <Avatar size={100} icon={<UserOutlined />}></Avatar>
