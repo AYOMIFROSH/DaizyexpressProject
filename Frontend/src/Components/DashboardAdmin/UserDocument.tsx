@@ -54,7 +54,7 @@ const UserDocuments: React.FC = () => {
   const handleDownload = async (fileId: string, fileName: string) => {
     try {
       setIsDownloading(fileId);
-      const response = await fetch(`${API_BASE_URL}/api/admin/files/download/${fileId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/download`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
