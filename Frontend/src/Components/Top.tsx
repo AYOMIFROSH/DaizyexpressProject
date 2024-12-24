@@ -20,7 +20,7 @@ type SideLink = {
   id: number;
   name: any;
   path: any;
-  icon: React.ReactNode; // Type for JSX elements
+  icon: React.ReactNode; 
 };
 
 
@@ -59,7 +59,7 @@ type SideLink = {
         <Image src={logo} alt="logo" width={150}></Image>
           <div className="flex gap-3 max-sm:hidden ">
             <FaRegUserCircle className="text-4xl max-sm:text-2xl" />
-              <Typography.Paragraph className=" text-[20px] max-sm:text-[16px]">{isAdmin ? `welcome${userData.userName}` : `welcome${userData.userName}`}</Typography.Paragraph>
+              <Typography.Paragraph className=" text-[20px] max-sm:text-[16px]">{isAdmin ? `welcome ${userData.userName}` : `welcome ${userData.userName}`}</Typography.Paragraph>
             <span className="text-[20px] max-sm:text-[16px] font-medium text-yellow-400 cursor-pointer" onClick={handleLogout}>Logout</span>
             </div>
            

@@ -1,7 +1,7 @@
 interface CardProps {
   title: string;
   icon: JSX.Element; 
-  number: string
+  number: React.ReactNode
 }
 
 const Cards: React.FC<CardProps> = ({ title, icon, number }) => {

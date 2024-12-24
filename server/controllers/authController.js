@@ -175,6 +175,8 @@ exports.login = async (req, res, next) => {
                 email: user.email,
                 role: user.role,
                 verified: user.verified, // Make sure you send the verified status here
+                fileUploadCount: user.fileUploadCount,
+                ProcessedDocument: user.ProcessedDocument
 
             },
         });
@@ -262,3 +264,17 @@ exports.resetPassword = async (req, res) => {
         res.status(500).json({ message: 'Error resetting password. Please try again.' });
     }
 };
+
+// FETCH ALL USERS
+exports.getAllUsers = async (req, res) => {
+
+    const users = await User.find({});
+    
+    const userMap = {};
+    users.forEach((user) => {
+        userMap[user._id] = user;
+    });
+    
+    res.send(userMap);
+}    
+  

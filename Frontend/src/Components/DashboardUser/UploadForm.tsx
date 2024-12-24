@@ -1,9 +1,15 @@
 import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
+import { useAuth } from "../../Context/useContext";
+import { Spin } from "antd";
 
 const UploadForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
+  const { token } = useAuth()
+  const [loading, setLoading] = useState<boolean>(false); // Loading state
+
+  
 
   // Ref for file input
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -14,21 +20,46 @@ const UploadForm: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Form submission logic
-    console.log("Name:", name);
-    console.log("File:", file);
-    toast.success(
-      "Your document has been successfully uploaded. You will get a notification once it has been processed."
-    );
+    if (!name || !file) {
+      toast.error("Please provide a name and upload a file.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("file", file);
+
+    setLoading(true); 
+
+    try {
+      const response = await fetch("https://daizyexserver.vercel.app/api/files/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token || ''}` },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success(result.message || "File uploaded successfully.");
+      } else {
+        const error = await response.json();
+        toast.error(error.message || "Failed to upload file.");
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error("An error occurred while uploading the file.");
+    } finally {
+      setLoading(false); 
+    }
 
     // Clear input fields
     setName("");
     setFile(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // Clear file input
+      fileInputRef.current.value = "";
     }
   };
 
@@ -74,7 +105,7 @@ const UploadForm: React.FC = () => {
             id="file"
             name="file"
             onChange={handleFileChange}
-            ref={fileInputRef} // Attach the ref
+            ref={fileInputRef}
             className="mt-1 block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
               file:rounded-full file:border-0
@@ -89,8 +120,9 @@ const UploadForm: React.FC = () => {
         <button
           type="submit"
           className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
+          disabled={loading} 
         >
-          Upload
+          {loading ? <Spin size="small" /> : "Upload"} 
         </button>
       </form>
     </div>
