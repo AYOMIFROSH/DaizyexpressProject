@@ -369,8 +369,22 @@ exports.updateFileStatus = async (req, res) => {
             });
         }
 
-        // Update the fileData with the new compressed data
+        // Check if the fileData has already been replaced before
+        if (file.hasBeenReplaced) {
+            // If it has been replaced before, update fileData but do not increment ProcessedDocument
+            file.fileData = compressedData;
+            await file.save();
+
+            return res.status(200).json({
+                status: 'success',
+                message: 'File data replaced without incrementing ProcessedDocument.',
+                file: { fileName: file.fileName, uploadedAt: file.uploadedAt },
+            });
+        }
+
+        // Update the fileData with the new compressed data and set hasBeenReplaced flag
         file.fileData = compressedData;
+        file.hasBeenReplaced = true;
         await file.save();
 
         // Increment the ProcessedDocument count for the user who owns the file

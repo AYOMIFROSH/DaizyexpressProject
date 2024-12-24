@@ -23,6 +23,11 @@ const fileSchema = new mongoose.Schema({
         enum: ['not processed', 'in process', 'processed'],
         default: 'not processed',
     },
+    hasBeenReplaced: { 
+        type: Boolean, 
+        default: false 
+    }, 
+
 
 });
 
