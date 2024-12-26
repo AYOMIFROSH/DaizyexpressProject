@@ -29,16 +29,16 @@ const Users: React.FC = () => {
         });
 
         const result = await response.json();
-        console.log("API Response:", result);
+        // console.log("API Response:", result);
 
         const users = result.data.map((user: any) => ({
-          id: user._id,  // Use the full _id as the unique identifier (string type)
+          id: user._id,  
           name: user.userName,
           email: user.email,
           role: user.role,
           document: user.fileUploadCount,
         }));
-        console.log("Processed Users:", users);
+        // console.log("Processed Users:", users);
 
         // Reset the data without appending
         setData(users);
@@ -68,7 +68,7 @@ const Users: React.FC = () => {
           placeholder="Search..."
           value={searchText}
           onChange={(e) => {
-            setSearchText(e.target.value); // Update searchText state
+            setSearchText(e.target.value); 
           }}
           className="w-full sm:max-w-sm px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
         />
@@ -115,7 +115,7 @@ const Users: React.FC = () => {
               : filteredData.length > 0
               ? filteredData.map((user, index) => (
                   <tr
-                    key={user.id} // Use the full _id as the key to prevent duplicates
+                    key={user.id} 
                     className={`hover:bg-gray-100 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}
                   >
                     <td className="px-4 py-2 border border-gray-300 text-sm sm:text-base">

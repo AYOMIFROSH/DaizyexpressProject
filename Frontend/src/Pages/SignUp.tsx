@@ -32,7 +32,7 @@ const SignUp = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log("Input change:", name, value); // Check if this logs correctly
+    // console.log("Input change:", name, value); // Check if this logs correctly
     setFormValues({ ...formValues, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
