@@ -15,7 +15,6 @@ const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
 const Auth_Password = process.env.AUTH_PASSWORD || 'rhjlcwveeeaktiry';
 BASE_URL='https://daizyexserver.vercel.app'
 
-
 // NODEMAILER TRANSPORTER
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -28,7 +27,7 @@ const transporter = nodemailer.createTransport({
 // HELPER: SEND VERIFICATION EMAIL
 const sendVerificationEmail = async ({ _id, email }) => {
     try {
-        const currentUrl = `https://daizyexserver.vercel.app/api/auth/verify/`;
+        const currentUrl = `${BASE_URL}/api/auth/verify/`;
         const uniqueString = `${uuidv4()}${_id}`;
         const hashedUniqueString = await bcrypt.hash(uniqueString, 10);
 
@@ -128,6 +127,8 @@ exports.signup = async (req, res, next) => {
             user: {
                 _id: newUser._id,
                 userName: newUser.userName,
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
                 email: newUser.email,
                 role: newUser.role,
                 verified: false,
@@ -172,6 +173,8 @@ exports.login = async (req, res, next) => {
             user: {
                 _id: user._id,
                 userName: user.userName,
+                firstName: user.firstName,
+                lastName: user.lastName,
                 email: user.email,
                 role: user.role,
                 verified: user.verified, // Make sure you send the verified status here
