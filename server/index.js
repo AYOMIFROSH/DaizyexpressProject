@@ -16,13 +16,11 @@ const dbAltHost = process.env.DB_ALT_HOST;
 // MIDDLEWARES
 // Define CORS options
 const corsOptions = {
-    origin: 'https://daizyexpress.vercel.app',
-
+    origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173'], // Allow both production and local development origins
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
-
 // Apply CORS middleware with options
 app.use(cors(corsOptions));
 
@@ -57,7 +55,13 @@ app.set('view engine', 'ejs');  // Set EJS as view engine
 
 // General Global Error Handler
 app.use((err, req, res, next) => {
-    // res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
+    // Dynamically set the Access-Control-Allow-Origin header
+    const allowedOrigins = ['https://daizyexpress.vercel.app', 'http://localhost:5173'];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
+
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
@@ -74,12 +78,12 @@ const startServer = async () => {
         await mongoose.connect(dbAltHost, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            autoIndex: true, // Ensures indexes are created
+            autoIndex: true,
         });
         console.log('Connected to MongoDB successfully');
 
         // Start the server only after the database connection is established
-        const PORT = process.env.PORT || 3000; // Fallback for local testing
+        const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
             console.log(`App running on port ${PORT}`);
         });
@@ -89,5 +93,5 @@ const startServer = async () => {
     }
 };
 
-// Call the async function to start the server
+
 startServer();

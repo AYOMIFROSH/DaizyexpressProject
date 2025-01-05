@@ -13,7 +13,11 @@ require('dotenv').config();
 const Secret_Key = process.env.SECRET_KEY;
 const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
 const Auth_Password = process.env.AUTH_PASSWORD || 'rhjlcwveeeaktiry';
-BASE_URL='https://daizyexserver.vercel.app'
+
+const BASE_URL =
+  process.env.NODE_ENV === 'production'
+    ? process.env.BASE_URL_PRODUCTION || 'https://daizyexserver.vercel.app' 
+    : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:3000'; 
 
 // NODEMAILER TRANSPORTER
 const transporter = nodemailer.createTransport({
