@@ -2,12 +2,15 @@ import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../Context/useContext";
 import { Spin } from "antd";
+import PaymentForm from "../../Pages/AuthorizedPages/PaymentForm";
 
 const UploadForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const { token } = useAuth()
   const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [hasPaid, setHasPaid] = useState<boolean>(false); // Payment state
+  const [showPaymentOverlay, setShowPaymentOverlay] = useState<boolean>(false);
 
   
 
@@ -27,6 +30,10 @@ const UploadForm: React.FC = () => {
       toast.error("Please provide a name and upload a file.");
       return;
     }
+    if (!hasPaid) {
+      // If user has not paid, show the payment overlay
+      setShowPaymentOverlay(true);
+    } 
 
     const formData = new FormData();
     formData.append("name", name);
@@ -63,8 +70,13 @@ const UploadForm: React.FC = () => {
     }
   };
 
+  const closePaymentOverlay = () => {
+    setShowPaymentOverlay(false);
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 w-full">
+      <PaymentForm onClose={closePaymentOverlay}/>
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-[500px] bg-white p-6 rounded-lg shadow-md h-auto"
