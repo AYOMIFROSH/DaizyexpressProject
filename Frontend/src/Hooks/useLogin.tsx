@@ -16,8 +16,14 @@ const useLogin = () => {
     try {
       setLoading(true);
       setError(null);
-      // const response = await fetch(`http://localhost:3000/api/auth/login`, {
-      const response = await fetch(`https://daizyexserver.vercel.app/api/auth/login`, {
+
+      // Dynamically determine the base URL
+      const baseURL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:3000" // Localhost environment
+          : "https://daizyexserver.vercel.app"; // Production environment
+
+      const response = await fetch(`${baseURL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -41,3 +47,4 @@ const useLogin = () => {
 };
 
 export default useLogin;
+

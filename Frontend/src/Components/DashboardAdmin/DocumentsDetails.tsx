@@ -23,11 +23,15 @@ const DocumentDetails: React.FC = () => {
   const [usersWithFiles, setUsersWithFiles] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [debouncedSearchText, setDebouncedSearchText] = useState(searchText);
+  const Base_Url =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000" 
+    : "https://daizyexserver.vercel.app"; 
 
   useEffect(() => {
     const fetchUsersWithFiles = async () => {
       try {
-        const response = await axios.get("https://daizyexserver.vercel.app/api/admin/users-with-documents", {
+        const response = await axios.get(`${Base_Url}/api/admin/users-with-documents`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

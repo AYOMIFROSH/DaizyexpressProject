@@ -12,10 +12,15 @@ const UserDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>(); 
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
+  const Base_Url =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000" // Localhost
+    : "https://daizyexserver.vercel.app"; // 
+    
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await fetch(`https://daizyexserver.vercel.app/api/admin/users/${id}`, {
+        const response = await fetch(`${Base_Url}/api/admin/users/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`, 
           },

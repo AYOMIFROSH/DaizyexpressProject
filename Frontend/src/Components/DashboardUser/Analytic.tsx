@@ -14,6 +14,11 @@ const Analytic = () => {
   const [loadingProcessedDocument, setLoadingProcessedDocument] = useState<boolean>(true); // Loading state for processed document
   const [error, setError] = useState<string | null>(null); // Store any error
 
+  const Base_Url =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000" 
+      : "https://daizyexserver.vercel.app"; 
+
   useEffect(() => {
     const fetchFileUploadCount = async () => {
       try {
@@ -21,7 +26,7 @@ const Analytic = () => {
         setLoadingProcessedDocument(true);
 
         const response = await axios.get(
-          "https://daizyexserver.vercel.app/api/files/user-files-count",
+          `${Base_Url}/api/files/user-files-count`,
           {
             headers: { Authorization: `Bearer ${token || ""}` },
           }

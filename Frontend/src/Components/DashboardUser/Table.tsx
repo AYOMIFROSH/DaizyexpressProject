@@ -21,8 +21,10 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingDownload, setLoadingDownload] = useState<string | null>(null); 
-  const API_BASE_URL = "https://daizyexserver.vercel.app";
-
+  const API_BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000" 
+      : "https://daizyexserver.vercel.app"; 
 
   useEffect(() => {
     const fetchFiles = async () => {

@@ -26,7 +26,10 @@ const UserDocuments: React.FC = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState<boolean>(false); 
 
-  const API_BASE_URL = "https://daizyexserver.vercel.app";
+  const API_BASE_URL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000" 
+      : "https://daizyexserver.vercel.app";
 
   useEffect(() => {
     const fetchUserFiles = async () => {
@@ -133,7 +136,7 @@ const UserDocuments: React.FC = () => {
     }
 
     const formData = new FormData();
-    formData.append("file", uploadedFile as unknown as Blob); // Correct handling of file data
+    formData.append("file", uploadedFile as unknown as Blob);
 
     try {
       setUploading(true); // Start the spinner

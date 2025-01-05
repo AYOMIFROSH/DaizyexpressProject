@@ -9,9 +9,12 @@ const UploadForm: React.FC = () => {
   const { token } = useAuth()
   const [loading, setLoading] = useState<boolean>(false); // Loading state
 
-  
-
-  // Ref for file input
+  const Base_Url =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000" // Localhost
+      : "https://daizyexserver.vercel.app"; // 
+      
+    // Ref for file input
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +38,7 @@ const UploadForm: React.FC = () => {
     setLoading(true); 
 
     try {
-      const response = await fetch("https://daizyexserver.vercel.app/api/files/upload", {
+      const response = await fetch(`${Base_Url}/api/files/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token || ''}` },
         body: formData,

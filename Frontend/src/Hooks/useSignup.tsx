@@ -20,9 +20,13 @@ const UseRegister = () => {
     try {
       setLoading(true);
 
-      const res = await fetch(`https://daizyexserver.vercel.app/api/auth/signup`, {
-        // const res = await fetch(`http://localhost:3000/api/auth/signup`, {
+      // Dynamically determine the base URL
+      const baseURL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:3000" // Localhost environment
+          : "https://daizyexserver.vercel.app"; // Production environment
 
+      const res = await fetch(`${baseURL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
@@ -50,4 +54,5 @@ const UseRegister = () => {
 };
 
 export default UseRegister;
+
 

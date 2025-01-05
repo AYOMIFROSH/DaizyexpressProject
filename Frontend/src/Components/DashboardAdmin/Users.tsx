@@ -17,10 +17,15 @@ const Users: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const Base_Url =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000" 
+    : "https://daizyexserver.vercel.app"; 
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("https://daizyexserver.vercel.app/api/admin/users", {
+        const response = await fetch(`${Base_Url}/api/admin/users`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
