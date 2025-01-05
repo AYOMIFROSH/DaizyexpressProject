@@ -2,8 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path')
+const mongoSanitize = require('express-mongo-sanitize');
 
 const authRouter = require('./routes/authRoutes');
+const fileRouter = require('./routes/fileRoutes')
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 require('dotenv').config();
@@ -15,7 +18,7 @@ const dbAltHost = process.env.DB_ALT_HOST;
 const corsOptions = {
     origin: 'https://daizyexpress.vercel.app',
 
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
@@ -30,6 +33,15 @@ app.options('*', cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+app.use(
+    mongoSanitize({
+        onSanitize: ({ req, key }) => {
+            console.warn(`This request contains a potentially malicious key: ${key}`);
+        },
+    })
+);
+
+
 // Define a root route
 app.get('/', (req, res) => {
     res.send('Welcome to the API!');
@@ -37,13 +49,15 @@ app.get('/', (req, res) => {
 
 // ROUTES
 app.use('/api/auth', authRouter);
+app.use('/api/files', fileRouter)
+app.use('/api/admin', adminRoutes);
 
 app.set('views', path.join(__dirname, 'views'));  // Correct path to 'views' folder
 app.set('view engine', 'ejs');  // Set EJS as view engine
 
 // General Global Error Handler
 app.use((err, req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
+    // res.setHeader('Access-Control-Allow-Origin', 'https://daizyexpress.vercel.app');
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error';
 
@@ -60,6 +74,7 @@ const startServer = async () => {
         await mongoose.connect(dbAltHost, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
+            autoIndex: true, // Ensures indexes are created
         });
         console.log('Connected to MongoDB successfully');
 

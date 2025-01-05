@@ -3,12 +3,14 @@ const authController = require('../controllers/authController');
 const path = require('path');
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt');
+const { authenticate } = require('./middleware');
 
 const router = express.Router();
 
-// Signup and login routes
+// Signup - login - users routes
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
+router.get('/users', authenticate, authController.getAllUsers);
 
 // Email verification route
 router.get('/verify/:userId/:uniqueString', authController.verifyEmail);

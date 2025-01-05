@@ -7,6 +7,8 @@ import "../index.css";
 
 type FormValues = {
   userName: string;
+  firstName:string;
+  lastName:string;
   email: string;
   password: string;
   confirmPassword: string;
@@ -14,6 +16,8 @@ type FormValues = {
 
 type Errors = {
   userName?: string;
+  firstName?:string;
+  lastName?:string
   email?: string;
   password?: string;
   confirmPassword?: string;
@@ -22,6 +26,8 @@ type Errors = {
 const SignUp = () => {
   const [formValues, setFormValues] = useState<FormValues>({
     userName: "", // Ensure this key matches everywhere
+    firstName:"",
+    lastName:"",
     email: "",
     password: "",
     confirmPassword: "",
@@ -32,7 +38,7 @@ const SignUp = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    console.log("Input change:", name, value); // Check if this logs correctly
+    // console.log("Input change:", name, value); // Check if this logs correctly
     setFormValues({ ...formValues, [name]: value });
     setErrors({ ...errors, [name]: "" });
   };
@@ -40,6 +46,8 @@ const SignUp = () => {
   const handleSubmit = () => {
     const newErrors: Errors = {};
     if (!formValues.userName) newErrors.userName = "Username is required";
+    if (!formValues.firstName) newErrors.firstName = "First name is required";
+    if (!formValues.lastName) newErrors.lastName = "Last name is required";
     if (!formValues.email) newErrors.email = "Email address is required";
     if (!formValues.password) newErrors.password = "Password is required";
     if (!formValues.confirmPassword) {
@@ -53,6 +61,8 @@ const SignUp = () => {
     if (Object.keys(newErrors).length === 0) {
       registeruser({
         userName: formValues.userName, // Ensure this matches the backend expectations
+        firstName:formValues.firstName,
+        lastName:formValues.lastName,
         email: formValues.email,
         password: formValues.password,
         passwordConfirm: formValues.confirmPassword,
@@ -93,6 +103,21 @@ const SignUp = () => {
               onChange={handleChange}
               error={errors.userName}
             />
+            <Input
+              name="firstName" 
+              label="first name"
+              value={formValues.firstName}
+              onChange={handleChange}
+              error={errors.firstName}
+            />
+            <Input
+              name="lastName"
+              label="last name"
+              value={formValues.lastName}
+              onChange={handleChange}
+              error={errors.lastName}
+            />
+            
             <Input
               name="email"
               label="Email address"

@@ -5,6 +5,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    firstName: {
+        type: String,
+        required: true,
+    },
+    lastName: {
+        type: String,
+        required: true,
+    },
     email: {
         type: String,
         unique: true,
@@ -20,15 +28,23 @@ const userSchema = new mongoose.Schema({
     },
     verified: {
         type: Boolean,
-        required: true, 
+        required: true,
     },
     resetToken: {
-        type: String, // Stores the hashed reset token
+        type: String,
         default: null,
     },
     resetTokenExpiry: {
-        type: Date, // Stores the expiry time of the reset token
+        type: Date,
         default: null,
+    },
+    fileUploadCount: {
+        type: Number,
+        default: 0, 
+    },
+    ProcessedDocument: {
+        type: Number,
+        default: 0, 
     },
 });
 

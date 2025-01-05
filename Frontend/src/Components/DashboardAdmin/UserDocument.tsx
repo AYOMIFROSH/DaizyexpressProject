@@ -1,72 +1,177 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../../Context/useContext";
+import { Skeleton, Spin, Select, Modal } from "antd";
 
-interface User {
-  id: number;
-  title: string;
-  documentBlob: Blob;
-  Date: string;
+const { Option } = Select;
+
+interface File {
+  _id: string;
+  fileName: string;
+  uploadedAt: string;
   status: string;
 }
 
-const initialData: User[] = [];
-
 const UserDocuments: React.FC = () => {
-  const [data, setData] = useState<User[]>(initialData);
+  const { id } = useParams<{ id: string }>();
+  const { token } = useAuth();
+  const [files, setFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState("");
-  const [documentTitle, setDocumentTitle] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isDownloading, setIsDownloading] = useState<string | null>(null);
+  const [statusLoading, setStatusLoading] = useState<Set<string>>(new Set());
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState<boolean>(false); 
 
+  const API_BASE_URL = "https://daizyexserver.vercel.app";
+
+  useEffect(() => {
+    const fetchUserFiles = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}/details`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+          setFiles(result.data.files);
+        } else {
+          toast.error(`Error fetching files: ${result.message}`);
+        }
+      } catch (error) {
+        toast.error("Error fetching files. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserFiles();
+  }, [id, token, API_BASE_URL]);
+
+  const handleDownload = async (fileId: string, fileName: string) => {
+    try {
+      setIsDownloading(fileId);
+      const response = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        toast.error("Error downloading file.");
+        return;
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast.error("Error downloading file. Please try again later.");
+    } finally {
+      setIsDownloading(null);
+    }
+  };
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      if (selectedFile.type === "application/pdf") {
-        setFile(selectedFile);
+      const file = e.target.files[0];
+      setUploadedFile(file as unknown as File); 
+      console.log("Selected file:", file);
+    }
+  };
+
+  const handleStatusChange = async (fileId: string, newStatus: string) => {
+    try {
+      setStatusLoading((prev) => new Set(prev.add(fileId)));
+      const response = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/update-status`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        toast.success("Status updated successfully!");
+        setFiles((prevFiles) =>
+          prevFiles.map((file) =>
+            file._id === fileId ? { ...file, status: newStatus } : file
+          )
+        );
+
+        if (newStatus === "processed") {
+          setSelectedFileId(fileId);
+          setIsModalVisible(true);
+        }
       } else {
-        alert("Please upload a valid PDF file!");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        setFile(null);
+        toast.error(`Failed to update status: ${result.message}`);
       }
+    } catch (error) {
+      toast.error("Error updating status. Please try again later.");
+    } finally {
+      setStatusLoading((prev) => {
+        const updated = new Set(prev);
+        updated.delete(fileId);
+        return updated;
+      });
     }
   };
 
-  const handleFileUpload = () => {
-    if (file && documentTitle) {
-      const newDocument: User = {
-        id: data.length + 1,
-        title: documentTitle,
-        documentBlob: new Blob([file], { type: file.type }),
-        Date: new Date().toLocaleDateString(),
-        status: "processed",
-  
-      };
-      toast.success("file processed")
+  const handleSubmitUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      setData([...data, newDocument]);
-      setFile(null);
-      setDocumentTitle("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    } else {
-      alert("Please provide a document title and select a PDF file to upload!");
+    if (!uploadedFile || !selectedFileId) {
+      toast.error("Please select a file to upload.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", uploadedFile as unknown as Blob); // Correct handling of file data
+
+    try {
+      setUploading(true); // Start the spinner
+      const response = await fetch(`${API_BASE_URL}/api/admin/files/${selectedFileId}/replace`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        toast.success("File updated successfully!");
+        setFiles((prevFiles) =>
+          prevFiles.map((file) =>
+            file._id === selectedFileId ? { ...file, fileName: result.file.fileName } : file
+          )
+        );
+        setIsModalVisible(false);
+        setUploadedFile(null);
+        setSelectedFileId(null);
+      } else {
+        toast.error(`Failed to update file: ${result.message}`);
+      }
+    } catch (error) {
+      toast.error("Error updating file. Please try again later.");
+    } finally {
+      setUploading(false); 
     }
   };
 
-  const handleDownload = (documentBlob: Blob, title: string) => {
-    const url = window.URL.createObjectURL(documentBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${title}.pdf`;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  };
-
-  const filteredData = data.filter((user) =>
-    Object.values(user).join(" ").toLowerCase().includes(searchText.toLowerCase())
+  const filteredFiles = files.filter((file) =>
+    file.fileName.toLowerCase().includes(searchText.toLowerCase())
   );
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen mt-12 sm:mt-16 lg:mt-20 max-sm:w-[320px] w-full">
+    <div className="p-4 sm:p-6 bg-gray-100 min-h-screen mt-12 sm:mt-16 lg:mt-20 w-full">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Documents</h1>
         <input
@@ -83,49 +188,62 @@ const UserDocuments: React.FC = () => {
           <thead className="bg-gray-200">
             <tr>
               <th className="px-4 py-2 border border-gray-300">#</th>
-              <th className="px-4 py-2 border border-gray-300">Doc Title</th>
+              <th className="px-4 py-2 border border-gray-300">File Name</th>
               <th className="px-4 py-2 border border-gray-300">Date</th>
               <th className="px-4 py-2 border border-gray-300">Status</th>
               <th className="px-4 py-2 border border-gray-300">Action</th>
             </tr>
           </thead>
           <tbody>
-            {filteredData.length > 0 ? (
-              filteredData.map((user, index) => (
-                <tr
-                  key={user.id}
-                  className={`hover:bg-gray-100 ${
-                    index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                  }`}
-                >
-                  <td className="px-4 py-2 border border-gray-300">{user.id}</td>
-                  <td className="px-4 py-2 border border-gray-300">{user.title}</td>
-                  <td className="px-4 py-2 border border-gray-300">{user.Date}</td>
-                  <td
-                    className={`px-4 py-2 border border-gray-300 ${
-                      user.status === "processed"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {user.status}
+            {loading ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <tr key={index}>
+                  <td colSpan={5} className="px-4 py-2 text-center">
+                    <Skeleton.Input style={{ width: "100%" }} active />
+                  </td>
+                </tr>
+              ))
+            ) : filteredFiles.length > 0 ? (
+              filteredFiles.map((file, index) => (
+                <tr key={file._id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                  <td className="px-4 py-2 border border-gray-300">{index + 1}</td>
+                  <td className="px-4 py-2 border border-gray-300">{file.fileName}</td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    {new Date(file.uploadedAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    {statusLoading.has(file._id) ? (
+                      <Skeleton.Button active size="small" style={{ width: "80px" }} />
+                    ) : (
+                      <Select
+                        defaultValue={file.status || "not processed"}
+                        onChange={(value) => handleStatusChange(file._id, value)}
+                      >
+                        <Option value="not processed">Not Processed</Option>
+                        <Option value="in process">In Process</Option>
+                        <Option value="processed">Processed</Option>
+                      </Select>
+                    )}
                   </td>
                   <td className="px-4 py-2 border border-gray-300">
                     <button
-                      onClick={() => handleDownload(user.documentBlob, user.title)}
-                      className="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none"
+                      onClick={() => handleDownload(file._id, file.fileName)}
+                      className="px-4 py-2 text-black bg-white-500 rounded-lg hover:bg-white-600 focus:outline-none"
                     >
-                      Download
+                      {isDownloading === file._id ? (
+                        <>
+                          Download <Spin size="small" style={{ marginLeft: "8px" }} />
+                        </>
+                      ) : (
+                        "Download"
+                      )}
                     </button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-2 text-center border border-gray-300"
-                >
+                <td colSpan={5} className="px-4 py-2 text-center border border-gray-300">
                   No documents found
                 </td>
               </tr>
@@ -133,34 +251,26 @@ const UserDocuments: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      <div className="mt-8 space-y-4">
-        <input
-          type="text"
-          id="documentTitle"
-          value={documentTitle}
-          onChange={(e) => setDocumentTitle(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring focus:ring-blue-300"
-          placeholder="Enter document title"
-        />
+      <Modal
+        title="Upload New Document"
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onOk={handleSubmitUpload}
+        okText={uploading ? "Uploading..." : "Upload"} 
+        cancelText="Cancel"
+      >
         <input
           type="file"
-          id="file"
-          name="file"
-          onChange={handleFileChange}
           ref={fileInputRef}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-gray-700 hover:file:bg-blue-100"
-          accept="application/pdf"
+          accept=".pdf,.docx"
+          onChange={handleFileChange}
         />
-        <button
-          onClick={handleFileUpload}
-          className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md mt-4 hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
-        >
-          Upload
-        </button>
-      </div>
+      </Modal>
     </div>
   );
 };
 
 export default UserDocuments;
+
+
+
