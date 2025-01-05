@@ -3,7 +3,11 @@ import { createRoot } from "react-dom/client";
 import { AuthProvider, useAuth } from "./Context/useContext.tsx";
 import "./index.css";
 import App from "./App.tsx";
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 // Importing Pages
 import Login from "./Pages/Login.tsx";
 import SignUp from "./Pages/SignUp.tsx";
@@ -31,10 +35,7 @@ function AppRouter() {
           path: "/",
           element: <LandingPage />,
         },
-        {
-          path: "/user1",
-          element: <UserPages/>,
-        },
+      
         {
           path: "/forgot",
           element: <ForgottenPwd />,
@@ -63,64 +64,84 @@ function AppRouter() {
         },
         {
           path: "/verify",
-          element: !isAuthenticated || isVerified ? (
-            <Navigate to="/login" />
-          ) : (
-            <VerificationPage />
-          ),
+          element:
+            !isAuthenticated || isVerified ? (
+              <Navigate to="/login" />
+            ) : (
+              <VerificationPage />
+            ),
         },
         {
           path: "/user",
-          element: isAuthenticated && userRole === "user" ? (
-            isVerified ? (
-              <UserPages />
+          element:
+            isAuthenticated && userRole === "user" ? (
+              isVerified ? (
+                <UserPages />
+              ) : (
+                <Navigate to="/verify" />
+              )
             ) : (
-              <Navigate to="/verify" />
-            )
-          ) : (
-            <Navigate to={isAuthenticated ? "/admin" : "/login"} />
-          ),
+              <Navigate to={isAuthenticated ? "/admin" : "/login"} />
+            ),
         },
         {
           path: "/admin",
-          element: isAuthenticated && userRole === "admin" ? (
-            isVerified ? (
-              <AdminPages />
+          element:
+            isAuthenticated && userRole === "admin" ? (
+              isVerified ? (
+                <AdminPages />
+              ) : (
+                <Navigate to="/verify" />
+              )
             ) : (
-              <Navigate to="/verify" />
-            )
-          ) : (
-            <Navigate to="/login" />
-          ),
+              <Navigate to="/login" />
+            ),
         },
-		
+
         {
           path: "/upload",
-          element: isAuthenticated && isVerified ? <UploadPage /> : <Navigate to="/verify" />,
+          element:
+            isAuthenticated && isVerified ? (
+              <UploadPage />
+            ) : (
+              <Navigate to="/verify" />
+            ),
         },
         {
           path: "/document",
-          element: isAuthenticated && isVerified ? <DocumentPage /> : <Navigate to="/verify" />,
+          element:
+            isAuthenticated && isVerified ? (
+              <DocumentPage />
+            ) : (
+              <Navigate to="/verify" />
+            ),
         },
         {
           path: "/totaldocuments",
-          element: isAuthenticated && isVerified ? <TotalDocuments /> : <Navigate to="/verify" />,
+          element:
+            isAuthenticated && isVerified ? (
+              <TotalDocuments />
+            ) : (
+              <Navigate to="/verify" />
+            ),
         },
         {
           path: "/manageusers",
-          element: isAuthenticated && isVerified && userRole === "admin" ? (
-            <ManageUsers />
-          ) : (
-            <Navigate to="/verify" />
-          ),
+          element:
+            isAuthenticated && isVerified && userRole === "admin" ? (
+              <ManageUsers />
+            ) : (
+              <Navigate to="/verify" />
+            ),
         },
         {
           path: "/userdetails/:id",
-          element: isAuthenticated && isVerified && userRole === "admin" ? (
-            <UserDetails />
-          ) : (
-            <Navigate to="/verify" />
-          ),
+          element:
+            isAuthenticated && isVerified && userRole === "admin" ? (
+              <UserDetails />
+            ) : (
+              <Navigate to="/verify" />
+            ),
         },
       ],
     },

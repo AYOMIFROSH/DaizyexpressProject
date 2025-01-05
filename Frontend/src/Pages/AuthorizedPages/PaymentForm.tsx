@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { FaMars} from 'react-icons/fa';
+import { FaXmark } from 'react-icons/fa6';
 
 type ServiceType = 'Standard' | 'Rush' | 'Priority';
 type ServiceLocation = 'Local' | 'Extended' | 'Rural';
@@ -22,12 +22,11 @@ type FormData = {
   agreeToTerms: boolean;
   signature: string;
 };
-
-interface PaymentOverlayProps  {
-  // onClose: () => void; // Prop to close the payment overlay
+interface PaymentOverlayProps {
+  onClose?: () => void; // Prop to close the payment overlay
 }
 
-const PaymentForm: React.FC <PaymentOverlayProps>= () => {
+const PaymentForm: React.FC <PaymentOverlayProps>= (onClose) => {
   const [formData, setFormData] = useState<FormData>({
     serviceType: '',
     serviceLocation: '',
@@ -126,7 +125,7 @@ const PaymentForm: React.FC <PaymentOverlayProps>= () => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 shadow-lg max-w-lg w-full">
-      <FaMars className='h-5 w-5 text-right'/>
+      <FaXmark className='h-5 w-5 text-right' onClick={()=> onClose}/>
         <h2 className="text-2xl font-bold mb-4">Document Service Request</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
