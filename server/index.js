@@ -54,7 +54,7 @@ app.set('views', path.join(__dirname, 'views'));  // Correct path to 'views' fol
 app.set('view engine', 'ejs');  // Set EJS as view engine
 
 // General Global Error Handler
-app.use((err, req, res, next) => {
+/*app.use((err, req, res, next) => {
     // Dynamically set the Access-Control-Allow-Origin header
     const allowedOrigins = ['https://daizyexpress.vercel.app', 'http://localhost:5173'];
     const origin = req.headers.origin;
@@ -69,7 +69,7 @@ app.use((err, req, res, next) => {
         status: err.status,
         message: err.message,
     });
-});
+});*/
 
 // Async function to connect to MongoDB and start the server
 const startServer = async () => {
