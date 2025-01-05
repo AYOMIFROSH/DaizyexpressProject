@@ -46,7 +46,7 @@ const MobileNav = ({ isAdmin }: { isAdmin: boolean }) => {
 
   return (
     <div className="">
-      <aside className="relative top-0 left-0 z-0 w-64 h-screen bg-white border-r border-gray-200  max-md:w-[60px] block md:hidden">
+      <aside className="relative top-0 left-0 z-0 w-[50%] h-screen bg-white border-r border-gray-200   block md:hidden">
         <FaStar className='text-right h-10 w-6'/>
         <div className="h-full pb-4 overflow-y-auto">
           <div className="bg-[#407BBB] h-[1px] w-full mb-10" />

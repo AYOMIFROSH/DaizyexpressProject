@@ -21,7 +21,7 @@ import MobileNav from "./MobileNav";
             {/* <FaRegUserCircle className="text-4xl" /> */}
               <Typography.Paragraph className=" text-[16px] hidden sm:block">{isAdmin ? `Welcome! ${userData.userName}` : `welcome! ${userData.userName}`}</Typography.Paragraph>
             </div>
-            <FaBars className="w-5 h-5 block md:hidden cursor-pointer" onClick={()=> setIsNavbarOpen((prev)=> !prev)}/>
+            {!isNavbarOpen ? <FaBars className="w-5 h-5 block md:hidden cursor-pointer" onClick={()=> setIsNavbarOpen((prev)=> !prev)}/>: null}
               {isNavbarOpen ? <MobileNav isAdmin={false} />  : null}
     </header>
    )
