@@ -2,15 +2,12 @@ import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../Context/useContext";
 import { Spin } from "antd";
-import PaymentForm from "../../Pages/AuthorizedPages/PaymentForm";
 
 const UploadForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const { token } = useAuth()
+  const { token,setIsPayed,isPayed } = useAuth()
   const [loading, setLoading] = useState<boolean>(false); // Loading state
-  const [hasPaid, setHasPaid] = useState<boolean>(false); // Payment state
-  const [showPaymentOverlay, setShowPaymentOverlay] = useState<boolean>(false);
 
   const Base_Url =
     window.location.hostname === "localhost"
@@ -33,10 +30,10 @@ const UploadForm: React.FC = () => {
       toast.error("Please provide a name and upload a file.");
       return;
     }
-    if (!hasPaid) {
+    //if (!hasPaid) {
       // If user has not paid, show the payment overlay
-      setShowPaymentOverlay(true);
-    } 
+  
+    //} 
 
     const formData = new FormData();
     formData.append("name", name);
@@ -73,8 +70,8 @@ const UploadForm: React.FC = () => {
     }
   };
 
-  const closePaymentOverlay = () => {
-    setShowPaymentOverlay(false);
+  const showPaymentOverlay = () => {
+    setIsPayed(true);
   };
 
   return (
@@ -132,13 +129,22 @@ const UploadForm: React.FC = () => {
         </div>
 
         {/* Submit Button */}
-        <button
+        {isPayed && <button
           type="submit"
           className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
           disabled={loading} 
         >
           {loading ? <Spin size="small" /> : "Upload"} 
-        </button>
+        </button>}
+
+       {!isPayed && <button
+          type="submit"
+          onClick={showPaymentOverlay}
+          className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
+          disabled={loading} 
+        >
+          { "Pay"} 
+        </button>}
       </form>
     </div>
   );

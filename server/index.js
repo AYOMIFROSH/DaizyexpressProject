@@ -15,14 +15,14 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // MIDDLEWARES
 // Define CORS options
-const corsOptions = {
+/*const corsOptions = {
     origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173'], // Allow both production and local development origins
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-};
+};*/
 // Apply CORS middleware with options
-app.use(cors(corsOptions));
+app.use(cors());
 
 // Preflight request handling
 app.options('*', cors(corsOptions));

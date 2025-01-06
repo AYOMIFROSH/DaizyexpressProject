@@ -224,7 +224,7 @@ const PaymentForm: React.FC <PaymentOverlayProps>= (onClose) => {
 
           <button
             type="submit"
-            className="bg-blue-500 text-white p-3 rounded w-full mt-4 hover:bg-blue-600"
+            className="bg-yellow-300 text-white p-3 rounded w-full mt-4 hover:bg-yellow-600"
           >
             Book Now
           </button>
