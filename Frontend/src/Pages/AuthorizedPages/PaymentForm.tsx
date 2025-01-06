@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { FaXmark } from 'react-icons/fa6';
+import { useAuth } from '../../Context/useContext';
 
 type ServiceType = 'Standard' | 'Rush' | 'Priority';
 type ServiceLocation = 'Local' | 'Extended' | 'Rural';
@@ -22,11 +23,11 @@ type FormData = {
   agreeToTerms: boolean;
   signature: string;
 };
-interface PaymentOverlayProps {
-  onClose?: () => void; // Prop to close the payment overlay
-}
 
-const PaymentForm: React.FC <PaymentOverlayProps>= (onClose) => {
+
+const PaymentForm: React.FC = () => {
+const { setIsVisible } = useAuth();
+
   const [formData, setFormData] = useState<FormData>({
     serviceType: '',
     serviceLocation: '',
@@ -120,12 +121,16 @@ const PaymentForm: React.FC <PaymentOverlayProps>= (onClose) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     console.log(formData);
+    setIsVisible(false)
   };
+
+  
+    const closeOVerlay =() =>   setIsVisible(false)
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 shadow-lg max-w-lg w-full">
-      <FaXmark className='h-5 w-5 text-right' onClick={()=> onClose}/>
+      <FaXmark className='h-5 w-5 text-right' onClick={()=> closeOVerlay}/>
         <h2 className="text-2xl font-bold mb-4">Document Service Request</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
