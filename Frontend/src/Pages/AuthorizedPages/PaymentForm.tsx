@@ -26,7 +26,7 @@ type FormData = {
 
 
 const PaymentForm: React.FC = () => {
-const { setIsVisible } = useAuth();
+const [isVisible, setIsVisible] = useState(false)
 
   const [formData, setFormData] = useState<FormData>({
     serviceType: '',
