@@ -123,7 +123,7 @@ const PaymentForm: React.FC <PaymentOverlayProps>= (onClose) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-x-auto">
       <div className="bg-white rounded-lg p-6 shadow-lg max-w-lg w-full">
       <FaXmark className='h-5 w-5 text-right' onClick={()=> onClose}/>
         <h2 className="text-2xl font-bold mb-4">Document Service Request</h2>

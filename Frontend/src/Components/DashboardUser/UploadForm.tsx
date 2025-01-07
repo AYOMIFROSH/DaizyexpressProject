@@ -6,7 +6,8 @@ import { Spin } from "antd";
 const UploadForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const { token,setIsPayed,isPayed } = useAuth()
+  const { token } = useAuth()
+  const [isPayed, setIsPayed] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false); // Loading state
 
   const Base_Url =

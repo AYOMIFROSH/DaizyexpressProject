@@ -8,7 +8,7 @@ interface LoginValues {
 }
 
 const useLogin = () => {
-  const { login } = useAuth(); // Assuming `login` adds token and user data to context
+  const { login } = useAuth(); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
