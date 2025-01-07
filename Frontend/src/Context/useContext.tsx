@@ -6,6 +6,10 @@ type AuthContextType = {
   userData: any;
   userRole: any;
   isVerified: boolean;
+  isVisible: boolean;
+  isPayed: boolean;
+  setIsVisible: (value: boolean) => void;
+  setIsPayed: (value: boolean) => void;
   login: (newToken: string, newData: any) => void;
   logout: () => void;
 };
@@ -22,6 +26,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [isPayed, setIsPayed] = useState<boolean>(false);
 
   useEffect(() => {
     const storedData = JSON.parse(sessionStorage.getItem("user_data") || "null");
@@ -54,6 +60,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsAuthenticated(false);
     setUserRole(null);
     setIsVerified(false);
+    setIsPayed(false)
   };
 
   return (
@@ -64,6 +71,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         userData,
         userRole,
         isVerified,
+        isPayed,
+        isVisible,
+        setIsVisible,
+        setIsPayed,
         login,
         logout,
       }}
