@@ -15,12 +15,12 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // MIDDLEWARES
 // Define CORS options
-/*const corsOptions = {
-    origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173'], // Allow both production and local development origins
+const corsOptions = {
+    origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-};*/
+};
 // Apply CORS middleware with options
 app.use(cors());
 
@@ -54,7 +54,7 @@ app.set('views', path.join(__dirname, 'views'));  // Correct path to 'views' fol
 app.set('view engine', 'ejs');  // Set EJS as view engine
 
 // General Global Error Handler
-/*app.use((err, req, res, next) => {
+app.use((err, req, res, next) => {
     // Dynamically set the Access-Control-Allow-Origin header
     const allowedOrigins = ['https://daizyexpress.vercel.app', 'http://localhost:5173'];
     const origin = req.headers.origin;
@@ -69,7 +69,7 @@ app.set('view engine', 'ejs');  // Set EJS as view engine
         status: err.status,
         message: err.message,
     });
-});*/
+});
 
 // Async function to connect to MongoDB and start the server
 const startServer = async () => {
@@ -89,7 +89,7 @@ const startServer = async () => {
         });
     } catch (error) {
         console.error('Failed to connect to MongoDB:', error);
-        process.exit(1); // Exit the process with an error code
+        process.exit(1); 
     }
 };
 
