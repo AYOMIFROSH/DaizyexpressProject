@@ -128,7 +128,7 @@ const {setIsPayed} = useAuth()
     const closeOVerlay =() =>   setIsPayed(false)
 
   return (
-    <div className="relative top-0 left0 bottom-0 right-0 inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-x-auto">
+    <div className="relative top-0 z-[999] left0 bottom-0 right-0 inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-x-auto">
       <div className="bg-white rounded-lg p-6 shadow-lg max-w-lg w-full">
       <FaXmark className='h-5 w-5 text-right' onClick={()=> closeOVerlay}/>
         <h2 className="text-2xl font-bold mb-4">Document Service Request</h2>
