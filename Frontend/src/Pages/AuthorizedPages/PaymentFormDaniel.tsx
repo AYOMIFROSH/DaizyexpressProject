@@ -1,15 +1,19 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { FaXmark } from 'react-icons/fa6';
-import { useAuth } from '../../Context/useContext';
+import React, { useState, ChangeEvent, FormEvent } from "react";
+import { FaXmark } from "react-icons/fa6";
+import { useAuth } from "../../Context/useContext";
 
-type ServiceType = 'Standard' | 'Rush' | 'Priority';
-type ServiceLocation = 'Local' | 'Extended' | 'Rural';
-type AdditionalService = 'Stakeout' | 'AddressAttempts' | 'CourtFiling' | 'NotarizedAffidavit';
+type ServiceType = "Standard" | "Rush" | "Priority";
+type ServiceLocation = "Local" | "Extended" | "Rural";
+type AdditionalService =
+  | "Stakeout"
+  | "AddressAttempts"
+  | "CourtFiling"
+  | "NotarizedAffidavit";
 
 type FormData = {
-  serviceType: ServiceType | '';
-  serviceLocation: ServiceLocation | '';
-  numDocuments: '1' | '2' | '3+' | '';
+  serviceType: ServiceType | "";
+  serviceLocation: ServiceLocation | "";
+  numDocuments: "1" | "2" | "3+" | "";
   skipTracing: boolean;
   additionalServices: AdditionalService[];
   recipientName: string;
@@ -24,26 +28,25 @@ type FormData = {
   signature: string;
 };
 
-
 const PaymentForm: React.FC = () => {
-const [isVisible, setIsVisible] = useState(false)
+  const { setIsPayed } = useAuth();
 
   const [formData, setFormData] = useState<FormData>({
-    serviceType: '',
-    serviceLocation: '',
-    numDocuments: '',
+    serviceType: "",
+    serviceLocation: "",
+    numDocuments: "",
     skipTracing: false,
     additionalServices: [],
-    recipientName: '',
-    serviceAddress: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    preferredDate: '',
-    preferredTime: '',
-    paymentMethod: '',
+    recipientName: "",
+    serviceAddress: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    preferredDate: "",
+    preferredTime: "",
+    paymentMethod: "",
     agreeToTerms: false,
-    signature: '',
+    signature: "",
   });
 
   const [totalPrice, setTotalPrice] = useState<number>(0);
@@ -52,13 +55,13 @@ const [isVisible, setIsVisible] = useState(false)
     let price = 0;
 
     switch (formData.serviceType) {
-      case 'Standard':
+      case "Standard":
         price += 50;
         break;
-      case 'Rush':
+      case "Rush":
         price += 100;
         break;
-      case 'Priority':
+      case "Priority":
         price += 200;
         break;
       default:
@@ -66,13 +69,13 @@ const [isVisible, setIsVisible] = useState(false)
     }
 
     switch (formData.serviceLocation) {
-      case 'Local':
+      case "Local":
         price += 20;
         break;
-      case 'Extended':
+      case "Extended":
         price += 50;
         break;
-      case 'Rural':
+      case "Rural":
         price += 100;
         break;
       default:
@@ -83,16 +86,16 @@ const [isVisible, setIsVisible] = useState(false)
 
     formData.additionalServices.forEach((service) => {
       switch (service) {
-        case 'Stakeout':
+        case "Stakeout":
           price += 50;
           break;
-        case 'AddressAttempts':
+        case "AddressAttempts":
           price += 25;
           break;
-        case 'CourtFiling':
+        case "CourtFiling":
           price += 50;
           break;
-        case 'NotarizedAffidavit':
+        case "NotarizedAffidavit":
           price += 15;
           break;
       }
@@ -101,16 +104,18 @@ const [isVisible, setIsVisible] = useState(false)
     setTotalPrice(price);
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ): void => {
     const { name, value, type, ariaChecked } = e.target;
-    if (type === 'checkbox' && name === 'additionalServices') {
+    if (type === "checkbox" && name === "additionalServices") {
       setFormData((prev) => ({
         ...prev,
         additionalServices: ariaChecked
           ? [...prev.additionalServices, value as AdditionalService]
           : prev.additionalServices.filter((service) => service !== value),
       }));
-    } else if (type === 'checkbox') {
+    } else if (type === "checkbox") {
       setFormData((prev) => ({ ...prev, [name]: ariaChecked }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
@@ -121,64 +126,71 @@ const [isVisible, setIsVisible] = useState(false)
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     console.log(formData);
-    setIsVisible(false)
+    setIsPayed(false);
   };
 
-  
-    const closeOVerlay =() =>   setIsVisible(false)
+  const closeOVerlay = () => setIsPayed(false);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-x-auto">
+    <div className="relative top-0 px-5 py-10 z-[999]  left-0 bottom-0 right-0 bg-black/40 shadow-md flex items-center justify-center overflow-x-auto">
       <div className="bg-white rounded-lg p-6 shadow-lg max-w-lg w-full">
-      <FaXmark className='h-5 w-5 text-right' onClick={()=> closeOVerlay}/>
+        <div className="flex justify-end">
+        <FaXmark className="h-5 w-5 position asolute top-2 right-2 cursor-pointer" onClick={() => closeOVerlay} />
+        </div>
         <h2 className="text-2xl font-bold mb-4">Document Service Request</h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block font-medium mb-2">Type of Service:</label>
             <div className="space-y-2">
-              {(['Standard', 'Rush', 'Priority'] as ServiceType[]).map((type) => (
-                <label className="block" key={type}>
-                  <input
-                    type="radio"
-                    name="serviceType"
-                    value={type}
-                    onChange={handleChange}
-                  />{' '}
-                  {type} Service
-                </label>
-              ))}
+              {(["Standard", "Rush", "Priority"] as ServiceType[]).map(
+                (type) => (
+                  <label className="block" key={type}>
+                    <input
+                      type="radio"
+                      name="serviceType"
+                      value={type}
+                      onChange={handleChange}
+                    />{" "}
+                    {type} Service
+                  </label>
+                )
+              )}
             </div>
           </div>
 
           <div>
             <label className="block font-medium mb-2">Service Location:</label>
             <div className="space-y-2">
-              {(['Local', 'Extended', 'Rural'] as ServiceLocation[]).map((location) => (
-                <label className="block" key={location}>
-                  <input
-                    type="radio"
-                    name="serviceLocation"
-                    value={location}
-                    onChange={handleChange}
-                  />{' '}
-                  {location} Area
-                </label>
-              ))}
+              {(["Local", "Extended", "Rural"] as ServiceLocation[]).map(
+                (location) => (
+                  <label className="block" key={location}>
+                    <input
+                      type="radio"
+                      name="serviceLocation"
+                      value={location}
+                      onChange={handleChange}
+                    />{" "}
+                    {location} Area
+                  </label>
+                )
+              )}
             </div>
           </div>
 
           <div>
-            <label className="block font-medium mb-2">Number of Documents to be Served:</label>
+            <label className="block font-medium mb-2">
+              Number of Documents to be Served:
+            </label>
             <div className="space-y-2">
-              {(['1', '2', '3+'] as FormData['numDocuments'][]).map((num) => (
+              {(["1", "2", "3+"] as FormData["numDocuments"][]).map((num) => (
                 <label className="block" key={num}>
                   <input
                     type="radio"
                     name="numDocuments"
                     value={num}
                     onChange={handleChange}
-                  />{' '}
-                  {num} Document{num !== '1' && 's'}
+                  />{" "}
+                  {num} Document{num !== "1" && "s"}
                 </label>
               ))}
             </div>
@@ -191,22 +203,31 @@ const [isVisible, setIsVisible] = useState(false)
                 type="checkbox"
                 name="skipTracing"
                 onChange={handleChange}
-              />{' '}
+              />{" "}
               Yes (add $50 - $150)
             </label>
           </div>
 
           <div>
-            <label className="block font-medium mb-2">Additional Services:</label>
+            <label className="block font-medium mb-2">
+              Additional Services:
+            </label>
             <div className="space-y-2">
-              {(['Stakeout', 'AddressAttempts', 'CourtFiling', 'NotarizedAffidavit'] as AdditionalService[]).map((service) => (
+              {(
+                [
+                  "Stakeout",
+                  "AddressAttempts",
+                  "CourtFiling",
+                  "NotarizedAffidavit",
+                ] as AdditionalService[]
+              ).map((service) => (
                 <label className="block" key={service}>
                   <input
                     type="checkbox"
                     name="additionalServices"
                     value={service}
                     onChange={handleChange}
-                  />{' '}
+                  />{" "}
                   {service}
                 </label>
               ))}
