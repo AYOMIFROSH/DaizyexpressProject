@@ -5,7 +5,7 @@ import ServiceForm from '../../Components/DashboardUser/PaymentForm';
 import BookingDetailsForm from '../../Components/DashboardUser/BookingDetailsForm';
 import UploadForm from '../../Components/DashboardUser/UploadForm';
 
-const UploadPage = () => {
+const UploadPage React.FC = () => {
   const [currentView, setCurrentView] = useState<'services' | 'booking' | 'upload'>('services');
 
   const handleProceedToBooking = () => {
