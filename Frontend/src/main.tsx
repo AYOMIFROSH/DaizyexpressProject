@@ -22,7 +22,6 @@ import ManageUsers from "./Pages/AuthorizedPages/ManageUserss.tsx";
 import UserDetails from "./Pages/AuthorizedPages/UserDetails.tsx";
 import VerificationPage from "./Pages/AuthorizedPages/VerificationPage.tsx";
 import CheckEmailPage from "./Pages/PasswordReset.tsx";
-import PaymentForm from "./Pages/AuthorizedPages/PaymentForm.tsx";
 
 function AppRouter() {
   const { isAuthenticated, userRole, isVerified } = useAuth();
@@ -40,10 +39,6 @@ function AppRouter() {
         {
           path: "/forgot",
           element: <ForgottenPwd />,
-        },
-        {
-          path:'/payment',
-          element: <PaymentForm/>
         },
         {
           path: "/check-email",

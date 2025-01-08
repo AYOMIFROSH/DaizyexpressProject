@@ -20,10 +20,6 @@ const UploadPage = () => {
     setCurrentView('upload');
   };
 
-  const handleBackToBooking = () => {
-    setCurrentView('booking');
-  };
-
   return (
     <>
       <Top isAdmin={false} />
