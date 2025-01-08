@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import Sidebar from '../../Components/Sidebar';
 import Top from '../../Components/Top';
 import ServiceForm from '../../Components/DashboardUser/PaymentForm';
 import BookingDetailsForm from '../../Components/DashboardUser/BookingDetailsForm';
 import UploadForm from '../../Components/DashboardUser/UploadForm';
 
-const UploadPage React.FC = () => {
+const UploadPage = () => {
   const [currentView, setCurrentView] = useState<'services' | 'booking' | 'upload'>('services');
 
   const handleProceedToBooking = () => {
