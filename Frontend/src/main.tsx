@@ -143,6 +143,7 @@ function AppRouter() {
               <Navigate to="/verify" />
             ),
         },
+
       ],
     },
   ]);
