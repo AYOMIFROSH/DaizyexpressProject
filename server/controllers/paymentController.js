@@ -4,9 +4,11 @@ const PaymentDetails = require('../models/PaymentDetailsModel');
 const User = require('../models/userModel');
 const { authenticate } = require('../routes/middleware');
 
+require('dotenv').config();
+
 const router = express.Router();
-const stripe = new Stripe('sk_test_51QbTinI80y0LOYtP4FRooidJslB1ezHZVMeESzDOy9oBfjBObItXsFIaRmJ09Y4S5K5CFZ7upChtykP1tvRN7K6h00RW3gLmom');
-const webHookSecret = 'whsec_1Crpj2KkRa5GxUWMfz4kGZOoY9E9t6o9'; 
+const stripe = new Stripe(process.env.STRIPE_SECRET);
+const webHookSecret = process.env.WEB_HOOK_SECRET; 
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'
