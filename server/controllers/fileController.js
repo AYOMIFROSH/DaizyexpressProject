@@ -1,16 +1,23 @@
 const zlib = require('zlib');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
+const PaymentDetails = require('../models/PaymentDetailsModel');
 
 exports.uploadFile = async (req, res) => {
     const userId = req.user._id;
-    const { name } = req.body;
+    const { name, paymentId } = req.body;
 
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
 
     try {
+
+        const paymentDetails = await PaymentDetails.findOne({ _id: paymentId, userId, activePlan: true });
+
+        if (!paymentDetails) {
+            return res.status(400).json({ message: 'Invalid or inactive payment plan.' });
+        }
         // Check file size limit (e.g., 5MB)
         if (req.file.size > 5 * 1024 * 1024) {
             return res.status(400).json({ message: 'File size exceeds the limit of 5MB.' });
@@ -31,10 +38,12 @@ exports.uploadFile = async (req, res) => {
         // Save the file
         await file.save();
 
+        await PaymentDetails.findByIdAndUpdate(paymentId, { activePlan: false });
+
         // Increment fileUploadCount in the User model
         await User.findByIdAndUpdate(
             userId,
-            { $inc: { fileUploadCount: 1 } }, // Increment by 1
+            { $inc: { fileUploadCount: 1 } },
             { new: true }
         );
 
