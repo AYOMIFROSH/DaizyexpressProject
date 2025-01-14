@@ -8,6 +8,16 @@ const router = express.Router();
 const stripe = new Stripe('sk_test_51QbTinI80y0LOYtP4FRooidJslB1ezHZVMeESzDOy9oBfjBObItXsFIaRmJ09Y4S5K5CFZ7upChtykP1tvRN7K6h00RW3gLmom');
 const webHookSecret = 'whsec_1Crpj2KkRa5GxUWMfz4kGZOoY9E9t6o9'; 
 
+const BASE_URL =
+  process.env.NODE_ENV === 'production'
+    ? process.env.BASE_URL_PRODUCTION || 'https://daizyexserver.vercel.app' 
+    : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:3000'; 
+
+const FRONT_URL =
+    process.env.NODE_ENV === 'production'
+      ? process.env.BASE_URL_PRODUCTION || 'https://daizyexpress.vercel.app' 
+      : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:5173'; 
+
 // Create Payment Route
 router.post('/card-payment', authenticate, async (req, res) => {
     console.log('create payment hit');
@@ -85,8 +95,8 @@ router.post('/card-payment', authenticate, async (req, res) => {
               },
           ],
           mode: 'payment',
-          success_url: `http://localhost:3000/api/payment/verify-payment?paymentId=${savedPayment._id}`,
-          cancel_url: `http://localhost:5173/upload`,
+          success_url: `${BASE_URL}/api/payment/verify-payment?paymentId=${savedPayment._id}`,
+          cancel_url: `${FRONT_URL}/upload`,
           metadata: {
               paymentId: savedPayment._id.toString(),
               userId: userId.toString(),
@@ -128,7 +138,7 @@ router.get('/verify-payment', async (req, res) => {
       }
 
       if (paymentDetails.activePlan) {
-          return res.redirect(`http://localhost:5173/${user.role}`);
+          return res.redirect(`${FRONT_URL}/${user.role}`);
       }
 
       // Use the stored Stripe session ID to verify payment
@@ -140,11 +150,11 @@ router.get('/verify-payment', async (req, res) => {
           });
 
           console.log(`Payment ${paymentId} verified and activated.`);
-          return res.redirect(`http://localhost:5173/${user.role}`);
+          return res.redirect(`${FRONT_URL}/${user.role}`);
       }
 
       console.log(`Payment ${paymentId} not completed.`);
-      return res.redirect('http://localhost:5173/upload');
+      return res.redirect(`${FRONT_URL}/upload`);
   } catch (error) {
       console.error('Error verifying payment:', error);
       res.status(500).json({ error: 'Failed to verify payment' });
