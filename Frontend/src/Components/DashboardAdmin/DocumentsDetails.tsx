@@ -44,8 +44,9 @@ const DocumentDetails: React.FC = () => {
         setIsLoading(false);
       }
     };
-
-    fetchUsersWithFiles();
+    if(token){
+      fetchUsersWithFiles();
+    }
   }, [token]);
 
   useEffect(() => {

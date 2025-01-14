@@ -1,22 +1,57 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../Context/useContext";
-import { Spin } from "antd";
+import { Spin, Select } from "antd";
 
-const UploadForm: React.FC = () => {
+const { Option } = Select;
+
+interface UploadFormProps {
+  onfetchActivePayment: () => Promise<void>; 
+}
+
+const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const { token } = useAuth()
-  const [isPayed, setIsPayed] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
+  const [activePayment, setActivePayment] = useState<any[]>([]);
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string>("");
+  const { token } = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [selectLoading, setSelectLoading] = useState<boolean>(false); // Added loading state for select dropdown
 
   const Base_Url =
     window.location.hostname === "localhost"
-      ? "http://localhost:3000" // Localhost
-      : "https://daizyexserver.vercel.app"; // 
-      
-    // Ref for file input
+      ? "http://localhost:3000"
+      : "https://daizyexserver.vercel.app";
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Fetch active payments on component mount
+  const fetchActivePlans = async () => {
+    setSelectLoading(true); // Set select loading to true when starting to fetch
+    try {
+      const response = await fetch(`${Base_Url}/api/payment/active-plans`, {
+        headers: { Authorization: `Bearer ${token || ''}` },
+      });
+      const data = await response.json();
+      if (response.ok && data.payments?.length > 0) {
+        setActivePayment(data.payments);
+      } else {
+        setActivePayment([]);
+        toast.warn("No active plans found.");
+      }
+    } catch (error) {
+      console.error("Error fetching active payments:", error);
+      toast.error("Failed to fetch active plans.");
+    } finally {
+      setSelectLoading(false); // Set select loading to false when fetching is complete
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchActivePlans();
+    }
+  }, [token]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -27,20 +62,17 @@ const UploadForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !file) {
-      toast.error("Please provide a name and upload a file.");
+    if (!name || !file || !selectedPaymentId) {
+      toast.error("Please provide a name, upload a file, and select a payment.");
       return;
     }
-    //if (!hasPaid) {
-      // If user has not paid, show the payment overlay
-  
-    //} 
 
     const formData = new FormData();
     formData.append("name", name);
     formData.append("file", file);
+    formData.append("paymentId", selectedPaymentId);
 
-    setLoading(true); 
+    setLoading(true);
 
     try {
       const response = await fetch(`${Base_Url}/api/files/upload`, {
@@ -52,6 +84,12 @@ const UploadForm: React.FC = () => {
       if (response.ok) {
         const result = await response.json();
         toast.success(result.message || "File uploaded successfully.");
+        
+        // Fetch active payment data after successful upload
+        fetchActivePlans();  
+        onfetchActivePayment();
+
+
       } else {
         const error = await response.json();
         toast.error(error.message || "Failed to upload file.");
@@ -60,92 +98,96 @@ const UploadForm: React.FC = () => {
       console.error("Error uploading file:", error);
       toast.error("An error occurred while uploading the file.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
 
     // Clear input fields
     setName("");
     setFile(null);
+    setSelectedPaymentId('');
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const showPaymentOverlay = () => {
-    setIsPayed(true);
-  };
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 w-full">
-      {/* <PaymentForm onClose={closePaymentOverlay}/> */}
+    <div style={{ marginTop: "3rem" }} className="flex items-center justify-center max-h-screen w-full">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-[500px] bg-white p-6 rounded-lg shadow-md h-auto"
+        style={{ marginTop: '5rem' }}
+        className="w-full max-w-[450px] bg-white p-4 rounded-lg shadow-md h-auto bg-gray-100"
       >
         <h2 className="text-2xl font-bold text-gray-800 text-center mb-16">
           Upload A Document
         </h2>
 
-        {/* Name Field */}
         <div className="mb-10">
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
             Name
           </label>
           <input
             type="text"
             id="name"
-            name="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm"
             placeholder="Enter Name of File"
           />
         </div>
 
-        {/* File Upload Field */}
         <div className="mb-10">
-          <label
-            htmlFor="file"
-            className="block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="file" className="block text-sm font-medium text-gray-700">
             Upload File
           </label>
           <input
             type="file"
             id="file"
-            name="file"
             onChange={handleFileChange}
             ref={fileInputRef}
-            className="mt-1 block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-full file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 file:text-gray-700
-              hover:file:bg-blue-100"
+            className="mt-1 block w-full text-sm text-gray-500"
             required
           />
         </div>
 
-        {/* Submit Button */}
-        {isPayed && <button
-          type="submit"
-          className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
-          disabled={loading} 
-        >
-          {loading ? <Spin size="small" /> : "Upload"} 
-        </button>}
+        <div className="mb-10">
+          <label htmlFor="payment" className="block text-sm font-medium text-gray-700">
+            Select Active Plan
+          </label>
+          <Select
+            id="payment"
+            placeholder={selectLoading ? "Loading..." : "Select Active Plan"}
+            className="w-full"
+            value={selectedPaymentId || undefined}
+            onChange={(value) => setSelectedPaymentId(value)}
+            disabled={selectLoading} // Disable select dropdown while loading
+          >
+            {selectLoading ? (
+              <Option disabled>
+                <Spin size="small" />
+              </Option>
+            ) : (
+              activePayment?.map((payment) => (
+                <Option key={payment._id} value={payment._id}>
+                  {payment.serviceType} - ${payment.totalPrice}
+                </Option>
+              ))
+            )}
+            {!selectLoading && activePayment.length === 0 && (
+              <Option disabled>No active plans available</Option>
+            )}
+          </Select>
+        </div>
 
-       {!isPayed && <button
+        <button
           type="submit"
-          onClick={showPaymentOverlay}
-          className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
-          disabled={loading} 
+          className={`w-full py-2 px-4 rounded-md ${loading || !name || !file || !selectedPaymentId
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-yellow-400 hover:bg-yellow-500 text-white"
+            }`}
+          disabled={loading || !name || !file || !selectedPaymentId}
         >
-          { "Pay"} 
-        </button>}
+          {loading ? <Spin size="small" /> : "Upload"}
+        </button>
       </form>
     </div>
   );

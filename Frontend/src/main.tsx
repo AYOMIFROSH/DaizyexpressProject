@@ -145,11 +145,13 @@ function AppRouter() {
         },
 
       ],
+      
     },
   ]);
 
   return <RouterProvider router={router} />;
 }
+
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
