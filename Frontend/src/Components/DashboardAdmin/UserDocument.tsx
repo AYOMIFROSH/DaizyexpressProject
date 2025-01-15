@@ -15,7 +15,7 @@ interface File {
 
 const UserDocuments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { token, refreshData } = useAuth();
+  const { token } = useAuth();
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchText, setSearchText] = useState("");
@@ -50,10 +50,8 @@ const UserDocuments: React.FC = () => {
         setLoading(false);
       }
     };
-    if(token){
-      fetchUserFiles();
-    }
-  }, [id, token, API_BASE_URL, refreshData]);
+    fetchUserFiles();
+  }, [id, token, API_BASE_URL]);
 
   const handleDownload = async (fileId: string, fileName: string) => {
     try {
