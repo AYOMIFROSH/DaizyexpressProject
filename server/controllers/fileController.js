@@ -12,12 +12,12 @@ exports.uploadFile = async (req, res) => {
     }
 
     try {
-
         const paymentDetails = await PaymentDetails.findOne({ _id: paymentId, userId, activePlan: true });
 
         if (!paymentDetails) {
             return res.status(400).json({ message: 'Invalid or inactive payment plan.' });
         }
+
         // Check file size limit (e.g., 5MB)
         if (req.file.size > 5 * 1024 * 1024) {
             return res.status(400).json({ message: 'File size exceeds the limit of 5MB.' });
@@ -26,13 +26,14 @@ exports.uploadFile = async (req, res) => {
         // Compress the file data
         const compressedData = zlib.gzipSync(req.file.buffer);
 
-        // Create a new file document
+        // Create a new file document with the paymentId
         const file = new File({
             user: userId,
             fileName: name,
-            fileData: compressedData, // Save compressed data
+            fileData: compressedData, 
             uploadedAt: new Date(),
             status: 'not processed',
+            paymentId: paymentId, 
         });
 
         // Save the file
@@ -55,6 +56,7 @@ exports.uploadFile = async (req, res) => {
                 fileName: file.fileName,
                 uploadedAt: file.uploadedAt,
                 status: file.status,
+                paymentId: file.paymentId, 
             },
         });
     } catch (error) {

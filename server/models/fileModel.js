@@ -27,8 +27,11 @@ const fileSchema = new mongoose.Schema({
         type: Boolean, 
         default: false 
     }, 
-
-
+    paymentId: {  
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'PaymentDetails',
+        required: true,
+    },
 });
 
 const File = mongoose.model('File', fileSchema);

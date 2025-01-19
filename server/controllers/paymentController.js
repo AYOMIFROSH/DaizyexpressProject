@@ -8,17 +8,17 @@ require('dotenv').config();
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET);
-const webHookSecret = process.env.WEB_HOOK_SECRET; 
+const webHookSecret = process.env.WEB_HOOK_SECRET;
 
 const BASE_URL =
-  process.env.NODE_ENV === 'production'
-    ? process.env.BASE_URL_PRODUCTION || 'https://daizyexserver.vercel.app' 
-    : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:3000'; 
+    process.env.NODE_ENV === 'production'
+        ? process.env.BASE_URL_PRODUCTION || 'https://daizyexserver.vercel.app'
+        : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:3000';
 
 const FRONT_URL =
     process.env.NODE_ENV === 'production'
-      ? process.env.BASE_URL_PRODUCTION || 'https://daizyexpress.vercel.app' 
-      : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:5173'; 
+        ? process.env.FRONT_URL_PRODUCTION || 'https://daizyexpress.vercel.app'
+        : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173';
 
 // Create Payment Route
 router.post('/card-payment', authenticate, async (req, res) => {
@@ -82,35 +82,35 @@ router.post('/card-payment', authenticate, async (req, res) => {
         const savedPayment = await paymentDetails.save();
 
         const session = await stripe.checkout.sessions.create({
-          payment_method_types: ['card'],
-          customer_email: user.email,
-          line_items: [
-              {
-                  price_data: {
-                      currency: 'usd',
-                      product_data: {
-                          name: selectedService,
-                      },
-                      unit_amount: totalPrice * 100,
-                  },
-                  quantity: 1,
-              },
-          ],
-          mode: 'payment',
-          success_url: `${BASE_URL}/api/payment/verify-payment?paymentId=${savedPayment._id}`,
-          cancel_url: `${FRONT_URL}/upload`,
-          metadata: {
-              paymentId: savedPayment._id.toString(),
-              userId: userId.toString(),
-          },
-      });
-      
-      // Save the Stripe session ID to your database
-      savedPayment.stripeSessionId = session.id;
-      await savedPayment.save();
-      
-      res.status(200).json({ url: session.url });
-      
+            payment_method_types: ['card'],
+            customer_email: user.email,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: selectedService,
+                        },
+                        unit_amount: totalPrice * 100,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${BASE_URL}/api/payment/verify-payment?paymentId=${savedPayment._id}`,
+            cancel_url: `${FRONT_URL}/upload`,
+            metadata: {
+                paymentId: savedPayment._id.toString(),
+                userId: userId.toString(),
+            },
+        });
+
+        // Save the Stripe session ID to your database
+        savedPayment.stripeSessionId = session.id;
+        await savedPayment.save();
+
+        res.status(200).json({ url: session.url });
+
     } catch (error) {
         console.error('Error creating payment session:', error);
         res.status(500).json({ error: 'Failed to create payment session' });
@@ -119,48 +119,48 @@ router.post('/card-payment', authenticate, async (req, res) => {
 
 // Verification Route
 router.get('/verify-payment', async (req, res) => {
-  console.log('Verify payment hit')
-  const { paymentId } = req.query;
+    console.log('Verify payment hit')
+    const { paymentId } = req.query;
 
-  if (!paymentId) {
-      return res.status(400).json({ error: 'Payment ID is required' });
-  }
+    if (!paymentId) {
+        return res.status(400).json({ error: 'Payment ID is required' });
+    }
 
-  try {
-      // Fetch payment details from the database
-      const paymentDetails = await PaymentDetails.findById(paymentId);
-      if (!paymentDetails) {
-          return res.status(404).json({ error: 'Payment details not found' });
-      }
+    try {
+        // Fetch payment details from the database
+        const paymentDetails = await PaymentDetails.findById(paymentId);
+        if (!paymentDetails) {
+            return res.status(404).json({ error: 'Payment details not found' });
+        }
 
-      const userId = paymentDetails.userId;
-      const user = await User.findById(userId);
-      if (!user) {
-          return res.status(404).json({ error: 'User not found' });
-      }
+        const userId = paymentDetails.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
-      if (paymentDetails.activePlan) {
-          return res.redirect(`${FRONT_URL}/${user.role}`);
-      }
+        if (paymentDetails.activePlan) {
+            return res.redirect(`${FRONT_URL}/upload`);
+        }
 
-      // Use the stored Stripe session ID to verify payment
-      const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
-      if (session.payment_status === 'paid') {
-          await PaymentDetails.findByIdAndUpdate(paymentId, {
-              activePlan: true,
-              PayedAt: new Date(),
-          });
+        // Use the stored Stripe session ID to verify payment
+        const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
+        if (session.payment_status === 'paid') {
+            await PaymentDetails.findByIdAndUpdate(paymentId, {
+                activePlan: true,
+                PayedAt: new Date(),
+            });
 
-          console.log(`Payment ${paymentId} verified and activated.`);
-          return res.redirect(`${FRONT_URL}/${user.role}`);
-      }
+            console.log(`Payment ${paymentId} verified and activated.`);
+            return res.redirect(`${FRONT_URL}/upload`);
+        }
 
-      console.log(`Payment ${paymentId} not completed.`);
-      return res.redirect(`${FRONT_URL}/upload`);
-  } catch (error) {
-      console.error('Error verifying payment:', error);
-      res.status(500).json({ error: 'Failed to verify payment' });
-  }
+        console.log(`Payment ${paymentId} not completed.`);
+        return res.redirect(`${FRONT_URL}/upload`);
+    } catch (error) {
+        console.error('Error verifying payment:', error);
+        res.status(500).json({ error: 'Failed to verify payment' });
+    }
 });
 
 
@@ -208,37 +208,40 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 // Get Active Payments
 router.get('/active-payments', authenticate, async (req, res) => {
     try {
-      const userId = req.user._id;
-      const activePayment = await PaymentDetails.findOne({ userId, activePlan: true });
-  
-      if (activePayment) {
-        res.status(200).json({ activePlan: true });
-      } else {
-        res.status(200).json({ activePlan: false });
-      }
+        const io = req.app.get('socketio'); 
+        const userId = req.user._id;
+        const activePayment = await PaymentDetails.findOne({ userId, activePlan: true });
+
+        if (activePayment) {
+            io.emit('activePlansUpdated', { activePlan: true });
+            res.status(200).json({ activePlan: true });
+        } else {
+            io.emit('activePlansUpdated', { activePlan: false });
+            res.status(200).json({ activePlan: false });
+        }
     } catch (error) {
-      console.error('Error fetching active payments:', error);
-      res.status(500).json({ error: 'Failed to fetch active payments' });
+        console.error('Error fetching active payments:', error);
+        res.status(500).json({ error: 'Failed to fetch active payments' });
     }
-  });
+});
 
-
-  router.get('/active-plans', authenticate, async (req, res) => {
+router.get('/active-plans', authenticate, async (req, res) => {
     try {
-      const userId = req.user._id;
-      const activePayments = await PaymentDetails.find({ userId, activePlan: true });
-  
-      if (activePayments.length > 0) {
-        res.status(200).json({ activePlan: true, payments: activePayments });
-      } else {
-        res.status(200).json({ activePlan: false, payments: [] });
-      }
+        const io = req.app.get('socketio'); 
+        const userId = req.user._id;
+        const activePayments = await PaymentDetails.find({ userId, activePlan: true });
+
+        if (activePayments.length > 0) {
+            io.emit('activePlansUpdated', { activePlan: true, payments: activePayments });
+            res.status(200).json({ activePlan: true, payments: activePayments });
+        } else {
+            io.emit('activePlansUpdated', { activePlan: false, payments: [] });
+            res.status(200).json({ activePlan: false, payments: [] });
+        }
     } catch (error) {
-      console.error('Error fetching active payments:', error);
-      res.status(500).json({ error: 'Failed to fetch active payments' });
+        console.error('Error fetching active payments:', error);
+        res.status(500).json({ error: 'Failed to fetch active payments' });
     }
-  });
-  
-  
+});
 
 module.exports = router;

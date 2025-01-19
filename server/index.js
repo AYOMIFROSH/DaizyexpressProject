@@ -23,6 +23,7 @@ const corsOptions = {
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
 };
+
 app.use(cors(corsOptions)); 
 app.options('*', cors(corsOptions));
 
@@ -68,6 +69,37 @@ app.use((err, req, res, next) => {
     });
 });
 
+let io; // Declare io variable
+
+// Create HTTP server and Socket.io instance
+const httpServer = http.createServer(app);
+io = new Server(httpServer, {
+    cors: {
+        origin: ['http://localhost:5173', 'https://daizyexpress.vercel.app'],
+        methods: ['GET', 'POST'],
+        credentials: true,
+    },
+});
+
+app.set('socketio', io); // Optionally, store io in the app object
+
+
+// Socket.io connection
+io.on('connection', (socket) => {
+    console.log('New client connected');
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected');
+    });
+
+    socket.on('error', (error) => {
+        console.error('Socket error:', error);
+    });
+});
+
+
+module.exports = { io };
+
 // Start the server
 const startServer = async () => {
     try {
@@ -81,7 +113,7 @@ const startServer = async () => {
         console.log('Connected to MongoDB successfully');
 
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log(`App running on port ${PORT}`);
         });
     } catch (error) {
@@ -98,5 +130,5 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-
+// Call the startServer function to run the application
 startServer();
