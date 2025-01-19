@@ -1,23 +1,32 @@
-import { NavLink } from "react-router-dom";
-import {  FaUsers } from "react-icons/fa6";
+import { useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { FaUsers } from "react-icons/fa6";
 import { AiFillDashboard } from "react-icons/ai";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { FaFileUpload } from "react-icons/fa";
-// import { useAuth } from "../Context/useContext";
+import { useAuth } from "../Context/useContext";
 
 type SideLink = {
   id: number;
   name: any;
   path: any;
-  icon: React.ReactNode; // Type for JSX elements
+  icon: React.ReactNode; 
 };
 
 const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
-  // const { logout } = useAuth();
+  const { isAuthenticated, isVerified } = useAuth();
+  const navigate = useNavigate(); 
 
-  // const handleLogout = async () => {
-  //   await logout();
-  // };
+  useEffect(() => {
+    const lastRoute = localStorage.getItem("lastRoute");
+    if (lastRoute && isAuthenticated && isVerified) {
+      navigate(lastRoute); 
+    }
+  }, [isAuthenticated, isVerified, navigate]); 
+
+  const handleLinkClick = (path: string) => {
+    localStorage.setItem("lastRoute", path);
+  };
 
   const SideLink: SideLink[] = [
     {
@@ -39,6 +48,7 @@ const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
       icon: isAdmin ? <FaUsers /> : <FaFileUpload />,
     },
   ];
+
   const linkclass = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? "flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1"
@@ -46,12 +56,12 @@ const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
 
   return (
     <div className="">
-      <aside className="sticky top-0 left-0 z-0 w-64 h-screen bg-white border-r border-gray-200  max-md:w-[60px] max-sm:hidden">
+      <aside className="sticky top-0 left-0 z-0 w-64 h-screen bg-white border-r border-gray-200 max-md:w-[60px] max-sm:hidden">
         <div className="h-full pb-4 overflow-y-auto">
           <div className="bg-[#407BBB] h-[1px] w-full mb-10" />
           <ul className="list-none flex flex-col gap-10 mt-36">
             {SideLink.map(({ name, id, path, icon }) => (
-              <NavLink to={path} key={id} className={linkclass}>
+              <NavLink to={path} key={id} className={linkclass} onClick={() => handleLinkClick(path)}>
                 <span className="text-2xl mr-4 text-[#5A5C69] font-bold ">
                   {icon}
                 </span>
@@ -60,14 +70,6 @@ const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
                 </span>
               </NavLink>
             ))}
-            {/* <div onClick={handleLogout} className="flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1 cursor-pointer ">
-              <span className="text-2xl mr-4 text-[#5A5C69] font-bold ">
-                <FaArrowLeft />
-              </span>
-              <span className="flex-1 me-3 text-[18px] text-[#5A5C69] max-md:hidden">
-                Logout
-              </span>
-            </div> */}
           </ul>
         </div>
       </aside>

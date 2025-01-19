@@ -33,7 +33,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUserRole(user.role);
       setIsVerified(user.verified);
     }
+
   }, []);
+
 
   const login = (newToken: string, newData: any) => {
     sessionStorage.setItem(
@@ -49,7 +51,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = () => {
     sessionStorage.removeItem("user_data");
-    setToken(null);
+    localStorage.removeItem('lastRoute');
+        setToken(null);
     setUserData(null);
     setIsAuthenticated(false);
     setUserRole(null);

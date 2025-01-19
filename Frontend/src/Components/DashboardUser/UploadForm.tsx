@@ -2,21 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../Context/useContext";
 import { Spin, Select } from "antd";
+import { io } from "socket.io-client";
 
 const { Option } = Select;
 
-interface UploadFormProps {
-  onfetchActivePayment: () => Promise<void>; 
-}
-
-const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
+const UploadForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [activePayment, setActivePayment] = useState<any[]>([]);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string>("");
   const { token } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectLoading, setSelectLoading] = useState<boolean>(false); // Added loading state for select dropdown
+  const [selectLoading, setSelectLoading] = useState<boolean>(false);
 
   const Base_Url =
     window.location.hostname === "localhost"
@@ -25,34 +22,51 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Fetch active payments on component mount
+  // Socket connection for real-time updates
+  useEffect(() => {
+    fetchActivePlans();
+    const socket = io(Base_Url.replace('http', 'ws'), { transports: ["websocket"] });
+
+    // Listen for the 'activePlansUpdated' event to update the payment plans
+    socket.on("activePlansUpdated", (data) => {
+      if (data.activePlan) {
+        setActivePayment(data.payments);
+      } else {
+        setActivePayment([]);
+      }
+    });
+
+    // Cleanup the socket connection on component unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, [Base_Url]);
+
   const fetchActivePlans = async () => {
-    setSelectLoading(true); // Set select loading to true when starting to fetch
+    setSelectLoading(true);
     try {
       const response = await fetch(`${Base_Url}/api/payment/active-plans`, {
         headers: { Authorization: `Bearer ${token || ''}` },
       });
+  
       const data = await response.json();
-      if (response.ok && data.payments?.length > 0) {
+      console.log(data);  
+  
+      if (response.ok && Array.isArray(data.payments)) {
         setActivePayment(data.payments);
       } else {
-        setActivePayment([]);
+        setActivePayment([]); // Handle empty response or incorrect structure
         toast.warn("No active plans found.");
       }
     } catch (error) {
       console.error("Error fetching active payments:", error);
       toast.error("Failed to fetch active plans.");
+      setActivePayment([]); // Ensure activePayment is empty on error
     } finally {
-      setSelectLoading(false); // Set select loading to false when fetching is complete
+      setSelectLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (token) {
-      fetchActivePlans();
-    }
-  }, [token]);
-
+  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -77,19 +91,16 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
     try {
       const response = await fetch(`${Base_Url}/api/files/upload`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token || ''}` },
+        headers: { Authorization: `Bearer ${token || ""}` },
         body: formData,
       });
 
       if (response.ok) {
         const result = await response.json();
         toast.success(result.message || "File uploaded successfully.");
-        
-        // Fetch active payment data after successful upload
-        fetchActivePlans();  
-        onfetchActivePayment();
 
-
+        // Fetch active plans again after upload
+        fetchActivePlans();
       } else {
         const error = await response.json();
         toast.error(error.message || "Failed to upload file.");
@@ -104,7 +115,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
     // Clear input fields
     setName("");
     setFile(null);
-    setSelectedPaymentId('');
+    setSelectedPaymentId("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -114,17 +125,13 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
     <div style={{ marginTop: "3rem" }} className="flex items-center justify-center max-h-screen w-full">
       <form
         onSubmit={handleSubmit}
-        style={{ marginTop: '5rem' }}
+        style={{ marginTop: "5rem" }}
         className="w-full max-w-[450px] bg-white p-4 rounded-lg shadow-md h-auto bg-gray-100"
       >
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-16">
-          Upload A Document
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800 text-center mb-16">Upload A Document</h2>
 
         <div className="mb-10">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-            Name
-          </label>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
           <input
             type="text"
             id="name"
@@ -136,9 +143,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
         </div>
 
         <div className="mb-10">
-          <label htmlFor="file" className="block text-sm font-medium text-gray-700">
-            Upload File
-          </label>
+          <label htmlFor="file" className="block text-sm font-medium text-gray-700">Upload File</label>
           <input
             type="file"
             id="file"
@@ -150,16 +155,14 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
         </div>
 
         <div className="mb-10">
-          <label htmlFor="payment" className="block text-sm font-medium text-gray-700">
-            Select Active Plan
-          </label>
+          <label htmlFor="payment" className="block text-sm font-medium text-gray-700">Select Active Plan</label>
           <Select
             id="payment"
             placeholder={selectLoading ? "Loading..." : "Select Active Plan"}
             className="w-full"
             value={selectedPaymentId || undefined}
             onChange={(value) => setSelectedPaymentId(value)}
-            disabled={selectLoading} // Disable select dropdown while loading
+            disabled={selectLoading }
           >
             {selectLoading ? (
               <Option disabled>
@@ -172,7 +175,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
                 </Option>
               ))
             )}
-            {!selectLoading && activePayment.length === 0 && (
+            {!selectLoading && activePayment && (
               <Option disabled>No active plans available</Option>
             )}
           </Select>
@@ -181,8 +184,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
         <button
           type="submit"
           className={`w-full py-2 px-4 rounded-md ${loading || !name || !file || !selectedPaymentId
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-yellow-400 hover:bg-yellow-500 text-white"
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-yellow-400 hover:bg-yellow-500 text-white"
             }`}
           disabled={loading || !name || !file || !selectedPaymentId}
         >
@@ -194,3 +197,4 @@ const UploadForm: React.FC<UploadFormProps> = ({ onfetchActivePayment }) => {
 };
 
 export default UploadForm;
+

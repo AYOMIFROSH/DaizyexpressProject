@@ -31,11 +31,17 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             message.destroy();
         }
 
+        if (!pending) {
+            error
+        }
+
         if (error) {
             message.error(error, 5);
         }
 
         if (success) {
+            handlePaymentSuccess();
+
             notification.success({
                 message: 'Payment Successful',
                 description: 'Your payment has been processed successfully.',
@@ -54,7 +60,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
                 description: "PayPal payment is not available at the moment. Please select a card payment method.",
                 placement: "topRight",
             });
-            return; // Prevent further processing if PayPal is selected
+            return; 
         }
 
         if (!paymentMethod) {
@@ -63,7 +69,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
                 description: "Please select a payment method before proceeding.",
                 placement: "topRight",
             });
-            return; // Prevent further processing if no payment method is selected
+            return; 
         }
 
         const bookingData = {
@@ -86,11 +92,6 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             setAddressAdded(true);
         }
     };
-
-    // Handle payment method change
-    // const handlePaymentMethodChange = (checkedValues: any[]) => {
-    //     setPaymentMethod(checkedValues[0] || null);
-    // };
 
     return (
         <Form
@@ -241,7 +242,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             >
                 <Radio.Group
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    value={paymentMethod} // Bind the selected value to state
+                    value={paymentMethod} 
                 >
                     <Radio value="creditCard">Credit/Debit Card</Radio>
                     <Radio value="paypal">PayPal</Radio>

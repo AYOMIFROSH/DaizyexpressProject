@@ -34,11 +34,10 @@ const usePayment = () => {
   const [success, setSuccess] = useState<boolean>(false); 
 
   const Base_Url =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3000" 
-    : "https://daizyexserver.vercel.app"; 
-    
-
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000" 
+      : "https://daizyexserver.vercel.app"; 
+  
   const sendPaymentDetails = async (paymentDetails: PaymentDetails) => {
     setLoading(true);
     setError(null);
@@ -79,5 +78,6 @@ const usePayment = () => {
 
   return { sendPaymentDetails, loading, error, success, pending, handlePaymentSuccess };
 };
+
 
 export default usePayment;

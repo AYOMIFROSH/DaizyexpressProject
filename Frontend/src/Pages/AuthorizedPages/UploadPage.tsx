@@ -7,21 +7,41 @@ import ServiceForm from '../../Components/DashboardUser/PaymentForm';
 import BookingDetailsForm from '../../Components/DashboardUser/BookingDetailsForm';
 import UploadForm from '../../Components/DashboardUser/UploadForm';
 import { useAuth } from '../../Context/useContext';
+import io from 'socket.io-client'; // Import socket.io-client
 
 const UploadPage = () => {
-  const { token } = useAuth(); 
+  const { token } = useAuth();
   const [currentView, setCurrentView] = useState<'services' | 'booking' | 'upload'>('services');
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]); 
-  const [totalPrice, setTotalPrice] = useState<number>(0); 
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
+  const [totalPrice, setTotalPrice] = useState<number>(0);
+
   const API_BASE_URL =
     window.location.hostname === 'localhost'
       ? 'http://localhost:3000'
       : 'https://daizyexserver.vercel.app';
 
+  // Socket connection setup
+  useEffect(() => {
+    const socket = io(API_BASE_URL, { transports: ['websocket'] });
+
+    // Listen for activePlansUpdated event
+    socket.on('activePlansUpdated', (data) => {
+      if (data.activePlan) {
+        setCurrentView('upload'); // If active, show upload view
+      } else {
+        setCurrentView('services'); // If inactive, show services view
+      }
+    });
+
+    return () => {
+      socket.disconnect(); // Clean up the socket connection on component unmount
+    };
+  }, [API_BASE_URL]);
+
   const fetchActivePayment = async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/payment/active-payments`, {
         method: 'GET',
@@ -35,6 +55,8 @@ const UploadPage = () => {
         const { activePlan } = await response.json();
         if (activePlan) {
           setCurrentView('upload');
+        } else {
+          setCurrentView('services');
         }
       } else {
         console.error('Failed to fetch payment data.');
@@ -42,7 +64,7 @@ const UploadPage = () => {
     } catch (error) {
       console.error('Error fetching payment data:', error);
     } finally {
-      setLoading(false); // Ensure loading stops after the fetch
+      setLoading(false);
     }
   };
 
@@ -50,7 +72,7 @@ const UploadPage = () => {
     if (token) {
       fetchActivePayment();
     }
-  }, [token]); 
+  }, [token]);
 
   const handleProceedToBooking = (service: string | null, addOns: string[], price: number) => {
     setSelectedService(service);
@@ -100,7 +122,7 @@ const UploadPage = () => {
                   selectedService={selectedService}
                 />
               )}
-              {currentView === 'upload' && <UploadForm onfetchActivePayment={fetchActivePayment} />}
+              {currentView === 'upload' && <UploadForm />}
             </motion.div>
           )}
         </div>
@@ -110,4 +132,3 @@ const UploadPage = () => {
 };
 
 export default UploadPage;
-
