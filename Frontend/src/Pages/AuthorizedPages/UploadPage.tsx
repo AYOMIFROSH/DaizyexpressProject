@@ -97,7 +97,7 @@ const UploadPage = () => {
         <div style={{ flex: 1, position: 'relative', padding: '20px' }}>
           {loading && (
             <div className='loading-mechanism'>
-              <Spin tip="Loading..." size="large" />
+              <Spin tip="Loading..." size="small" />
             </div>
           )}
           {!loading && (
