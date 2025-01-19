@@ -46,6 +46,7 @@ const Analytic = () => {
         setLoadingProcessedDocument(false);
       }
     };
+    
 
     fetchFileUploadCount();
   }, [token]);
