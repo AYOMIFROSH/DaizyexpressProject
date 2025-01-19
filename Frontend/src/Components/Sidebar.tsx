@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaUsers } from "react-icons/fa6";
 import { AiFillDashboard } from "react-icons/ai";
 import { IoDocumentTextOutline } from "react-icons/io5";
