@@ -27,7 +27,7 @@ const UploadPage = () => {
   useEffect(() => {
     const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ['websocket'] });
 
-    socket.on('activePlansUpdated', (data) => {
+    socket.on('activePaymentsUpdated', (data) => {
       if (data.activePlan) {
         setCurrentView('upload');
       } else {
