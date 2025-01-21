@@ -22,20 +22,16 @@ const UploadPage = () => {
       ? 'http://localhost:3000'
       : 'https://daizyexserver.vercel.app';
 
-  
-  const WEB_SOCKET_OI_LIVE_URL = 'https://websocket-oideizy.onrender.com'
+  const WEB_SOCKET_OI_LIVE_URL = 'https://websocket-oideizy.onrender.com';
 
-  // Socket connection setup
   useEffect(() => {
-    const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ['websocket'],
-  });
+    const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ['websocket'] });
 
-    // Listen for activePlansUpdated event
     socket.on('activePlansUpdated', (data) => {
       if (data.activePlan) {
         setCurrentView('upload');
       } else {
-        setCurrentView('services'); 
+        setCurrentView('services');
       }
     });
 
@@ -60,13 +56,16 @@ const UploadPage = () => {
         if (activePlan) {
           setCurrentView('upload');
         } else {
+          console.log('No active payment plan detected. Redirecting to services.');
           setCurrentView('services');
         }
       } else {
         console.error('Failed to fetch payment data.');
+        setCurrentView('services');
       }
     } catch (error) {
       console.error('Error fetching payment data:', error);
+      setCurrentView('services');
     } finally {
       setLoading(false);
     }
@@ -100,7 +99,7 @@ const UploadPage = () => {
         <Sidebar isAdmin={false} />
         <div style={{ flex: 1, position: 'relative', padding: '20px' }}>
           {loading && (
-            <div className='loading-mechanism'>
+            <div className="loading-mechanism">
               <Spin tip="Loading..." size="small" />
             </div>
           )}
@@ -110,8 +109,8 @@ const UploadPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.1 }} // Faster transition
-              >
+              transition={{ duration: 0.2 }} 
+            >
               {currentView === 'services' && (
                 <ServiceForm
                   onProceed={(addOns, service, price) => handleProceedToBooking(service, addOns, price)}
