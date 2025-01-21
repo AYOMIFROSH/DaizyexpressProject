@@ -3,6 +3,7 @@ const Stripe = require('stripe');
 const PaymentDetails = require('../models/PaymentDetailsModel');
 const User = require('../models/userModel');
 const { authenticate } = require('../routes/middleware');
+const notifyWebSocketServer = require('../utils/websocket.oihandler')
 
 require('dotenv').config();
 
@@ -12,13 +13,13 @@ const webHookSecret = process.env.WEB_HOOK_SECRET;
 
 const BASE_URL =
     process.env.NODE_ENV === 'production'
-        ? process.env.BASE_URL_PRODUCTION || 'https://daizyexserver.vercel.app'
-        : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:3000';
+        ? process.env.BASE_URL_PRODUCTION || 'https://daizyexserver.vercel.app' || 'https://websocket-oideizy.onrender.com'
+        : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:3000' || 'https://websocket-oideizy.onrender.com';
 
 const FRONT_URL =
     process.env.NODE_ENV === 'production'
-        ? process.env.FRONT_URL_PRODUCTION || 'https://daizyexpress.vercel.app'
-        : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173';
+        ? process.env.FRONT_URL_PRODUCTION || 'https://daizyexpress.vercel.app' || 'https://websocket-oideizy.onrender.com'
+        : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173' || 'https://websocket-oideizy.onrender.com';
 
 // Create Payment Route
 router.post('/card-payment', authenticate, async (req, res) => {
@@ -89,9 +90,10 @@ router.post('/card-payment', authenticate, async (req, res) => {
                     price_data: {
                         currency: 'usd',
                         product_data: {
-                            name: selectedService,
+                            name: selectedService, // Add selected service name
+                            description: `Add-ons: ${selectedAddOns.join(', ')}`,
                         },
-                        unit_amount: totalPrice * 100,
+                        unit_amount: totalPrice * 100, // Convert total price to cents
                     },
                     quantity: 1,
                 },
@@ -104,7 +106,7 @@ router.post('/card-payment', authenticate, async (req, res) => {
                 userId: userId.toString(),
             },
         });
-
+        
         // Save the Stripe session ID to your database
         savedPayment.stripeSessionId = session.id;
         await savedPayment.save();
@@ -205,18 +207,20 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
 // PAYMENT FETCH MECHANISM
 
-// Get Active Payments
 router.get('/active-payments', authenticate, async (req, res) => {
     try {
-        const io = req.app.get('socketio'); 
         const userId = req.user._id;
         const activePayment = await PaymentDetails.findOne({ userId, activePlan: true });
 
         if (activePayment) {
-            io.emit('activePlansUpdated', { activePlan: true });
+            // Notify WebSocket server
+            notifyWebSocketServer('activePaymentsUpdated', { activePlan: true });
+
             res.status(200).json({ activePlan: true });
         } else {
-            io.emit('activePlansUpdated', { activePlan: false });
+            // Notify WebSocket server
+            notifyWebSocketServer('activePaymentsUpdated', { activePlan: false });
+
             res.status(200).json({ activePlan: false });
         }
     } catch (error) {
@@ -225,17 +229,21 @@ router.get('/active-payments', authenticate, async (req, res) => {
     }
 });
 
+// Get Active Plans
 router.get('/active-plans', authenticate, async (req, res) => {
     try {
-        const io = req.app.get('socketio'); 
         const userId = req.user._id;
         const activePayments = await PaymentDetails.find({ userId, activePlan: true });
 
         if (activePayments.length > 0) {
-            io.emit('activePlansUpdated', { activePlan: true, payments: activePayments });
+            // Notify WebSocket server
+            notifyWebSocketServer('activePlansUpdated', { activePlan: true, payments: activePayments });
+
             res.status(200).json({ activePlan: true, payments: activePayments });
         } else {
-            io.emit('activePlansUpdated', { activePlan: false, payments: [] });
+            // Notify WebSocket server
+            notifyWebSocketServer('activePlansUpdated', { activePlan: false, payments: [] });
+
             res.status(200).json({ activePlan: false, payments: [] });
         }
     } catch (error) {

@@ -178,7 +178,7 @@ exports.getAllUsers = async (req, res) => {
     try {
         // Fetch all users and select the required fields
         const users = await User.find()
-            .select('userName email role fileUploadCount'); // Select the required fields
+            .select('userName email role fileUploadCount'); 
 
         return res.status(200).json({
             status: 'success',
@@ -257,7 +257,11 @@ exports.getUserByIdWithFiles = async (req, res) => {
             });
         }
 
-        const files = await File.find({ user: id }).select('-fileData'); // Exclude binary data
+        // Fetch files and populate the paymentId field
+        const files = await File.find({ user: id })
+            .select('-fileData')
+            .populate('paymentId'); // Populate paymentId with PaymentDetails
+
         return res.status(200).json({
             status: 'success',
             data: {

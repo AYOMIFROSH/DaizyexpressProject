@@ -3,8 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const mongoSanitize = require('express-mongo-sanitize');
-const { Server } = require('socket.io');
-const http = require('http');
 
 const authRouter = require('./routes/authRoutes');
 const fileRouter = require('./routes/fileRoutes');
@@ -18,7 +16,7 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // MIDDLEWARES
 const corsOptions = {
-    origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173'], 
+    origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173', 'https://websocket-oideizy.onrender.com'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -69,36 +67,26 @@ app.use((err, req, res, next) => {
     });
 });
 
-let io; // Declare io variable
+// let io;
 
-// Create HTTP server and Socket.io instance
-const httpServer = http.createServer(app);
-io = new Server(httpServer, {
-    cors: {
-        origin: ['http://localhost:5173', 'https://daizyexpress.vercel.app'],
-        methods: ['GET', 'POST'],
-        credentials: true,
-    },
-});
-
-app.set('socketio', io); // Optionally, store io in the app object
+// app.set('socketio', io); 
 
 
-// Socket.io connection
-io.on('connection', (socket) => {
-    console.log('New client connected');
+// // Socket.io connection
+// io.on('connection', (socket) => {
+//     console.log('New client connected');
 
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
+//     socket.on('disconnect', () => {
+//         console.log('Client disconnected');
+//     });
 
-    socket.on('error', (error) => {
-        console.error('Socket error:', error);
-    });
-});
+//     socket.on('error', (error) => {
+//         console.error('Socket error:', error);
+//     });
+// });
 
 
-module.exports = { io };
+// module.exports = { io };
 
 // Start the server
 const startServer = async () => {
@@ -113,7 +101,7 @@ const startServer = async () => {
         console.log('Connected to MongoDB successfully');
 
         const PORT = process.env.PORT || 3000;
-        httpServer.listen(PORT, () => {
+        app.listen(PORT, () => {
             console.log(`App running on port ${PORT}`);
         });
     } catch (error) {
