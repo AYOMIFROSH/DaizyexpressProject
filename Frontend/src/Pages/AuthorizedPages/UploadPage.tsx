@@ -25,6 +25,7 @@ const UploadPage = () => {
   const WEB_SOCKET_OI_LIVE_URL = 'https://websocket-oideizy.onrender.com';
 
   useEffect(() => {
+    fetchActivePayment();
     const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ['websocket'] });
 
     socket.on('activePaymentsUpdated', (data) => {
