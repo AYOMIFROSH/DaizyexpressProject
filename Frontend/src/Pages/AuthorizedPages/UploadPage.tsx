@@ -28,7 +28,7 @@ const UploadPage = () => {
     fetchActivePayment();
     const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ['websocket'] });
 
-    socket.on('activePaymentsUpdated', (data) => {
+    socket.on('activePlansUpdated', (data) => {
       if (data.activePlan) {
         setCurrentView('upload');
       } else {
