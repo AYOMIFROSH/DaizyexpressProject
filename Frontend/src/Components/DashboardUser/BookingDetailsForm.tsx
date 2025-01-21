@@ -22,7 +22,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
     const [additionalAddresses, setAdditionalAddresses] = useState<any[]>([]);
     const [addressAdded, setAddressAdded] = useState<boolean>(false);
     const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
-    const { sendPaymentDetails, loading, error, success, pending, handlePaymentSuccess } = usePayment();
+    const { sendPaymentDetails, loading, error, success, pending, handlePaymentSuccess, setPending } = usePayment();
 
     useEffect(() => {
         if (loading) {
@@ -37,6 +37,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
 
         if (error) {
             message.error(error, 5);
+            setPending(false);
         }
 
         if (success) {
@@ -82,8 +83,6 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
 
         await sendPaymentDetails(bookingData);
     };
-
-
 
     // Add additional address form set
     const addAddress = () => {

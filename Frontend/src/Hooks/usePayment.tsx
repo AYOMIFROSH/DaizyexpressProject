@@ -76,7 +76,7 @@ const usePayment = () => {
     setSuccess(true);  
   };
 
-  return { sendPaymentDetails, loading, error, success, pending, handlePaymentSuccess };
+  return { sendPaymentDetails, loading, error, success, pending, handlePaymentSuccess, setPending };
 };
 
 
