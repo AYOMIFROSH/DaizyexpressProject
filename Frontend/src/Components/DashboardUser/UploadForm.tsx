@@ -22,10 +22,12 @@ const UploadForm: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const WEB_SOCKET_OI_LIVE_URL = "https://websocket-oideizy.onrender.com";
+
   // Socket connection for real-time updates
   useEffect(() => {
     fetchActivePlans();
-    const socket = io(Base_Url.replace('http', 'ws'), { transports: ["websocket"] });
+    const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ["websocket"] });
 
     // Listen for the 'activePlansUpdated' event to update the payment plans
     socket.on("activePlansUpdated", (data) => {
@@ -40,18 +42,16 @@ const UploadForm: React.FC = () => {
     return () => {
       socket.disconnect();
     };
-  }, [Base_Url]);
+  }, [WEB_SOCKET_OI_LIVE_URL]);
 
   const fetchActivePlans = async () => {
     setSelectLoading(true);
     try {
       const response = await fetch(`${Base_Url}/api/payment/active-plans`, {
-        headers: { Authorization: `Bearer ${token || ''}` },
+        headers: { Authorization: `Bearer ${token || ""}` },
       });
-  
+
       const data = await response.json();
-      console.log(data);  
-  
       if (response.ok && Array.isArray(data.payments)) {
         setActivePayment(data.payments);
       } else {
@@ -66,7 +66,13 @@ const UploadForm: React.FC = () => {
       setSelectLoading(false);
     }
   };
-  
+
+  useEffect(() => {
+    if (token) {
+      fetchActivePlans();
+    }
+  }, [token]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -95,15 +101,12 @@ const UploadForm: React.FC = () => {
         body: formData,
       });
 
+      const result = await response.json();
       if (response.ok) {
-        const result = await response.json();
         toast.success(result.message || "File uploaded successfully.");
-
-        // Fetch active plans again after upload
-        fetchActivePlans();
+        fetchActivePlans(); // Re-fetch active plans after upload
       } else {
-        const error = await response.json();
-        toast.error(error.message || "Failed to upload file.");
+        toast.error(result.message || "Failed to upload file.");
       }
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -112,7 +115,7 @@ const UploadForm: React.FC = () => {
       setLoading(false);
     }
 
-    // Clear input fields
+    // Clear input fields after submission
     setName("");
     setFile(null);
     setSelectedPaymentId("");
@@ -162,7 +165,7 @@ const UploadForm: React.FC = () => {
             className="w-full"
             value={selectedPaymentId || undefined}
             onChange={(value) => setSelectedPaymentId(value)}
-            disabled={selectLoading }
+            disabled={selectLoading}
           >
             {selectLoading ? (
               <Option disabled>
@@ -175,7 +178,7 @@ const UploadForm: React.FC = () => {
                 </Option>
               ))
             )}
-            {!selectLoading && activePayment && (
+            {!selectLoading && activePayment.length === 0 && (
               <Option disabled>No active plans available</Option>
             )}
           </Select>
@@ -197,4 +200,3 @@ const UploadForm: React.FC = () => {
 };
 
 export default UploadForm;
-

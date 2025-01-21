@@ -6,12 +6,41 @@ import { Skeleton, Spin, Select, Modal } from "antd";
 
 const { Option } = Select;
 
+interface BookingDetails {
+  recipientName: string;
+  serviceAddress: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  additionalAddress?: {
+    recipientName?: string;
+    serviceAddress?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+  };
+  preferredServiceDate: Date;
+  preferredTime?: string;
+}
+
+
+interface PaymentDetails {
+  serviceType: string;
+  totalPrice: string;
+  addOns: string | [];
+  paymentMethod: string;
+  bookingDetails: BookingDetails;
+  PayedAt: Date;
+}
+
 interface File {
   _id: string;
   fileName: string;
   uploadedAt: string;
   status: string;
+  paymentId: PaymentDetails;
 }
+
 
 const UserDocuments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,11 +53,11 @@ const UserDocuments: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState<boolean>(false); 
+  const [uploading, setUploading] = useState<boolean>(false);
 
   const API_BASE_URL =
     window.location.hostname === "localhost"
-      ? "http://localhost:3000" 
+      ? "http://localhost:3000"
       : "https://daizyexserver.vercel.app";
 
   useEffect(() => {
@@ -78,11 +107,11 @@ const UserDocuments: React.FC = () => {
   };
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      setUploadedFile(file as unknown as File); 
+      setUploadedFile(file as unknown as File);
       console.log("Selected file:", file);
     }
   };
@@ -164,7 +193,7 @@ const UserDocuments: React.FC = () => {
     } catch (error) {
       toast.error("Error updating file. Please try again later.");
     } finally {
-      setUploading(false); 
+      setUploading(false);
     }
   };
 
@@ -200,7 +229,7 @@ const UserDocuments: React.FC = () => {
             {loading ? (
               Array.from({ length: 5 }).map((_, index) => (
                 <tr key={index}>
-                  <td colSpan={5} className="px-4 py-2 text-center">
+                  <td colSpan={6} className="px-4 py-2 text-center">
                     <Skeleton.Input style={{ width: "100%" }} active />
                   </td>
                 </tr>
@@ -245,7 +274,7 @@ const UserDocuments: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="px-4 py-2 text-center border border-gray-300">
+                <td colSpan={6} className="px-4 py-2 text-center border border-gray-300">
                   No documents found
                 </td>
               </tr>
@@ -253,12 +282,76 @@ const UserDocuments: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Enhanced Payment Details Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">Payment Details</h2>
+        {filteredFiles.length > 0 && filteredFiles.map((file) => (
+          <div key={file._id} className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md">
+            {file.paymentId ? (
+              <>
+                {/* File Name Label */}
+                <div className="font-semibold text-lg">Payment for: {file.fileName}</div><br/>
+
+                {/* Using Ant Design's Card Component for styling */}
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex-1">
+                    <div className="font-semibold">Service Type:</div>
+                    <div>{file.paymentId.serviceType}</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold">Total Price:</div>
+                    <div>${file.paymentId.totalPrice}</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold">Add-Ons:</div>
+                    <div>{Array.isArray(file.paymentId.addOns) ? file.paymentId.addOns.join(", ") : file.paymentId.addOns}</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold">Payment Method:</div>
+                    <div>{file.paymentId.paymentMethod}</div>
+                  </div>
+                </div>
+
+                {/* Payment Address and Details */}
+                <div className="mt-4">
+                  <div className="font-semibold">Booking Address:</div>
+                  <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
+                  <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
+                  <div>City: {file.paymentId.bookingDetails.city}</div>
+                  <div>State: {file.paymentId.bookingDetails.state}</div>
+                  <div>ZIP Code: {file.paymentId.bookingDetails.zipCode}</div>
+                  <div>
+                    <strong>Preferred Date: </strong>
+                    {new Date(file.paymentId.bookingDetails.preferredServiceDate).toISOString().split('T')[0]}
+                  </div>
+                  <div><strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}</div>
+                </div>
+
+                {/* Payment Date with Time */}
+                <div className="mt-4">
+                  <div className="font-semibold">Payment Date:</div>
+                  <div>
+                    {new Date(file.paymentId.PayedAt).toLocaleDateString("en-GB")},
+                    Time {new Date(file.paymentId.PayedAt).toLocaleTimeString("en-GB", { hour12: true })}
+                  </div>
+                </div>
+
+              </>
+            ) : (
+              <span>No Payment Details</span>
+            )}
+          </div>
+        ))}
+      </div>
+
+
       <Modal
         title="Upload New Document"
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         onOk={handleSubmitUpload}
-        okText={uploading ? "Uploading..." : "Upload"} 
+        okText={uploading ? "Uploading..." : "Upload"}
         cancelText="Cancel"
       >
         <input
@@ -270,9 +363,9 @@ const UserDocuments: React.FC = () => {
       </Modal>
     </div>
   );
+
 };
 
 export default UserDocuments;
-
 
 

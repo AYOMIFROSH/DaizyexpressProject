@@ -7,7 +7,7 @@ import ServiceForm from '../../Components/DashboardUser/PaymentForm';
 import BookingDetailsForm from '../../Components/DashboardUser/BookingDetailsForm';
 import UploadForm from '../../Components/DashboardUser/UploadForm';
 import { useAuth } from '../../Context/useContext';
-import io from 'socket.io-client'; // Import socket.io-client
+import io from 'socket.io-client'; 
 
 const UploadPage = () => {
   const { token } = useAuth();
@@ -22,23 +22,27 @@ const UploadPage = () => {
       ? 'http://localhost:3000'
       : 'https://daizyexserver.vercel.app';
 
+  
+  const WEB_SOCKET_OI_LIVE_URL = 'https://websocket-oideizy.onrender.com'
+
   // Socket connection setup
   useEffect(() => {
-    const socket = io(API_BASE_URL, { transports: ['websocket'] });
+    const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ['websocket'],
+  });
 
     // Listen for activePlansUpdated event
     socket.on('activePlansUpdated', (data) => {
       if (data.activePlan) {
-        setCurrentView('upload'); // If active, show upload view
+        setCurrentView('upload');
       } else {
-        setCurrentView('services'); // If inactive, show services view
+        setCurrentView('services'); 
       }
     });
 
     return () => {
-      socket.disconnect(); // Clean up the socket connection on component unmount
+      socket.disconnect();
     };
-  }, [API_BASE_URL]);
+  }, [WEB_SOCKET_OI_LIVE_URL]);
 
   const fetchActivePayment = async () => {
     setLoading(true);
@@ -106,8 +110,8 @@ const UploadPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+              transition={{ duration: 0.1 }} // Faster transition
+              >
               {currentView === 'services' && (
                 <ServiceForm
                   onProceed={(addOns, service, price) => handleProceedToBooking(service, addOns, price)}
