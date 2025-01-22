@@ -39,10 +39,16 @@ const MobileNav = ({ isAdmin }: { isAdmin: boolean }) => {
       icon: isAdmin ? <FaUsers /> : <FaFileUpload />,
     },
   ];
+
+  const handleLinkClick = (path: string) => {
+    localStorage.setItem("lastRoute", path);
+  };
+
   const linkclass = ({ isActive }: { isActive: boolean }) =>
     isActive
-      ? "flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1"
-      : "flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1 ";
+      ? "flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1 font-bold text-[#407BBB]"
+      : "flex items-center px-6 max-md:px-3 max-md:py-2 ml-5 max-md:ml-1 text-[#5A5C69]";
+
 
   return (
     <div className="">
@@ -52,7 +58,12 @@ const MobileNav = ({ isAdmin }: { isAdmin: boolean }) => {
           <div className="bg-[#407BBB] h-[1px] w-full mb-10" />
           <ul className="list-none flex flex-col gap-10 mt-36">
             {SideLink.map(({ name, id, path, icon }) => (
-              <NavLink to={path} key={id} className={linkclass}>
+              <NavLink 
+                to={path} 
+                key={id} 
+                className={linkclass}
+                onClick={() => handleLinkClick(path)}
+                >
                 <span className="text-2xl mr-4 text-[#5A5C69] font-bold ">
                   {icon}
                 </span>
