@@ -6,7 +6,11 @@ import { io } from "socket.io-client";
 
 const { Option } = Select;
 
-const UploadForm: React.FC = () => {
+interface UploadFormProps {
+  onUploadComplete: () => void;
+}
+
+const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [activePayment, setActivePayment] = useState<any[]>([]);
@@ -35,6 +39,7 @@ const UploadForm: React.FC = () => {
         setActivePayment(data.payments);
       } else {
         setActivePayment([]);
+        onUploadComplete(); // Trigger the callback after upload
       }
     });
 
@@ -105,6 +110,7 @@ const UploadForm: React.FC = () => {
       if (response.ok) {
         toast.success(result.message || "File uploaded successfully.");
         fetchActivePlans(); // Re-fetch active plans after upload
+        onUploadComplete(); // Trigger the callback after upload
       } else {
         toast.error(result.message || "Failed to upload file.");
       }

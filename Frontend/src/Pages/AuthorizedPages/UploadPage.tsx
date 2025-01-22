@@ -22,61 +22,50 @@ const UploadPage = () => {
       ? 'http://localhost:3000'
       : 'https://daizyexserver.vercel.app';
 
-  const WEB_SOCKET_OI_LIVE_URL = 'https://websocket-oideizy.onrender.com';
+  
+  const WEB_SOCKET_OI_LIVE_URL = 'https://websocket-oideizy.onrender.com'
 
+  // Socket connection setup
   useEffect(() => {
     fetchActivePayment();
     const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ['websocket'] });
-
+  
     socket.on('activePaymentsUpdated', (data) => {
-      if (data.activePlan) {
-        setCurrentView('upload');
-      } else {
-        setCurrentView('services');
-      }
+      setCurrentView(data.activePlan ? 'upload' : 'services');
     });
-
+  
     return () => {
       socket.disconnect();
     };
-  }, [WEB_SOCKET_OI_LIVE_URL]);
+  }, []); // Removed dependency  
 
   const fetchActivePayment = async () => {
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/payment/active-payments`, {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
         credentials: 'include',
       });
 
       if (response.ok) {
         const { activePlan } = await response.json();
-        if (activePlan) {
-          setCurrentView('upload');
-        } else {
-          console.log('No active payment plan detected. Redirecting to services.');
-          setCurrentView('services');
-        }
+        setCurrentView(activePlan ? 'upload' : 'services'); 
       } else {
         console.error('Failed to fetch payment data.');
-        setCurrentView('services');
+        setCurrentView('services'); 
       }
     } catch (error) {
       console.error('Error fetching payment data:', error);
-      setCurrentView('services');
+      setCurrentView('services'); 
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (token) {
-      fetchActivePayment();
-    }
-  }, [token]);
+  const handleUploadComplete = async () => {
+    await fetchActivePayment(); // Re-fetch payment data and navigate accordingly
+  }
 
   const handleProceedToBooking = (service: string | null, addOns: string[], price: number) => {
     setSelectedService(service);
@@ -100,7 +89,7 @@ const UploadPage = () => {
         <Sidebar isAdmin={false} />
         <div style={{ flex: 1, position: 'relative', padding: '20px' }}>
           {loading && (
-            <div className="loading-mechanism">
+            <div className='loading-mechanism'>
               <Spin tip="Loading..." size="small" />
             </div>
           )}
@@ -110,7 +99,7 @@ const UploadPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }} 
+              transition={{ duration: 0.3 }}
             >
               {currentView === 'services' && (
                 <ServiceForm
@@ -126,7 +115,7 @@ const UploadPage = () => {
                   selectedService={selectedService}
                 />
               )}
-              {currentView === 'upload' && <UploadForm />}
+              {currentView === 'upload' && <UploadForm onUploadComplete={handleUploadComplete} />}
             </motion.div>
           )}
         </div>
