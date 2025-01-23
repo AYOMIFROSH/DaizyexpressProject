@@ -1,76 +1,68 @@
+import { Link } from "react-router-dom";
 import Logo from "../../assets/logo.png";
 import { FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
 
 
 const Footer = () => {
 	return (
-		<div className="lg:pt-10 px-5 pb-16">
+		<div className="lg:pt-10 px-5 pb-16 bg-white text-gray-800 hover:text-gray-600">
 			<div className="max-w-[1240px] gap-y-10 grid lg:grid-cols-2 mx-auto">
 				<div className="">
-					<img className="w-[180px]" src={Logo} alt="" />
+					<img className="w-[180px]" src={Logo} alt="Appmosphere Logo" />
 					<p className="lg:text-[30px] text-[20px] mb-8 lg:w-[400px] lg:leading-[35px] leading-[25px] font-semibold">
-						The smarter way to serve legal documents
+						Connecting the world through innovative solutions
 					</p>
-					<button className="px-5 py-2.5 rounded-[5px] bg-yellow-300 font-semibold">
-						How it works
+					<button className="px-5 py-2.5 rounded-[5px] bg-yellow-500 text-white font-semibold">
+						<Link to='/register'>Learn more</Link>
 					</button>
 				</div>
 				<div className="grid grid-cols-2 lg:grid-cols-3 text-wrap lg:gap-x-3 gap-y-16">
 					<div>
-						<h2 className="font-semibold">How it works</h2>
-						<div className="text-neutral-500 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-black">Overview</p>
-							<p className="cursor-pointer hover:text-black">Pricing</p>
-							<p className="cursor-pointer hover:text-black">Service Areas</p>
-							<p className="cursor-pointer hover:text-black">Become a Server</p>
+						<h2 className="font-semibold">About Us</h2>
+						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
+							<p className="cursor-pointer hover:text-gray-600">Our Story</p>
+							<p className="cursor-pointer hover:text-gray-600">Team</p>
+							<p className="cursor-pointer hover:text-gray-600">Careers</p>
+							<p className="cursor-pointer hover:text-gray-600">Contact</p>
 						</div>
 					</div>
 					<div>
-						<h2 className="font-semibold">Why Deizy </h2>
-						<div className="text-neutral-500 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-black">For Law Firms</p>
-							<p className="cursor-pointer text-wrap hover:text-black">
-								For Collections Agencies
-							</p>
-							<p className="cursor-pointer hover:text-black">For Individuals</p>
-							<p className="cursor-pointer hover:text-black">For Government</p>
-							<p className="cursor-pointer hover:text-black">
-								For Process Serving Companies
-							</p>
-							<p className="cursor-pointer hover:text-black">For Servers</p>
-							<p className="cursor-pointer hover:text-black">For Partners</p>
+						<h2 className="font-semibold">Services</h2>
+						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
+							<p className="cursor-pointer hover:text-gray-600">Consulting</p>
+							<p className="cursor-pointer hover:text-gray-600">Development</p>
+							<p className="cursor-pointer hover:text-gray-600">Design</p>
+							<p className="cursor-pointer hover:text-gray-600">Marketing</p>
 						</div>
 					</div>
 					<div>
 						<h2 className="font-semibold">Resources</h2>
-						<div className="text-neutral-500 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-black">Blog</p>
-							<p className="cursor-pointer hover:text-black">Press</p>
-							<p className="cursor-pointer hover:text-black">Events</p>
-							<p className="cursor-pointer hover:text-black">Status</p>
-							<p className="cursor-pointer hover:text-black">API Docs</p>
+						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
+							<p className="cursor-pointer hover:text-gray-600">Blog</p>
+							<p className="cursor-pointer hover:text-gray-600">Case Studies</p>
+							<p className="cursor-pointer hover:text-gray-600">Guides</p>
+							<p className="cursor-pointer hover:text-gray-600">Help Center</p>
 						</div>
 					</div>
 					<div>
-						<h2 className="font-semibold">Company</h2>
-						<div className="text-neutral-500 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-black">About</p>
-							<p className="cursor-pointer hover:text-black">Careers</p>
-							<p className="cursor-pointer hover:text-black">Contact</p>
+						<h2 className="font-semibold">Legal</h2>
+						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
+							<p className="cursor-pointer hover:text-gray-600">Privacy Policy</p>
+							<p className="cursor-pointer hover:text-gray-600">Terms of Service</p>
+							<p className="cursor-pointer hover:text-gray-600">Cookie Policy</p>
 						</div>
 					</div>
 					<div>
-						<h2 className="font-semibold">Socials</h2>
-						<div className="text-neutral-500  font-medium pt-3 text-2xl gap-5 mb-10 flex items-center">
-							<p className="cursor-pointer hover:text-black"><a href=""><FaFacebook /></a></p>
-							<p className="cursor-pointer hover:text-black"><a href=""><FaTwitter /></a></p>
-							<p className="cursor-pointer hover:text-black"><a href=""><FaLinkedin /></a></p>
-							
+						<h2 className="font-semibold">Follow Us</h2>
+						<div className="text-neutral-400 font-medium pt-3 text-2xl gap-5 mb-10 flex items-center">
+							<p className="cursor-pointer hover:text-gray-600"><a href="https://facebook.com"><FaFacebook /></a></p>
+							<p className="cursor-pointer hover:text-gray-600"><a href="https://twitter.com"><FaTwitter /></a></p>
+							<p className="cursor-pointer hover:text-gray-600"><a href="https://linkedin.com"><FaLinkedin /></a></p>
 						</div>
 					</div>
 				</div>
 			</div>
-			<p> © Copyright 2024 DeizyexpressLLC.</p>
+			<p className="text-center mt-10">© {new Date().getFullYear()} Appmosphere LLC. All rights reserved.</p>
 		</div>
 	);
 };

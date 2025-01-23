@@ -7,7 +7,6 @@ const UploadForm: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const { token } = useAuth()
-  const [isPayed, setIsPayed] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false); // Loading state
 
   const Base_Url =
@@ -71,9 +70,7 @@ const UploadForm: React.FC = () => {
     }
   };
 
-  const showPaymentOverlay = () => {
-    setIsPayed(true);
-  };
+ 
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 w-full">
@@ -130,22 +127,13 @@ const UploadForm: React.FC = () => {
         </div>
 
         {/* Submit Button */}
-        {isPayed && <button
+        <button
           type="submit"
           className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
           disabled={loading} 
         >
           {loading ? <Spin size="small" /> : "Upload"} 
-        </button>}
-
-       {!isPayed && <button
-          type="submit"
-          onClick={showPaymentOverlay}
-          className="w-full bg-yellow-400 text-white py-2 px-4 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-offset-2"
-          disabled={loading} 
-        >
-          { "Pay"} 
-        </button>}
+        </button>
       </form>
     </div>
   );
