@@ -40,9 +40,9 @@ const MobileNav = ({ isAdmin }: { isAdmin: boolean }) => {
     },
   ];
 
-  const handleLinkClick = (path: string) => {
-    localStorage.setItem("lastRoute", path);
-  };
+  // const handleLinkClick = (path: string) => {
+  //   localStorage.setItem("lastRoute", path);
+  // };
 
   const linkclass = ({ isActive }: { isActive: boolean }) =>
     isActive
@@ -62,7 +62,6 @@ const MobileNav = ({ isAdmin }: { isAdmin: boolean }) => {
                 to={path} 
                 key={id} 
                 className={linkclass}
-                onClick={() => handleLinkClick(path)}
                 >
                 <span className="text-2xl mr-4 text-[#5A5C69] font-bold ">
                   {icon}
