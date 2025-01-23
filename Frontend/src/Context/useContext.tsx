@@ -6,10 +6,6 @@ type AuthContextType = {
   userData: any;
   userRole: any;
   isVerified: boolean;
-  isVisible: boolean;
-  isPayed: boolean;
-  setIsVisible: (value: boolean) => void;
-  setIsPayed: (value: boolean) => void;
   login: (newToken: string, newData: any) => void;
   logout: () => void;
 };
@@ -26,8 +22,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isVerified, setIsVerified] = useState<boolean>(false);
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [isPayed, setIsPayed] = useState<boolean>(false);
 
   useEffect(() => {
     const storedData = JSON.parse(sessionStorage.getItem("user_data") || "null");
@@ -37,9 +31,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setUserData(user);
       setIsAuthenticated(true);
       setUserRole(user.role);
-      setIsVerified(user.verified); // Load verified status from stored user data
+      setIsVerified(user.verified);
     }
+
   }, []);
+
 
   const login = (newToken: string, newData: any) => {
     sessionStorage.setItem(
@@ -50,17 +46,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setUserData(newData);
     setIsAuthenticated(true);
     setUserRole(newData.role);
-    setIsVerified(newData.verified); // Update verified status
+    setIsVerified(newData.verified);
   };
 
   const logout = () => {
     sessionStorage.removeItem("user_data");
+    localStorage.removeItem('lastRoute');
     setToken(null);
     setUserData(null);
     setIsAuthenticated(false);
     setUserRole(null);
     setIsVerified(false);
-    setIsPayed(false)
   };
 
   return (
@@ -71,10 +67,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         userData,
         userRole,
         isVerified,
-        isPayed,
-        isVisible,
-        setIsVisible,
-        setIsPayed,
         login,
         logout,
       }}

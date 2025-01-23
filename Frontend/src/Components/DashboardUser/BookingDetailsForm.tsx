@@ -1,31 +1,109 @@
-import React from 'react';
-import { Form, Input, Button, Checkbox, Typography } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Checkbox, Typography, notification, message, Spin, Radio } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import usePayment from '../../Hooks/usePayment';
 
 interface BookingDetailsFormProps {
     onBack: () => void;
     onProceed: () => void;
-  }
+    selectedAddOns: string[];
+    totalPrice: number;
+    selectedService: string | null;
+}
 
-  const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({ onBack, onProceed }) => {
+const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
+    onBack,
+    onProceed,
+    selectedAddOns,
+    totalPrice,
+    selectedService
+}) => {
     const [form] = Form.useForm();
+    const [additionalAddresses, setAdditionalAddresses] = useState<any[]>([]);
+    const [addressAdded, setAddressAdded] = useState<boolean>(false);
+    const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
+    const { sendPaymentDetails, loading, error, success, pending, handlePaymentSuccess, setPending } = usePayment();
 
-    const onFinish = (values: any) => {
-        console.log('Booking Details Submitted:', values);
-        onProceed(); 
-      };
+    useEffect(() => {
+        if (loading) {
+            message.loading('Processing payment...', 0);
+        } else {
+            message.destroy();
+        }
+
+        if (!pending) {
+            error
+        }
+
+        if (error) {
+            message.error(error, 5);
+            setPending(false);
+        }
+
+        if (success) {
+            handlePaymentSuccess();
+
+            notification.success({
+                message: 'Payment Successful',
+                description: 'Your payment has been processed successfully.',
+                placement: 'topRight',
+            });
+            handlePaymentSuccess();
+            onProceed();
+        }
+    }, [loading, error, success, onProceed, handlePaymentSuccess]);
+
+
+    const onFinish = async (values: any) => {
+        if (paymentMethod === "paypal") {
+            notification.error({
+                message: "Payment Method Not Available",
+                description: "PayPal payment is not available at the moment. Please select a card payment method.",
+                placement: "topRight",
+            });
+            return; 
+        }
+
+        if (!paymentMethod) {
+            notification.error({
+                message: "Payment Method Required",
+                description: "Please select a payment method before proceeding.",
+                placement: "topRight",
+            });
+            return; 
+        }
+
+        const bookingData = {
+            ...values,
+            selectedAddOns,
+            totalPrice,
+            selectedService,
+            paymentMethod,
+        };
+
+        await sendPaymentDetails(bookingData);
+    };
+
+    // Add additional address form set
+    const addAddress = () => {
+        if (!addressAdded) {
+            setAdditionalAddresses([...additionalAddresses, {}]);
+            setAddressAdded(true);
+        }
+    };
 
     return (
         <Form
             form={form}
             layout="vertical"
             onFinish={onFinish}
-            style={{ maxWidth: 600, margin: '0 auto' }}
+            style={{ maxWidth: 600, margin: '0 auto', marginTop: '5rem' }}
         >
             <Typography.Title level={3} style={{ textAlign: 'center' }}>
                 Booking Details
             </Typography.Title>
 
-            {/* Recipient Name */}
+            {/* Main Recipient Name */}
             <Form.Item
                 label="Recipient Name"
                 name="recipientName"
@@ -34,7 +112,7 @@ interface BookingDetailsFormProps {
                 <Input placeholder="Enter recipient name" />
             </Form.Item>
 
-            {/* Service Address */}
+            {/* Main Service Address */}
             <Form.Item
                 label="Service Address"
                 name="serviceAddress"
@@ -43,7 +121,7 @@ interface BookingDetailsFormProps {
                 <Input placeholder="Enter service address" />
             </Form.Item>
 
-            {/* City */}
+            {/* Main City */}
             <Form.Item
                 label="City"
                 name="city"
@@ -52,7 +130,7 @@ interface BookingDetailsFormProps {
                 <Input placeholder="Enter city" />
             </Form.Item>
 
-            {/* State */}
+            {/* Main State */}
             <Form.Item
                 label="State"
                 name="state"
@@ -61,7 +139,7 @@ interface BookingDetailsFormProps {
                 <Input placeholder="Enter state" />
             </Form.Item>
 
-            {/* Zip Code */}
+            {/* Main Zip Code */}
             <Form.Item
                 label="Zip Code"
                 name="zipCode"
@@ -69,6 +147,73 @@ interface BookingDetailsFormProps {
             >
                 <Input placeholder="Enter zip code" />
             </Form.Item>
+
+            {/* Add additional addresses if the add-on is selected */}
+            {selectedAddOns.includes('secondAddress') && (
+                <>
+                    <Typography.Title level={5} style={{ marginTop: 20 }}>
+                        Additional Recipient/Service Address
+                    </Typography.Title>
+                    {additionalAddresses.map((_, index) => (
+                        <div key={index}>
+                            <Form.Item
+                                label={`Recipient Name ${index + 1}`}
+                                name={`recipientName_${index}`}
+                                rules={[{ required: true, message: 'Please enter the recipient name' }]}
+                            >
+                                <Input placeholder="Enter recipient name" />
+                            </Form.Item>
+
+                            <Form.Item
+                                label={`Service Address ${index + 1}`}
+                                name={`serviceAddress_${index}`}
+                                rules={[{ required: true, message: 'Please enter the service address' }]}
+                            >
+                                <Input placeholder="Enter service address" />
+                            </Form.Item>
+
+                            <Form.Item
+                                label={`City ${index + 1}`}
+                                name={`city_${index}`}
+                                rules={[{ required: true, message: 'Please enter the city' }]}
+                            >
+                                <Input placeholder="Enter city" />
+                            </Form.Item>
+
+                            <Form.Item
+                                label={`State ${index + 1}`}
+                                name={`state_${index}`}
+                                rules={[{ required: true, message: 'Please enter the state' }]}
+                            >
+                                <Input placeholder="Enter state" />
+                            </Form.Item>
+
+                            <Form.Item
+                                label={`Zip Code ${index + 1}`}
+                                name={`zipCode_${index}`}
+                                rules={[{ required: true, message: 'Please enter the zip code' }]}
+                            >
+                                <Input placeholder="Enter zip code" />
+                            </Form.Item>
+                        </div>
+                    ))}
+                    {!addressAdded && (
+                        <Button
+                            type="dashed"
+                            icon={<PlusOutlined />}
+                            onClick={addAddress}
+                            style={{ width: '100%', marginTop: 10 }}
+                        >
+                            Add Another Recipient/Service Address
+                        </Button>
+                    )}
+                    {addressAdded && (
+                        <Typography.Text type="secondary" style={{ display: 'block', marginTop: 10 }}>
+                            You are entitled to only one additional address.
+                        </Typography.Text>
+                    )}
+                </>
+            )}
 
             {/* Preferred Service Date */}
             <Form.Item
@@ -84,13 +229,23 @@ interface BookingDetailsFormProps {
                 <Input type="time" />
             </Form.Item>
 
+            <Form.Item label="Total Price">
+                <Typography.Title level={4}>${totalPrice}</Typography.Title>
+            </Form.Item>
+
             {/* Payment Information */}
-            <Form.Item label="Payment Method" name="paymentMethod" rules={[{ required: true, message: 'Please select a payment method' }]}>
-                <Checkbox.Group>
-                    <Checkbox value="creditCard">Credit/Debit Card</Checkbox>
-                    <Checkbox value="paypal">PayPal</Checkbox>
-                    <Checkbox value="bankTransfer">Bank Transfer</Checkbox>
-                </Checkbox.Group>
+            <Form.Item
+                label="Payment Method"
+                name="paymentMethod"
+                rules={[{ required: true, message: 'Please select a payment method' }]}
+            >
+                <Radio.Group
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                    value={paymentMethod} 
+                >
+                    <Radio value="creditCard">Credit/Debit Card</Radio>
+                    <Radio value="paypal">PayPal</Radio>
+                </Radio.Group>
             </Form.Item>
 
             {/* Terms and Conditions */}
@@ -124,9 +279,9 @@ interface BookingDetailsFormProps {
 
             {/* Submit Button */}
             <Form.Item>
-                <div style={{display: 'flex', gap: "10px"}}>
-                    <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
-                        Book Now
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <Button type="primary" htmlType="submit" style={{ width: '100%' }} disabled={loading}>
+                        {loading ? <Spin /> : pending ? 'Redirecting to Payment...' : 'Book Now'}
                     </Button>
                     <Button htmlType="button" style={{ width: '100%' }} onClick={onBack}>
                         Back

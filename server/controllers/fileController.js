@@ -1,16 +1,23 @@
 const zlib = require('zlib');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
+const PaymentDetails = require('../models/PaymentDetailsModel');
 
 exports.uploadFile = async (req, res) => {
     const userId = req.user._id;
-    const { name } = req.body;
+    const { name, paymentId } = req.body;
 
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded.' });
     }
 
     try {
+        const paymentDetails = await PaymentDetails.findOne({ _id: paymentId, userId, activePlan: true });
+
+        if (!paymentDetails) {
+            return res.status(400).json({ message: 'Invalid or inactive payment plan.' });
+        }
+
         // Check file size limit (e.g., 5MB)
         if (req.file.size > 5 * 1024 * 1024) {
             return res.status(400).json({ message: 'File size exceeds the limit of 5MB.' });
@@ -19,22 +26,25 @@ exports.uploadFile = async (req, res) => {
         // Compress the file data
         const compressedData = zlib.gzipSync(req.file.buffer);
 
-        // Create a new file document
+        // Create a new file document with the paymentId
         const file = new File({
             user: userId,
             fileName: name,
-            fileData: compressedData, // Save compressed data
+            fileData: compressedData, 
             uploadedAt: new Date(),
             status: 'not processed',
+            paymentId: paymentId, 
         });
 
         // Save the file
         await file.save();
 
+        await PaymentDetails.findByIdAndUpdate(paymentId, { activePlan: false });
+
         // Increment fileUploadCount in the User model
         await User.findByIdAndUpdate(
             userId,
-            { $inc: { fileUploadCount: 1 } }, // Increment by 1
+            { $inc: { fileUploadCount: 1 } },
             { new: true }
         );
 
@@ -46,6 +56,7 @@ exports.uploadFile = async (req, res) => {
                 fileName: file.fileName,
                 uploadedAt: file.uploadedAt,
                 status: file.status,
+                paymentId: file.paymentId, 
             },
         });
     } catch (error) {
@@ -167,7 +178,7 @@ exports.getAllUsers = async (req, res) => {
     try {
         // Fetch all users and select the required fields
         const users = await User.find()
-            .select('userName email role fileUploadCount'); // Select the required fields
+            .select('userName email role fileUploadCount'); 
 
         return res.status(200).json({
             status: 'success',
@@ -246,7 +257,11 @@ exports.getUserByIdWithFiles = async (req, res) => {
             });
         }
 
-        const files = await File.find({ user: id }).select('-fileData'); // Exclude binary data
+        // Fetch files and populate the paymentId field
+        const files = await File.find({ user: id })
+            .select('-fileData')
+            .populate('paymentId'); // Populate paymentId with PaymentDetails
+
         return res.status(200).json({
             status: 'success',
             data: {

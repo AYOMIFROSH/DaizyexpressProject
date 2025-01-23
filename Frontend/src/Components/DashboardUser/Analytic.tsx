@@ -4,7 +4,7 @@ import { useAuth } from "../../Context/useContext";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Spin } from "antd";
+import { message, Spin } from "antd";
 
 const Analytic = () => {
   const { token } = useAuth();
@@ -12,7 +12,7 @@ const Analytic = () => {
   const [processedDocument, setProcessedDocument] = useState<number | null>(null); // Store the count here
   const [loadingFileUploadCount, setLoadingFileUploadCount] = useState<boolean>(true); // Loading state for file upload count
   const [loadingProcessedDocument, setLoadingProcessedDocument] = useState<boolean>(true); // Loading state for processed document
-  const [error, setError] = useState<string | null>(null); // Store any error
+  const [error, setError] = useState<string | null>(null); 
 
   const Base_Url =
     window.location.hostname === "localhost"
@@ -40,16 +40,23 @@ const Analytic = () => {
         }
       } catch (err) {
         console.error("Error fetching file upload count:", err);
-        setError("Failed to fetch file upload count");
+        setError("Failed to fetch Uploaded files");
       } finally {
         setLoadingFileUploadCount(false);
         setLoadingProcessedDocument(false);
       }
     };
+    
 
     fetchFileUploadCount();
   }, [token]);
 
+  useEffect(() => {
+    if (error) {
+      message.error(error);
+    }
+  }, [error]);
+    
   return (
     <section className="mt-32 px-6">
       <div className="flex flex-col">
@@ -80,7 +87,6 @@ const Analytic = () => {
             }
           />
         </div>
-        {error && <p className="text-red-500 text-center mt-4">{error}</p>}
         <div className="flex items-center justify-center my-10">
           <Link
             to="/document"

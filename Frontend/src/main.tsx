@@ -26,6 +26,7 @@ import CheckEmailPage from "./Pages/PasswordReset.tsx";
 function AppRouter() {
   const { isAuthenticated, userRole, isVerified } = useAuth();
 
+
   const router = createBrowserRouter([
     {
       path: "/",
@@ -145,16 +146,18 @@ function AppRouter() {
         },
 
       ],
+      
     },
   ]);
 
   return <RouterProvider router={router} />;
 }
 
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-      <AppRouter />
+     <AppRouter />
     </AuthProvider>
   </StrictMode>
 );

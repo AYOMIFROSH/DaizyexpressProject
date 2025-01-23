@@ -9,7 +9,7 @@ interface File {
   name: string;
   date: string;
   status: string;
-  fileId: string; // Add fileId here for the download
+  fileId: string;
 }
 
 interface FileListProps {
@@ -20,11 +20,11 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
   const { token } = useAuth();
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [loadingDownload, setLoadingDownload] = useState<string | null>(null); 
+  const [loadingDownload, setLoadingDownload] = useState<string | null>(null);
   const API_BASE_URL =
     window.location.hostname === "localhost"
-      ? "http://localhost:3000" 
-      : "https://daizyexserver.vercel.app"; 
+      ? "http://localhost:3000"
+      : "https://daizyexserver.vercel.app";
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -59,14 +59,14 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
         setLoading(false);
       }
     };
-
-    fetchFiles();
+    if(token){
+      fetchFiles();
+    }
   }, [token]);
 
-  // Download file handler with loading state
   const downloadFile = async (fileId: string, name: string) => {
     try {
-      setLoadingDownload(fileId); 
+      setLoadingDownload(fileId);
 
       const response = await fetch(`${API_BASE_URL}/api/files/download/${fileId}`, {
         method: "GET",
@@ -80,7 +80,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = name; 
+        a.download = name;
         a.click();
         window.URL.revokeObjectURL(url);
       } else {
@@ -91,7 +91,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
       console.error("Error downloading file:", error);
       toast.error("An error occurred while downloading the file.");
     } finally {
-      setLoadingDownload(null); 
+      setLoadingDownload(null);
     }
   };
 
@@ -101,7 +101,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
       dataIndex: "name",
       key: "name",
       render: (name: string) => (
-        <span className="text-gray-800 font-medium text-base sm:text-lg">{name}</span>
+        <span className="text-gray-800 font-semibold text-sm sm:text-base">{name}</span>
       ),
     },
     {
@@ -109,7 +109,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
       dataIndex: "date",
       key: "date",
       render: (date: string) => (
-        <span className="text-gray-600 text-sm sm:text-base">{date}</span>
+        <span className="text-gray-500 text-sm sm:text-base">{date}</span>
       ),
     },
     {
@@ -118,15 +118,12 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
       key: "status",
       render: (status: string) => (
         <span
-          className={`px-3 py-1 rounded-full font-semibold text-sm sm:text-base ${
-            status === "processed"
-              ? "bg-green-100 text-green-600"
+          className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${status === "processed"
+              ? "bg-green-200 text-green-800"
               : status === "in process"
-              ? "bg-orange-100 text-orange-600"
-              : status === "not processed"
-              ? "bg-red-100 text-red-600"
-              : "bg-gray-100 text-gray-600"
-          }`}
+                ? "bg-yellow-200 text-yellow-800"
+                : "bg-red-200 text-red-800"
+            }`}
         >
           {status}
         </span>
@@ -139,31 +136,28 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
         <Button
           type="link"
           icon={<DownloadOutlined />}
-          disabled={record.status !== "processed" || loadingDownload === record.fileId} // Disable if not processed or if already downloading
-          className="text-blue-500"
-          onClick={() => downloadFile(record.fileId, record.name)} // Call downloadFile with fileId
+          disabled={record.status !== "processed" || loadingDownload === record.fileId}
+          onClick={() => downloadFile(record.fileId, record.name)}
+          className="text-blue-600 hover:text-blue-800"
         >
-          {loadingDownload === record.fileId ? (
-            <Spin size="small" />
-          ) : (
-            "Download"
-          )}
+          {loadingDownload === record.fileId ? <Spin size="small" /> : "Download"}
         </Button>
       ),
     },
   ];
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-4xl p-6 bg-white rounded-lg shadow">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-          Document Table {isHome ? "" : ""}
+    
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 py-2 px-40">
+      <div className="w-full max-w-4xl p-10 bg-white rounded-xl shadow-lg">
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-700 text-center mb-6">
+          Document Table {isHome ? "Overview" : ""}
         </h2>
         <Table
           dataSource={loading ? [] : files}
           columns={columns}
           pagination={{ pageSize: 5 }}
-          className="rounded-lg shadow bg-white"
+          className="rounded-lg overflow-hidden"
           locale={{
             emptyText: loading ? (
               <div className="flex items-center justify-center">
@@ -181,4 +175,5 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
 };
 
 export default FileList;
+
 
