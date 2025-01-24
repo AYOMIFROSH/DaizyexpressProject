@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../Context/useContext";
 import { Skeleton, Spin, Select, Modal } from "antd";
+import "../../index.css"
 
 const { Option } = Select;
 
@@ -12,7 +13,7 @@ interface BookingDetails {
   city: string;
   state: string;
   zipCode: string;
-  additionalAddress?: {
+  additionalAddresses?: {
     recipientName?: string;
     serviceAddress?: string;
     city?: string;
@@ -291,7 +292,7 @@ const UserDocuments: React.FC = () => {
             {file.paymentId ? (
               <>
                 {/* File Name Label */}
-                <div className="font-semibold text-lg">Payment for: {file.fileName}</div><br/>
+                <div className="font-semibold text-lg">Payment for: {file.fileName}</div><br />
 
                 {/* Using Ant Design's Card Component for styling */}
                 <div className="flex flex-wrap gap-6">
@@ -314,19 +315,35 @@ const UserDocuments: React.FC = () => {
                 </div>
 
                 {/* Payment Address and Details */}
-                <div className="mt-4">
-                  <div className="font-semibold">Booking Address:</div>
-                  <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
-                  <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
-                  <div>City: {file.paymentId.bookingDetails.city}</div>
-                  <div>State: {file.paymentId.bookingDetails.state}</div>
-                  <div>ZIP Code: {file.paymentId.bookingDetails.zipCode}</div>
-                  <div>
-                    <strong>Preferred Date: </strong>
-                    {new Date(file.paymentId.bookingDetails.preferredServiceDate).toISOString().split('T')[0]}
+                <div className="mt-4 flex flex-wrap gap-6">
+                <div className="flex-1 p-4 ">
+                    <div className="font-semibold">Booking Address:</div>
+                    <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
+                    <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
+                    <div>City: {file.paymentId.bookingDetails.city}</div>
+                    <div>State: {file.paymentId.bookingDetails.state}</div>
+                    <div>ZIP Code: {file.paymentId.bookingDetails.zipCode}</div>
+                    <div>
+                      <strong>Preferred Date: </strong>
+                      {new Date(file.paymentId.bookingDetails.preferredServiceDate).toISOString().split('T')[0]}
+                    </div>
+                    <div><strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}</div>
                   </div>
-                  <div><strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}</div>
-                </div>
+
+                {/* Additional Address (if available) */}
+                {file.paymentId.bookingDetails.additionalAddresses && (
+                  <div className="flex-1 p-4  ">
+                    <div className="font-semibold">Additional Address:</div>
+                    <div>Recipient: {file.paymentId.bookingDetails.additionalAddresses.recipientName || "N/A"}</div>
+                    <div>Address: {file.paymentId.bookingDetails.additionalAddresses.serviceAddress || "N/A"}</div>
+                    <div>City: {file.paymentId.bookingDetails.additionalAddresses.city || "N/A"}</div>
+                    <div>State: {file.paymentId.bookingDetails.additionalAddresses.state || "N/A"}</div>
+                    <div>ZIP Code: {file.paymentId.bookingDetails.additionalAddresses.zipCode || "N/A"}</div>
+                  </div>
+                )}
+
+              </div>
+
 
                 {/* Payment Date with Time */}
                 <div className="mt-4">

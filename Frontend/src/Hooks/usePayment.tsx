@@ -16,7 +16,7 @@ interface PaymentDetails {
     city: string;
     state: string;
     zipCode: string;
-  }[];
+  };
   serviceDate: string;
   preferredTime?: string;
   paymentMethod: string[];

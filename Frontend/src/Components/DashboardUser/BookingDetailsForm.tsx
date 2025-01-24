@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Checkbox, Typography, notification, message, Spin, Radio } from 'antd';
+import { Form, Input, Button, Checkbox, Typography, notification, message, Spin, Radio, TimePicker } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import usePayment from '../../Hooks/usePayment';
 
@@ -19,8 +19,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
     selectedService
 }) => {
     const [form] = Form.useForm();
-    const [additionalAddresses, setAdditionalAddresses] = useState<any[]>([]);
-    const [addressAdded, setAddressAdded] = useState<boolean>(false);
+    const [additionalAddress, setAdditionalAddress] = useState<any | null>(null); 
     const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
     const { sendPaymentDetails, loading, error, success, pending, handlePaymentSuccess, setPending } = usePayment();
 
@@ -61,7 +60,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
                 description: "PayPal payment is not available at the moment. Please select a card payment method.",
                 placement: "topRight",
             });
-            return; 
+            return;
         }
 
         if (!paymentMethod) {
@@ -70,28 +69,38 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
                 description: "Please select a payment method before proceeding.",
                 placement: "topRight",
             });
-            return; 
+            return;
+        }
+
+        if (values.preferredTime) {
+            values.preferredTime = values.preferredTime.format('hh:mm A'); // Convert moment object to "hh:mm A" string
         }
 
         const bookingData = {
+            
             ...values,
             selectedAddOns,
             totalPrice,
             selectedService,
-            paymentMethod,
+            // paymentMethod,
+            // additionalAddresses: additionalAddress ? {
+            //     ...form.getFieldsValue(['recipientName_additional', 'serviceAddress_additional', 'city_additional', 'state_additional', 'zipCode_additional']),
+            // } : undefined,         
         };
-
         await sendPaymentDetails(bookingData);
     };
 
-    // Add additional address form set
+    // Set additional address
     const addAddress = () => {
-        if (!addressAdded) {
-            setAdditionalAddresses([...additionalAddresses, {}]);
-            setAddressAdded(true);
-        }
+        setAdditionalAddress({
+            recipientName: '',
+            serviceAddress: '',
+            city: '',
+            state: '',
+            zipCode: '',
+        });
     };
-
+    
     return (
         <Form
             form={form}
@@ -149,72 +158,58 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             </Form.Item>
 
             {/* Add additional addresses if the add-on is selected */}
-            {selectedAddOns.includes('secondAddress') && (
+            {selectedAddOns.includes('secondAddress') && additionalAddress && (
                 <>
                     <Typography.Title level={5} style={{ marginTop: 20 }}>
                         Additional Recipient/Service Address
                     </Typography.Title>
-                    {additionalAddresses.map((_, index) => (
-                        <div key={index}>
-                            <Form.Item
-                                label={`Recipient Name ${index + 1}`}
-                                name={`recipientName_${index}`}
-                                rules={[{ required: true, message: 'Please enter the recipient name' }]}
-                            >
-                                <Input placeholder="Enter recipient name" />
-                            </Form.Item>
+                    <Form.Item
+                        label="Recipient Name"
+                        name="recipientName_additional"
+                        rules={[{ required: true, message: 'Please enter the recipient name' }]}>
+                        <Input placeholder="Enter recipient name" />
+                    </Form.Item>
 
-                            <Form.Item
-                                label={`Service Address ${index + 1}`}
-                                name={`serviceAddress_${index}`}
-                                rules={[{ required: true, message: 'Please enter the service address' }]}
-                            >
-                                <Input placeholder="Enter service address" />
-                            </Form.Item>
+                    <Form.Item
+                        label="Service Address"
+                        name="serviceAddress_additional"
+                        rules={[{ required: true, message: 'Please enter the service address' }]}>
+                        <Input placeholder="Enter service address" />
+                    </Form.Item>
 
-                            <Form.Item
-                                label={`City ${index + 1}`}
-                                name={`city_${index}`}
-                                rules={[{ required: true, message: 'Please enter the city' }]}
-                            >
-                                <Input placeholder="Enter city" />
-                            </Form.Item>
+                    <Form.Item
+                        label="City"
+                        name="city_additional"
+                        rules={[{ required: true, message: 'Please enter the city' }]}>
+                        <Input placeholder="Enter city" />
+                    </Form.Item>
 
-                            <Form.Item
-                                label={`State ${index + 1}`}
-                                name={`state_${index}`}
-                                rules={[{ required: true, message: 'Please enter the state' }]}
-                            >
-                                <Input placeholder="Enter state" />
-                            </Form.Item>
+                    <Form.Item
+                        label="State"
+                        name="state_additional"
+                        rules={[{ required: true, message: 'Please enter the state' }]}>
+                        <Input placeholder="Enter state" />
+                    </Form.Item>
 
-                            <Form.Item
-                                label={`Zip Code ${index + 1}`}
-                                name={`zipCode_${index}`}
-                                rules={[{ required: true, message: 'Please enter the zip code' }]}
-                            >
-                                <Input placeholder="Enter zip code" />
-                            </Form.Item>
-                        </div>
-                    ))}
-                    {!addressAdded && (
-                        <Button
-                            type="dashed"
-                            icon={<PlusOutlined />}
-                            onClick={addAddress}
-                            style={{ width: '100%', marginTop: 10 }}
-                        >
-                            Add Another Recipient/Service Address
-                        </Button>
-                    )}
-                    {addressAdded && (
-                        <Typography.Text type="secondary" style={{ display: 'block', marginTop: 10 }}>
-                            You are entitled to only one additional address.
-                        </Typography.Text>
-                    )}
+                    <Form.Item
+                        label="Zip Code"
+                        name="zipCode_additional"
+                        rules={[{ required: true, message: 'Please enter the zip code' }]}>
+                        <Input placeholder="Enter zip code" />
+                    </Form.Item>
                 </>
             )}
 
+            {!additionalAddress && selectedAddOns.includes('secondAddress') && (
+                <Button
+                    type="dashed"
+                    icon={<PlusOutlined />}
+                    onClick={addAddress}
+                    style={{ width: '100%', marginTop: 10 }}
+                >
+                    Add Additional Recipient/Service Address
+                </Button>
+            )}
             {/* Preferred Service Date */}
             <Form.Item
                 label="Preferred Service Date"
@@ -225,8 +220,16 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             </Form.Item>
 
             {/* Preferred Time */}
-            <Form.Item label="Preferred Time (for Rush or Priority Service)" name="preferredTime">
-                <Input type="time" />
+            <Form.Item
+                label="Preferred Time (for Rush or Priority Service)"
+                name="preferredTime"
+                rules={[{ required: true, message: 'Please select/enter preferred time (for Rush or Priority Service)' }]}
+            >
+                <TimePicker
+                    format="hh:mm A"
+                    placeholder="Select time"
+                    style={{ width: '100%' }}
+                />
             </Form.Item>
 
             <Form.Item label="Total Price">
@@ -241,7 +244,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             >
                 <Radio.Group
                     onChange={(e) => setPaymentMethod(e.target.value)}
-                    value={paymentMethod} 
+                    value={paymentMethod}
                 >
                     <Radio value="creditCard">Credit/Debit Card</Radio>
                     <Radio value="paypal">PayPal</Radio>
