@@ -24,6 +24,8 @@ const FRONT_URL =
 // Create Payment Route
 router.post('/card-payment', authenticate, async (req, res) => {
     console.log('create payment hit');
+    console.log('Request Body:', req.body);
+
     const {
         selectedService,
         selectedAddOns,
@@ -32,7 +34,11 @@ router.post('/card-payment', authenticate, async (req, res) => {
         city,
         state,
         zipCode,
-        additionalAddresses,
+        recipientName_additional,
+        serviceAddress_additional,
+        city_additional,
+        state_additional,
+        zipCode_additional,
         serviceDate,
         preferredTime,
         paymentMethod,
@@ -41,6 +47,7 @@ router.post('/card-payment', authenticate, async (req, res) => {
         totalPrice,
     } = req.body;
 
+    // Validate required fields
     if (
         !selectedService || !selectedAddOns || !recipientName || !serviceAddress ||
         !city || !state || !zipCode || !serviceDate || !paymentMethod ||
@@ -57,7 +64,14 @@ router.post('/card-payment', authenticate, async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const transformedAdditionalAddress = additionalAddresses?.[0] || null;
+        // Transform additional address
+        const transformedAdditionalAddress = {
+            recipientName: recipientName_additional || '',
+            serviceAddress: serviceAddress_additional || '',
+            city: city_additional || '',
+            state: state_additional || '',
+            zipCode: zipCode_additional || '',
+        };
 
         const paymentDetails = new PaymentDetails({
             userId,
@@ -69,7 +83,7 @@ router.post('/card-payment', authenticate, async (req, res) => {
                 city,
                 state,
                 zipCode,
-                additionalAddress: transformedAdditionalAddress,
+                additionalAddresses: transformedAdditionalAddress,
                 preferredServiceDate: new Date(serviceDate),
                 preferredTime,
             },
@@ -90,10 +104,10 @@ router.post('/card-payment', authenticate, async (req, res) => {
                     price_data: {
                         currency: 'usd',
                         product_data: {
-                            name: selectedService, // Add selected service name
+                            name: selectedService,
                             description: `Add-ons: ${selectedAddOns.join(', ')}`,
                         },
-                        unit_amount: totalPrice * 100, // Convert total price to cents
+                        unit_amount: totalPrice * 100,
                     },
                     quantity: 1,
                 },
@@ -106,13 +120,12 @@ router.post('/card-payment', authenticate, async (req, res) => {
                 userId: userId.toString(),
             },
         });
-        
+
         // Save the Stripe session ID to your database
         savedPayment.stripeSessionId = session.id;
         await savedPayment.save();
 
         res.status(200).json({ url: session.url });
-
     } catch (error) {
         console.error('Error creating payment session:', error);
         res.status(500).json({ error: 'Failed to create payment session' });
