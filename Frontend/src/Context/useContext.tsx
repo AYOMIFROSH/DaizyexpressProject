@@ -51,12 +51,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = () => {
     sessionStorage.removeItem("user_data");
-    localStorage.removeItem('lastRoute');
     setToken(null);
     setUserData(null);
     setIsAuthenticated(false);
     setUserRole(null);
     setIsVerified(false);
+    sessionStorage.removeItem('lastRoute');
   };
 
   return (
