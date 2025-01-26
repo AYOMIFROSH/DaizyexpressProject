@@ -6,56 +6,83 @@
     <title>Payment Receipt</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            background-color: #f4f4f4;
             color: #333;
         }
         .container {
             width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
+            max-width: 900px;
+            margin: 30px auto;
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 40px;
         }
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 20px;
+            position: relative;
         }
         .header h1 {
+            color: #2e3d49;
+            font-size: 28px;
             margin: 0;
-            color: #444;
         }
         .header p {
-            margin: 0;
-            font-size: 0.9em;
-            color: #777;
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .paid-sticker {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 100px; /* Adjust the size */
+            height: auto;
         }
         .details {
-            margin-bottom: 20px;
+            margin-bottom: 40px;
         }
         .details h2 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #2e3d49;
+            text-decoration: underline;
         }
         .details table {
             width: 100%;
             border-collapse: collapse;
         }
         .details table td {
-            padding: 8px 10px;
+            padding: 12px;
             border: 1px solid #ddd;
+            font-size: 14px;
+            color: #555;
+        }
+        .details table th {
+            padding: 12px;
+            border: 1px solid #ddd;
+            background-color: #f1f1f1;
+            font-size: 16px;
+            text-align: left;
+            color: #333;
         }
         .footer {
             text-align: center;
-            font-size: 0.9em;
+            font-size: 12px;
             color: #777;
-            margin-top: 20px;
+            margin-top: 30px;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer .bold {
+            font-weight: bold;
         }
     </style>
 </head>
@@ -63,94 +90,93 @@
     <div class="container">
         <div class="header">
             <h1>Payment Receipt</h1>
-            <p>Thank you for your payment</p>
+            <p>Thank you for your payment. Below are the details of your transaction.</p>
+            <!-- Paid Sticker -->
+            <img src="../../Frontend/src//assets/image.png" alt="Paid" class="paid-sticker">
         </div>
 
         <div class="details">
             <h2>Payment Details</h2>
             <table>
                 <tr>
-                    <td><strong>Payment ID:</strong></td>
+                    <th>Payment ID:</th>
                     <td><%= paymentDetails._id %></td>
                 </tr>
                 <tr>
-                    <td><strong>User ID:</strong></td>
-                    <td><%= paymentDetails.userId %></td>
-                </tr>
-                <tr>
-                    <td><strong>Service Type:</strong></td>
+                    <th>Service Type:</th>
                     <td><%= paymentDetails.serviceType %></td>
                 </tr>
                 <tr>
-                    <td><strong>Add-ons:</strong></td>
+                    <th>Add-ons:</th>
                     <td><%= paymentDetails.addOns.join(', ') %></td>
                 </tr>
                 <tr>
-                    <td><strong>Recipient Name:</strong></td>
+                    <th>Recipient Name:</th>
                     <td><%= paymentDetails.bookingDetails.recipientName %></td>
                 </tr>
                 <tr>
-                    <td><strong>Service Address:</strong></td>
+                    <th>Service Address:</th>
                     <td><%= paymentDetails.bookingDetails.serviceAddress %></td>
                 </tr>
                 <tr>
-                    <td><strong>City:</strong></td>
+                    <th>City:</th>
                     <td><%= paymentDetails.bookingDetails.city %></td>
                 </tr>
                 <tr>
-                    <td><strong>State:</strong></td>
+                    <th>State:</th>
                     <td><%= paymentDetails.bookingDetails.state %></td>
                 </tr>
                 <tr>
-                    <td><strong>Zip Code:</strong></td>
+                    <th>Zip Code:</th>
                     <td><%= paymentDetails.bookingDetails.zipCode %></td>
                 </tr>
                 <tr>
-                    <td><strong>Additional Address:</strong></td>
+                    <th>Additional Address:</th>
                     <td>
-                        <p><strong>Recipient Name:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.recipientName %></p>
-                        <p><strong>Address:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.serviceAddress %></p>
-                        <p><strong>City:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.city %></p>
-                        <p><strong>State:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.state %></p>
-                        <p><strong>Zip Code:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.zipCode %></p>
+                        <strong>Recipient Name:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.recipientName %><br>
+                        <strong>Address:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.serviceAddress %><br>
+                        <strong>City:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.city %><br>
+                        <strong>State:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.state %><br>
+                        <strong>Zip Code:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.zipCode %>
                     </td>
                 </tr>
                 <tr>
-                    <td><strong>Preferred Date:</strong></td>
+                    <th>Preferred Date:</th>
                     <td><%= paymentDetails.bookingDetails.preferredServiceDate.toDateString() %></td>
                 </tr>
                 <tr>
-                    <td><strong>Preferred Time:</strong></td>
+                    <th>Preferred Time:</th>
                     <td><%= paymentDetails.bookingDetails.preferredTime %></td>
                 </tr>
                 <tr>
-                    <td><strong>Total Price:</strong></td>
+                    <th>Total Price:</th>
                     <td>$<%= paymentDetails.totalPrice %></td>
                 </tr>
                 <tr>
-                    <td><strong>Payment Method:</strong></td>
+                    <th>Payment Method:</th>
                     <td><%= paymentDetails.paymentMethod %></td>
                 </tr>
                 <tr>
-                    <td><strong>Terms Agreed:</strong></td>
+                    <th>Terms Agreed:</th>
                     <td><%= paymentDetails.termsAgreed ? 'Yes' : 'No' %></td>
                 </tr>
                 <tr>
-                    <td><strong>Signature:</strong></td>
+                    <th>Signature:</th>
                     <td><%= paymentDetails.signature %></td>
                 </tr>
                 <tr>
-                    <td><strong>Payment Status:</strong></td>
+                    <th>Payment Status:</th>
                     <td><%= paymentDetails.activePlan ? 'Completed' : 'Pending' %></td>
                 </tr>
                 <tr>
-                    <td><strong>Paid At:</strong></td>
+                    <th>Paid At:</th>
                     <td><%= paymentDetails.PayedAt ? paymentDetails.PayedAt.toDateString() : 'N/A' %></td>
                 </tr>
             </table>
         </div>
 
         <div class="footer">
+            <p class="bold">For any inquiries, please contact our support team at support@daizyexpress.com.</p>
             <p>&copy; <%= new Date().getFullYear() %> DaizyExpress. All rights reserved.</p>
         </div>
     </div>

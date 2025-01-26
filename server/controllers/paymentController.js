@@ -24,8 +24,8 @@ const FRONT_URL =
         ? process.env.FRONT_URL_PRODUCTION || 'https://daizyexpress.vercel.app' || 'https://websocket-oideizy.onrender.com'
         : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173' || 'https://websocket-oideizy.onrender.com';
 
-const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
-const Auth_Password = process.env.AUTH_PASSWORD || 'rhjlcwveeeaktiry';
+// const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
+// const Auth_Password = process.env.AUTH_PASSWORD || 'rhjlcwveeeaktiry';
 
 // Create Payment Route
 router.post('/card-payment', authenticate, async (req, res) => {
@@ -138,52 +138,150 @@ router.post('/card-payment', authenticate, async (req, res) => {
     }
 });
 
-async function generatePDF(paymentDetails, res) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
+// async function generatePDF(paymentDetails, res) {
+//     const browser = await puppeteer.launch();
+//     const page = await browser.newPage();
 
-    // Render the EJS template as HTML
-    const html = await new Promise((resolve, reject) => {
-        res.render('invoice', { paymentDetails }, (err, renderedHtml) => {
-            if (err) reject(err);
-            else resolve(renderedHtml);
-        });
-    });
+//     // Render the EJS template as HTML
+//     const html = await new Promise((resolve, reject) => {
+//         res.render('invoice', { paymentDetails }, (err, renderedHtml) => {
+//             if (err) reject(err);
+//             else resolve(renderedHtml);
+//         });
+//     });
 
-    await page.setContent(html);
-    const pdfPath = path.join(__dirname, 'invoice', `${paymentDetails._id}.pdf`);
-    console.log('Saving PDF to:', pdfPath);
-    await page.pdf({ path: pdfPath, format: 'A4' });
-    await browser.close();
+//     await page.setContent(html);
+//     console.log('Set content hit');
+//     const pdfPath = path.join(__dirname, '../invoice', `${paymentDetails._id}.pdf`);
+//     console.log('Saving PDF to:', pdfPath);
+//     await page.pdf({ path: pdfPath, format: 'A4' });
+//     await browser.close();
 
-    return pdfPath;
-}
+//     return pdfPath;
+// }
 
-// Helper function to send email with PDF
-async function sendInvoiceEmail(userEmail, pdfPath, paymentDetails) {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail', // Replace with your email service provider
-        auth: {
-            user: Auth_email,
-            pass: Auth_Password,
-        },
-    });
+// // Helper function to send email with PDF
+// async function sendInvoiceEmail(userEmail, pdfPath, paymentDetails) {
+//     const user = await User.findById(paymentDetails.userId);
+//     if (!user) {
+//         return res.status(404).json({ error: 'User not found' });
+//     }
 
-    const mailOptions = {
-        from: Auth_email,
-        to: userEmail,
-        subject: 'Your Payment Receipt',
-        text: `Dear ${paymentDetails.bookingDetails.recipientName},\n\nThank you for your payment. Please find your receipt attached.\n\nBest regards,\nDaizyExpress`,
-        attachments: [
-            {
-                filename: `Invoice-${paymentDetails._id}.pdf`,
-                path: pdfPath,
-            },
-        ],
-    };
+//     const transporter = nodemailer.createTransport({
+//         service: 'gmail', // Replace with your email service provider
+//         auth: {
+//             user: Auth_email,
+//             pass: Auth_Password,
+//         },
+//     });
 
-    await transporter.sendMail(mailOptions);
-}
+//     const mailOptions = {
+//         from: Auth_email,
+//         to: userEmail,
+//         subject: 'Your Payment Receipt',
+//         html: `
+//     <!DOCTYPE html>
+//     <html lang="en">
+//     <head>
+//         <meta charset="UTF-8">
+//         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//         <title>Your Payment Receipt</title>
+//         <style>
+//             body {
+//                 font-family: 'Arial', sans-serif;
+//                 color: #333;
+//                 background-color: #f9f9f9;
+//                 margin: 0;
+//                 padding: 0;
+//             }
+//             .email-container {
+//                 width: 100%;
+//                 max-width: 600px;
+//                 margin: 0 auto;
+//                 background-color: #ffffff;
+//                 padding: 20px;
+//                 border-radius: 8px;
+//                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+//             }
+//             .header {
+//                 text-align: center;
+//                 border-bottom: 2px solid #444;
+//                 padding-bottom: 10px;
+//                 margin-bottom: 20px;
+//             }
+//             .header h1 {
+//                 color: #2d3e50;
+//                 font-size: 24px;
+//                 margin: 0;
+//             }
+//             .header p {
+//                 color: #777;
+//                 font-size: 14px;
+//                 margin: 5px 0;
+//             }
+//             .content {
+//                 color: #333;
+//                 font-size: 16px;
+//             }
+//             .content p {
+//                 margin: 15px 0;
+//             }
+//             .footer {
+//                 text-align: center;
+//                 margin-top: 30px;
+//                 font-size: 12px;
+//                 color: #777;
+//             }
+//             .footer p {
+//                 margin: 5px 0;
+//             }
+//             .btn {
+//                 display: inline-block;
+//                 background-color: #4CAF50;
+//                 color: #fff;
+//                 padding: 10px 20px;
+//                 text-decoration: none;
+//                 border-radius: 5px;
+//                 margin-top: 20px;
+//             }
+//             .btn:hover {
+//                 background-color: #45a049;
+//             }
+//         </style>
+//     </head>
+//     <body>
+//         <div class="email-container">
+//             <div class="header">
+//                 <h1>Thank You for Your Payment</h1>
+//                 <p>DaizyExpress - Official Payment Receipt</p>
+//             </div>
+//             <div class="content">
+//                 <p>Dear ${user.userName},</p>
+//                 <p>We are pleased to confirm the receipt of your payment. Thank you for choosing DaizyExpress!</p>
+//                 <p>Your payment receipt is attached below. Please review the details in the attached invoice for full information.</p>
+//                 <p>If you have any questions or need assistance, feel free to reach out to us at <a href="mailto:support@daizyexpress.com">support@daizyexpress.com</a>.</p>
+//                 <p>We appreciate your business and look forward to assisting you again soon.</p>
+    
+//             </div>
+//             <div class="footer">
+//                 <p>&copy; ${new Date().getFullYear()} DaizyExpress. All Rights Reserved.</p>
+//                 <p>DaizyExpress | Your Trusted Partner in [Service Name]</p>
+//                 <p><a href="mailto:support@daizyexpress.com">Contact Support</a></p>
+//             </div>
+//         </div>
+//     </body>
+//     </html>
+//     `,
+//         attachments: [
+//             {
+//                 filename: `Invoice-${paymentDetails._id}.pdf`,
+//                 path: pdfPath,
+//             },
+//         ],
+//     };
+
+//     await transporter.sendMail(mailOptions);
+// }
 
 // Verification Route
 router.get('/verify-payment', async (req, res) => {
@@ -207,13 +305,15 @@ router.get('/verify-payment', async (req, res) => {
         }
 
         if (paymentDetails.activePlan) {
-            const pdfPath = await generatePDF(paymentDetails, res);
-            await sendInvoiceEmail(user.email, pdfPath, paymentDetails);
+            // Generate PDF and send invoice email if already activated
+            // const pdfPath = await generatePDF(paymentDetails, res);
+            // await sendInvoiceEmail(user.email, pdfPath, paymentDetails);
             return res.redirect(`${FRONT_URL}/upload`);
         }
 
         const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
         if (session.payment_status === 'paid') {
+            // Update the payment details with activePlan and PayedAt
             await PaymentDetails.findByIdAndUpdate(paymentId, {
                 activePlan: true,
                 PayedAt: new Date(),
@@ -221,8 +321,12 @@ router.get('/verify-payment', async (req, res) => {
 
             console.log(`Payment ${paymentId} verified and activated.`);
 
-            const pdfPath = await generatePDF(paymentDetails, res);
-            await sendInvoiceEmail(user.email, pdfPath, paymentDetails);
+            // Retrieve the updated payment details
+            // const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
+
+            // // Generate PDF with the updated payment details
+            // const pdfPath = await generatePDF(updatedPaymentDetails, res);
+            // await sendInvoiceEmail(user.email, pdfPath, updatedPaymentDetails);
 
             return res.redirect(`${FRONT_URL}/upload`);
         }
@@ -234,6 +338,7 @@ router.get('/verify-payment', async (req, res) => {
         res.status(500).json({ error: 'Failed to verify payment' });
     }
 });
+
 
 // Webhook Route
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
