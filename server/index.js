@@ -67,27 +67,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// let io;
-
-// app.set('socketio', io); 
-
-
-// // Socket.io connection
-// io.on('connection', (socket) => {
-//     console.log('New client connected');
-
-//     socket.on('disconnect', () => {
-//         console.log('Client disconnected');
-//     });
-
-//     socket.on('error', (error) => {
-//         console.error('Socket error:', error);
-//     });
-// });
-
-
-// module.exports = { io };
-
 // Start the server
 const startServer = async () => {
     try {
@@ -95,7 +74,6 @@ const startServer = async () => {
         await mongoose.connect(dbAltHost, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            socketTimeoutMS: 45000,
             autoIndex: true,
         });
         console.log('Connected to MongoDB successfully');
@@ -110,13 +88,6 @@ const startServer = async () => {
     }
 };
 
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
 
 // Call the startServer function to run the application
 startServer();

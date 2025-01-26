@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #444;
+        }
+        .header p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .details {
+            margin-bottom: 20px;
+        }
+        .details h2 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+        .details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .details table td {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+        }
+        .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Payment Receipt</h1>
+            <p>Thank you for your payment</p>
+        </div>
+
+        <div class="details">
+            <h2>Payment Details</h2>
+            <table>
+                <tr>
+                    <td><strong>Payment ID:</strong></td>
+                    <td><%= paymentDetails._id %></td>
+                </tr>
+                <tr>
+                    <td><strong>User ID:</strong></td>
+                    <td><%= paymentDetails.userId %></td>
+                </tr>
+                <tr>
+                    <td><strong>Service Type:</strong></td>
+                    <td><%= paymentDetails.serviceType %></td>
+                </tr>
+                <tr>
+                    <td><strong>Add-ons:</strong></td>
+                    <td><%= paymentDetails.addOns.join(', ') %></td>
+                </tr>
+                <tr>
+                    <td><strong>Recipient Name:</strong></td>
+                    <td><%= paymentDetails.bookingDetails.recipientName %></td>
+                </tr>
+                <tr>
+                    <td><strong>Service Address:</strong></td>
+                    <td><%= paymentDetails.bookingDetails.serviceAddress %></td>
+                </tr>
+                <tr>
+                    <td><strong>City:</strong></td>
+                    <td><%= paymentDetails.bookingDetails.city %></td>
+                </tr>
+                <tr>
+                    <td><strong>State:</strong></td>
+                    <td><%= paymentDetails.bookingDetails.state %></td>
+                </tr>
+                <tr>
+                    <td><strong>Zip Code:</strong></td>
+                    <td><%= paymentDetails.bookingDetails.zipCode %></td>
+                </tr>
+                <tr>
+                    <td><strong>Additional Address:</strong></td>
+                    <td>
+                        <p><strong>Recipient Name:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.recipientName %></p>
+                        <p><strong>Address:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.serviceAddress %></p>
+                        <p><strong>City:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.city %></p>
+                        <p><strong>State:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.state %></p>
+                        <p><strong>Zip Code:</strong> <%= paymentDetails.bookingDetails.additionalAddresses.zipCode %></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Preferred Date:</strong></td>
+                    <td><%= paymentDetails.bookingDetails.preferredServiceDate.toDateString() %></td>
+                </tr>
+                <tr>
+                    <td><strong>Preferred Time:</strong></td>
+                    <td><%= paymentDetails.bookingDetails.preferredTime %></td>
+                </tr>
+                <tr>
+                    <td><strong>Total Price:</strong></td>
+                    <td>$<%= paymentDetails.totalPrice %></td>
+                </tr>
+                <tr>
+                    <td><strong>Payment Method:</strong></td>
+                    <td><%= paymentDetails.paymentMethod %></td>
+                </tr>
+                <tr>
+                    <td><strong>Terms Agreed:</strong></td>
+                    <td><%= paymentDetails.termsAgreed ? 'Yes' : 'No' %></td>
+                </tr>
+                <tr>
+                    <td><strong>Signature:</strong></td>
+                    <td><%= paymentDetails.signature %></td>
+                </tr>
+                <tr>
+                    <td><strong>Payment Status:</strong></td>
+                    <td><%= paymentDetails.activePlan ? 'Completed' : 'Pending' %></td>
+                </tr>
+                <tr>
+                    <td><strong>Paid At:</strong></td>
+                    <td><%= paymentDetails.PayedAt ? paymentDetails.PayedAt.toDateString() : 'N/A' %></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>&copy; <%= new Date().getFullYear() %> DaizyExpress. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

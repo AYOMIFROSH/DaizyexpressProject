@@ -4,6 +4,9 @@ const PaymentDetails = require('../models/PaymentDetailsModel');
 const User = require('../models/userModel');
 const { authenticate } = require('../routes/middleware');
 const notifyWebSocketServer = require('../utils/websocket.oihandler')
+const path = require('path');
+const puppeteer = require('puppeteer');
+const nodemailer = require('nodemailer');
 
 require('dotenv').config();
 
@@ -20,6 +23,9 @@ const FRONT_URL =
     process.env.NODE_ENV === 'production'
         ? process.env.FRONT_URL_PRODUCTION || 'https://daizyexpress.vercel.app' || 'https://websocket-oideizy.onrender.com'
         : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173' || 'https://websocket-oideizy.onrender.com';
+
+const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
+const Auth_Password = process.env.AUTH_PASSWORD || 'rhjlcwveeeaktiry';
 
 // Create Payment Route
 router.post('/card-payment', authenticate, async (req, res) => {
@@ -132,9 +138,56 @@ router.post('/card-payment', authenticate, async (req, res) => {
     }
 });
 
+async function generatePDF(paymentDetails, res) {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    // Render the EJS template as HTML
+    const html = await new Promise((resolve, reject) => {
+        res.render('invoice', { paymentDetails }, (err, renderedHtml) => {
+            if (err) reject(err);
+            else resolve(renderedHtml);
+        });
+    });
+
+    await page.setContent(html);
+    const pdfPath = path.join(__dirname, 'invoice', `${paymentDetails._id}.pdf`);
+    console.log('Saving PDF to:', pdfPath);
+    await page.pdf({ path: pdfPath, format: 'A4' });
+    await browser.close();
+
+    return pdfPath;
+}
+
+// Helper function to send email with PDF
+async function sendInvoiceEmail(userEmail, pdfPath, paymentDetails) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail', // Replace with your email service provider
+        auth: {
+            user: Auth_email,
+            pass: Auth_Password,
+        },
+    });
+
+    const mailOptions = {
+        from: Auth_email,
+        to: userEmail,
+        subject: 'Your Payment Receipt',
+        text: `Dear ${paymentDetails.bookingDetails.recipientName},\n\nThank you for your payment. Please find your receipt attached.\n\nBest regards,\nDaizyExpress`,
+        attachments: [
+            {
+                filename: `Invoice-${paymentDetails._id}.pdf`,
+                path: pdfPath,
+            },
+        ],
+    };
+
+    await transporter.sendMail(mailOptions);
+}
+
 // Verification Route
 router.get('/verify-payment', async (req, res) => {
-    console.log('Verify payment hit')
+    console.log('Verify payment hit');
     const { paymentId } = req.query;
 
     if (!paymentId) {
@@ -142,7 +195,6 @@ router.get('/verify-payment', async (req, res) => {
     }
 
     try {
-        // Fetch payment details from the database
         const paymentDetails = await PaymentDetails.findById(paymentId);
         if (!paymentDetails) {
             return res.status(404).json({ error: 'Payment details not found' });
@@ -155,10 +207,11 @@ router.get('/verify-payment', async (req, res) => {
         }
 
         if (paymentDetails.activePlan) {
+            const pdfPath = await generatePDF(paymentDetails, res);
+            await sendInvoiceEmail(user.email, pdfPath, paymentDetails);
             return res.redirect(`${FRONT_URL}/upload`);
         }
 
-        // Use the stored Stripe session ID to verify payment
         const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
         if (session.payment_status === 'paid') {
             await PaymentDetails.findByIdAndUpdate(paymentId, {
@@ -167,6 +220,10 @@ router.get('/verify-payment', async (req, res) => {
             });
 
             console.log(`Payment ${paymentId} verified and activated.`);
+
+            const pdfPath = await generatePDF(paymentDetails, res);
+            await sendInvoiceEmail(user.email, pdfPath, paymentDetails);
+
             return res.redirect(`${FRONT_URL}/upload`);
         }
 
@@ -177,7 +234,6 @@ router.get('/verify-payment', async (req, res) => {
         res.status(500).json({ error: 'Failed to verify payment' });
     }
 });
-
 
 // Webhook Route
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
