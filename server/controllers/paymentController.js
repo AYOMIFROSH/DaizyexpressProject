@@ -4,7 +4,6 @@ const PaymentDetails = require('../models/PaymentDetailsModel');
 const User = require('../models/userModel');
 const { authenticate } = require('../routes/middleware');
 const notifyWebSocketServer = require('../utils/websocket.oihandler')
-const path = require('path');
 const puppeteer = require('puppeteer');
 const nodemailer = require('nodemailer');
 
@@ -143,28 +142,27 @@ async function generatePDF(paymentDetails, res) {
     const page = await browser.newPage();
 
     const html = await new Promise((resolve, reject) => {
-        res.render('invoice', { paymentDetails }, (err, renderedHtml) => {
-            if (err) reject(err);
-            else resolve(renderedHtml);
-        });
-    });
-
+        res.render(`invoice`, {paymentDetails}, (err, renderedHtml) => {
+            if(err) reject(err);
+            else resolve(renderedHtml)
+        } )
+    })
     await page.setContent(html);
 
-    // Generate the PDF with compression settings
+    // Generate the PDF
     const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: false,
-        scale: 0.8, 
+        scale: 0.8,
     });
 
     await browser.close();
-    console.log(`save pdf hit - pdf size: ${pdfBuffer.length / 1028} KB`);
 
-    // Convert Uint8Array to Buffer
-    const pdfBufferAsBuffer = Buffer.from(pdfBuffer);
+    console.log(`PDF generated - size: ${pdfBuffer.length / 1024} KB`);
 
     // Save the PDF buffer to the paymentDetails document
+    const pdfBufferAsBuffer = Buffer.from(pdfBuffer);
+
     paymentDetails.paidInvoice = {
         data: pdfBufferAsBuffer,
         contentType: 'application/pdf',
@@ -172,17 +170,15 @@ async function generatePDF(paymentDetails, res) {
 
     await paymentDetails.save();
 
-    console.log('pdf saved');
+    console.log('PDF saved to the database.');
 
     return pdfBufferAsBuffer;
 }
 
 // Helper function to send email with PDF
-async function sendInvoiceEmail(userEmail, pdfPath, paymentDetails) {
-    const user = await User.findById(paymentDetails.userId);
-    if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-    }
+async function sendInvoiceEmail( userEmail, userName, updatedPaymentDetails) {
+    console.log('UserEmail: ', userEmail );
+    console.log('UserName: ', userName );
 
     const transporter = nodemailer.createTransport({
         service: 'gmail', // Replace with your email service provider
@@ -273,7 +269,7 @@ async function sendInvoiceEmail(userEmail, pdfPath, paymentDetails) {
                 <p>DaizyExpress - Official Payment Receipt</p>
             </div>
             <div class="content">
-                <p>Dear ${user.userName},</p>
+                <p>Dear ${userName},</p>
                 <p>We are pleased to confirm the receipt of your payment. Thank you for choosing DaizyExpress!</p>
                 <p>Your payment receipt is attached below. Please review the details in the attached invoice for full information.</p>
                 <p>If you have any questions or need assistance, feel free to reach out to us at <a href="mailto:support@daizyexpress.com">support@daizyexpress.com</a>.</p>
@@ -291,9 +287,9 @@ async function sendInvoiceEmail(userEmail, pdfPath, paymentDetails) {
     `,
         attachments: [
             {
-                filename: `Invoice-${paymentDetails._id}.pdf`,
-                content: paymentDetails.paidInvoice.data,
-                contentType: paymentDetails.paidInvoice.contentType,
+                filename: `Invoice-${updatedPaymentDetails._id}.pdf`,
+                content: updatedPaymentDetails.paidInvoice.data,
+                contentType: updatedPaymentDetails.paidInvoice.contentType,
             },
         ],
     };
@@ -322,10 +318,8 @@ router.get('/verify-payment', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        if (paymentDetails.activePlan) {
-            // Generate PDF and send invoice email if already activated
-            const pdfBuffer = await generatePDF(paymentDetails, res);
-            await sendInvoiceEmail(user.email, pdfBuffer, paymentDetails);
+        if (paymentDetails.activePlan == true) {
+            console.log('plan is active')
             return res.redirect(`${FRONT_URL}/upload`);
         }
 
@@ -342,9 +336,14 @@ router.get('/verify-payment', async (req, res) => {
             // Retrieve the updated payment details
             const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
 
-            // Generate PDF with the updated payment details
-            const pdfBuffer = await generatePDF(updatedPaymentDetails, res);
-            await sendInvoiceEmail(user.email, pdfBuffer, updatedPaymentDetails);
+            try {
+                // Generate PDF and send the invoice
+                 await generatePDF(updatedPaymentDetails, res);
+                await sendInvoiceEmail( user.email, user.userName, updatedPaymentDetails);
+            } catch (err) {
+                console.error('Error generating/sending invoice:', err);
+                // Log error, but do not halt the process
+            }
 
             return res.redirect(`${FRONT_URL}/upload`);
         }
