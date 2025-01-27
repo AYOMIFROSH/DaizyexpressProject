@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <title>Payment Receipt</title>
     <style>
         body {
@@ -40,9 +41,9 @@
         }
         .paid-sticker {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 100px; /* Adjust the size */
+            top: 15px;
+            left: 10px;
+            width: 100px; 
             height: auto;
         }
         .details {
@@ -72,6 +73,12 @@
             text-align: left;
             color: #333;
         }
+        .signature {
+            font-family: 'Pacifico', cursive;
+            font-size: 1.2em;
+            color: #333;
+        }
+
         .footer {
             text-align: center;
             font-size: 12px;
@@ -92,7 +99,7 @@
             <h1>Payment Receipt</h1>
             <p>Thank you for your payment. Below are the details of your transaction.</p>
             <!-- Paid Sticker -->
-            <img src="../../Frontend/src//assets/image.png" alt="Paid" class="paid-sticker">
+            <img src="http://localhost:3000/assets/image.png" alt="Paid" class="paid-sticker">
         </div>
 
         <div class="details">
@@ -162,7 +169,7 @@
                 </tr>
                 <tr>
                     <th>Signature:</th>
-                    <td><%= paymentDetails.signature %></td>
+                    <td class="signature"><%= paymentDetails.signature %></td>
                 </tr>
                 <tr>
                     <th>Payment Status:</th>

@@ -41,6 +41,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to the API!');
 });
 
+
 // ROUTES
 app.use('/api/auth', authRouter);
 app.use('/api/files', fileRouter);
@@ -49,6 +50,8 @@ app.use('/api/payment', paymentRoute);
 
 app.set('views', path.join(__dirname, 'views'));  
 app.set('view engine', 'ejs'); 
+
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // General Global Error Handler
 app.use((err, req, res, next) => {

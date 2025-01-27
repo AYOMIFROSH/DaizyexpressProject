@@ -66,6 +66,10 @@ const PaymentDetailsSchema = new mongoose.Schema({
         type: Date,
         default: null,
     },
+    paidInvoice: {
+        data: Buffer,
+        contentType: String,
+    },
     stripeSessionId: { type: String },
 }, { timestamps: true });
 
