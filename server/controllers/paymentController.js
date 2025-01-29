@@ -331,9 +331,9 @@ router.get('/verify-payment', async (req, res) => {
             } catch (err) {
                 console.error('Error generating/sending invoice:', err);
                 // Log error, but do not halt the process
+                return res.redirect(`${FRONT_URL}/upload`);
             }
 
-            return res.redirect(`${FRONT_URL}/upload`);
         }
         const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
         if (session.payment_status === 'paid') {
