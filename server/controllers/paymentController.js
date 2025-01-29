@@ -4,7 +4,7 @@ const PaymentDetails = require('../models/PaymentDetailsModel');
 const User = require('../models/userModel');
 const { authenticate } = require('../routes/middleware');
 const notifyWebSocketServer = require('../utils/websocket.oihandler')
-const puppeteer = require('puppeteer');
+const puppeteer = require("puppeteer");
 const nodemailer = require('nodemailer');
 
 require('dotenv').config();
