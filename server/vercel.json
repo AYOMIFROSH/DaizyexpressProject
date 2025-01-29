@@ -17,11 +17,6 @@
             "dest": "/index.js",
             "maxDuration": 30
         }
-    ],
-    "functions": {
-        "api/*": {
-            "memory": 1024,
-            "maxDuration": 30
-        }
-    }
+    ]
+    
 }
