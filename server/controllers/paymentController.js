@@ -142,10 +142,10 @@ async function generatePDF(paymentDetails, res) {
     const page = await browser.newPage();
 
     const html = await new Promise((resolve, reject) => {
-        res.render(`invoice`, {paymentDetails}, (err, renderedHtml) => {
-            if(err) reject(err);
+        res.render(`invoice`, { paymentDetails }, (err, renderedHtml) => {
+            if (err) reject(err);
             else resolve(renderedHtml)
-        } )
+        })
     })
     await page.setContent(html);
 
@@ -176,9 +176,9 @@ async function generatePDF(paymentDetails, res) {
 }
 
 // Helper function to send email with PDF
-async function sendInvoiceEmail( userEmail, userName, updatedPaymentDetails) {
-    console.log('UserEmail: ', userEmail );
-    console.log('UserName: ', userName );
+async function sendInvoiceEmail(userEmail, userName, updatedPaymentDetails) {
+    console.log('UserEmail: ', userEmail);
+    console.log('UserName: ', userName);
 
     const transporter = nodemailer.createTransport({
         service: 'gmail', // Replace with your email service provider
@@ -318,11 +318,23 @@ router.get('/verify-payment', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
+
+
         if (paymentDetails.activePlan == true) {
             console.log('plan is active')
+
+            try {
+                // Generate PDF and send the invoice
+                 await generatePDF(updatedPaymentDetails, res);
+                await sendInvoiceEmail( user.email, user.userName, updatedPaymentDetails);
+            } catch (err) {
+                console.error('Error generating/sending invoice:', err);
+                // Log error, but do not halt the process
+            }
+
             return res.redirect(`${FRONT_URL}/upload`);
         }
-
         const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
         if (session.payment_status === 'paid') {
             // Update the payment details with activePlan and PayedAt
@@ -338,8 +350,8 @@ router.get('/verify-payment', async (req, res) => {
 
             try {
                 // Generate PDF and send the invoice
-                 await generatePDF(updatedPaymentDetails, res);
-                await sendInvoiceEmail( user.email, user.userName, updatedPaymentDetails);
+                await generatePDF(updatedPaymentDetails, res);
+                await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
             } catch (err) {
                 console.error('Error generating/sending invoice:', err);
                 // Log error, but do not halt the process
@@ -381,6 +393,22 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
                     PayedAt: new Date(),
                 });
                 console.log(`Payment ${paymentId} completed successfully.`);
+
+                const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
+                const userId = updatedPaymentDetails.userId;
+                const user = await User.findById(userId);
+                if (!user) {
+                    return res.status(404).json({ error: 'User not found' });
+                }
+
+                try {
+                    // Generate PDF and send the invoice
+                    await generatePDF(updatedPaymentDetails, res);
+                    await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
+                } catch (err) {
+                    console.error('Error generating/sending invoice:', err);
+                    // Log error, but do not halt the process
+                }
                 res.status(200).send();
             } catch (error) {
                 console.error('Error updating payment details:', error);
