@@ -48,16 +48,10 @@ app.use('/api/files', fileRouter);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoute); 
 
-// const BASE_URL =
-//     process.env.NODE_ENV === 'production'
-//         ? process.env.BASE_URL_PRODUCTION || 'https://daizyexserver.vercel.app'
-//         : process.env.BASE_URL_DEVELOPMENT || 'http://localhost:3000';
-
-// app.locals.BASE_URL = BASE_URL;
-app.use('/assets', express.static('assets'));
-
 app.set('views', path.join(__dirname, 'views'));  
 app.set('view engine', 'ejs'); 
+
+app.use(express.static(path.join(__dirname, 'server')));
 
 
 // General Global Error Handler
