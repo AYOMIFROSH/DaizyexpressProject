@@ -4,7 +4,8 @@ const PaymentDetails = require('../models/PaymentDetailsModel');
 const User = require('../models/userModel');
 const { authenticate } = require('../routes/middleware');
 const notifyWebSocketServer = require('../utils/websocket.oihandler')
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 const nodemailer = require('nodemailer');
 
 require('dotenv').config();
@@ -138,43 +139,33 @@ router.post('/card-payment', authenticate, async (req, res) => {
 });
 
 async function generatePDF(paymentDetails, res) {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
 
+    const browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: process.env.NODE_ENV === 'production'
+            ? await chromium.executablePath() 
+            : "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        headless: chromium.headless
+    });
+
+    const page = await browser.newPage();
     const html = await new Promise((resolve, reject) => {
         res.render(`invoice`, { paymentDetails }, (err, renderedHtml) => {
             if (err) reject(err);
-            else resolve(renderedHtml)
-        })
-    })
-    await page.setContent(html);
-
-    // Generate the PDF
-    const pdfBuffer = await page.pdf({
-        format: 'A4',
-        printBackground: false,
-        scale: 0.8,
+            else resolve(renderedHtml);
+        });
     });
+
+    await page.setContent(html);
+    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
 
     await browser.close();
 
-    console.log(`PDF generated - size: ${pdfBuffer.length / 1024} KB`);
-
-    // Save the PDF buffer to the paymentDetails document
-    const pdfBufferAsBuffer = Buffer.from(pdfBuffer);
-
-    paymentDetails.paidInvoice = {
-        data: pdfBufferAsBuffer,
-        contentType: 'application/pdf',
-    };
-
+    paymentDetails.paidInvoice = { data: Buffer.from(pdfBuffer), contentType: 'application/pdf' };
     await paymentDetails.save();
 
-    console.log('PDF saved to the database.');
-
-    return pdfBufferAsBuffer;
+    return pdfBuffer;
 }
-
 // Helper function to send email with PDF
 async function sendInvoiceEmail(userEmail, userName, updatedPaymentDetails) {
     console.log('UserEmail: ', userEmail);
@@ -326,8 +317,8 @@ router.get('/verify-payment', async (req, res) => {
 
             try {
                 // Generate PDF and send the invoice
-                 await generatePDF(updatedPaymentDetails, res);
-                await sendInvoiceEmail( user.email, user.userName, updatedPaymentDetails);
+                await generatePDF(updatedPaymentDetails, res);
+                await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
             } catch (err) {
                 console.error('Error generating/sending invoice:', err);
                 // Log error, but do not halt the process

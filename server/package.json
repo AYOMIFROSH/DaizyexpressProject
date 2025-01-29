@@ -9,6 +9,7 @@
   "author": "DiezyExpress",
   "license": "ISC",
   "dependencies": {
+    "@sparticuz/chromium": "^132.0.0",
     "bcrypt": "^5.1.1",
     "chrome-aws-lambda": "^10.1.0",
     "cookie-parser": "^1.4.7",
@@ -23,7 +24,7 @@
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
     "pdf-lib": "^1.17.1",
-    "puppeteer": "^24.1.1",
+    "puppeteer-core": "^24.1.1",
     "socket.io": "^4.8.1",
     "stripe": "^17.5.0",
     "uuid": "^11.0.3"
