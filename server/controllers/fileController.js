@@ -339,10 +339,41 @@ exports.updateFileStatus = async (req, res) => {
     }
   
     try {
+      const update = { status };
+      const now = new Date();
+  
+      // Handle "in process" status
+      if (status === 'in process') {
+        update.statusInProgressTime = now;
+        
+        if (now.getDay() === 6) { // Saturday
+          update.timeFrame = 'saturday';
+        } else {
+          const hour = now.getHours();
+          if (hour >= 7 && hour < 11) update.timeFrame = 'morning';
+          else if (hour >= 18 && hour < 22) update.timeFrame = 'evening';
+          else if (hour >= 0 && hour < 7) update.timeFrame = 'new day';
+        }
+      }
+  
+      // Handle "processed" status 
+      if (status === 'processed') {
+        update.statusProcessedTime = now;
+        
+        if (now.getDay() === 6) { // Saturday
+          update.processedTimeFrame = 'saturday';
+        } else {
+          const hour = now.getHours();
+          if (hour >= 7 && hour < 11) update.processedTimeFrame = 'morning';
+          else if (hour >= 18 && hour < 22) update.processedTimeFrame = 'evening';
+          else if (hour >= 0 && hour < 7) update.processedTimeFrame = 'new day';
+        }
+      }
+  
       const file = await File.findByIdAndUpdate(
         fileId,
-        { status },
-        { new: true } 
+        update,
+        { new: true }
       );
   
       if (!file) {
@@ -355,7 +386,7 @@ exports.updateFileStatus = async (req, res) => {
       return res.status(500).json({ status: 'error', message: 'Internal server error.' });
     }
   };
-
+  
   exports.replaceFileData = async (req, res) => {
     const { fileId } = req.params;
 

@@ -146,8 +146,8 @@ async function generatePDF(paymentDetails, res) {
         executablePath: process.env.NODE_ENV === 'production'
             ? await chromium.executablePath() 
             : "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        headless: chromium.headless
-    });
+            headless: 'new'
+        });
 
     const page = await browser.newPage();
     const html = await new Promise((resolve, reject) => {
@@ -158,7 +158,11 @@ async function generatePDF(paymentDetails, res) {
     });
 
     await page.setContent(html);
-    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+    const pdfBuffer = await page.pdf({ 
+        format: 'A4', 
+        printBackground: true,
+        margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' } 
+    });
 
     await browser.close();
 
