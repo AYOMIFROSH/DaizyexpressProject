@@ -125,7 +125,8 @@ router.post('/card-payment', authenticate, async (req, res) => {
                 paymentId: savedPayment._id.toString(),
                 userId: userId.toString(),
             },
-        });
+            
+        },{ timeout: 10000 });
 
         // Save the Stripe session ID to your database
         savedPayment.stripeSessionId = session.id;
