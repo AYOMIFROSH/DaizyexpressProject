@@ -39,6 +39,10 @@ interface File {
   fileName: string;
   uploadedAt: string;
   status: string;
+  statusInProgressTime?: Date;  // Add this
+  timeFrame?: string;
+  statusProcessedTime?: Date;  // Add this
+  processedTimeFrame?: string;
   paymentId: PaymentDetails;
 }
 
@@ -292,7 +296,64 @@ const UserDocuments: React.FC = () => {
             {file.paymentId ? (
               <>
                 {/* File Name Label */}
-                <div className="font-semibold text-lg">Payment for: {file.fileName}</div><br />
+                <div className="flex justify-between items-center mb-4 gap-4">
+                  <div className="font-semibold text-10px">Payment for: {file.fileName}</div>
+                  <div className="flex items-center gap-2">
+                    {statusLoading.has(file._id) ? (
+                      <div className="flex items-center gap-2">
+                        <Skeleton.Input active size="small" style={{ width: 100 }} />
+                        <Skeleton.Input active size="small" style={{ width: 120 }} />
+                      </div>
+                    ) : (
+                      <>
+                        {/* Always show processing timeframe if it exists */}
+                        {file.timeFrame && file.status !== 'not processed' && (
+                          <div className="flex items-center gap-2">
+                            <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                              {file.timeFrame === 'saturday'
+                                ? 'Saturday Process'
+                                : `${file.timeFrame} Shift`}
+                            </span>
+                            {file.statusInProgressTime && (
+                              <span className="text-gray-600 text-sm">
+                                {new Date(file.statusInProgressTime).toLocaleDateString('en-GB')}
+                                <span className="mx-1">•</span>
+                                {new Date(file.statusInProgressTime).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Show completion timeframe only for processed status */}
+                        {file.status === 'processed' && file.processedTimeFrame && (
+                          <div className="flex items-center gap-2">
+                            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                              {file.processedTimeFrame === 'saturday'
+                                ? 'Saturday Completion'
+                                : `${file.processedTimeFrame} Completion`}
+                            </span>
+                            {file.statusProcessedTime && (
+                              <span className="text-gray-600 text-sm">
+                                {new Date(file.statusProcessedTime).toLocaleDateString('en-GB')}
+                                <span className="mx-1">•</span>
+                                {new Date(file.statusProcessedTime).toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: true
+                                })}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+                <br />
 
                 {/* Using Ant Design's Card Component for styling */}
                 <div className="flex flex-wrap gap-6">
@@ -316,7 +377,7 @@ const UserDocuments: React.FC = () => {
 
                 {/* Payment Address and Details */}
                 <div className="mt-4 flex flex-wrap gap-6">
-                <div className="flex-1 p-4 ">
+                  <div className="flex-1 p-4 ">
                     <div className="font-semibold">Booking Address:</div>
                     <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
                     <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
@@ -330,19 +391,19 @@ const UserDocuments: React.FC = () => {
                     <div><strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}</div>
                   </div>
 
-                {/* Additional Address (if available) */}
-                {file.paymentId.bookingDetails.additionalAddresses && (
-                  <div className="flex-1 p-4  ">
-                    <div className="font-semibold">Additional Address:</div>
-                    <div>Recipient: {file.paymentId.bookingDetails.additionalAddresses.recipientName || "N/A"}</div>
-                    <div>Address: {file.paymentId.bookingDetails.additionalAddresses.serviceAddress || "N/A"}</div>
-                    <div>City: {file.paymentId.bookingDetails.additionalAddresses.city || "N/A"}</div>
-                    <div>State: {file.paymentId.bookingDetails.additionalAddresses.state || "N/A"}</div>
-                    <div>ZIP Code: {file.paymentId.bookingDetails.additionalAddresses.zipCode || "N/A"}</div>
-                  </div>
-                )}
+                  {/* Additional Address (if available) */}
+                  {file.paymentId.bookingDetails.additionalAddresses && (
+                    <div className="flex-1 p-4  ">
+                      <div className="font-semibold">Additional Address:</div>
+                      <div>Recipient: {file.paymentId.bookingDetails.additionalAddresses.recipientName || "N/A"}</div>
+                      <div>Address: {file.paymentId.bookingDetails.additionalAddresses.serviceAddress || "N/A"}</div>
+                      <div>City: {file.paymentId.bookingDetails.additionalAddresses.city || "N/A"}</div>
+                      <div>State: {file.paymentId.bookingDetails.additionalAddresses.state || "N/A"}</div>
+                      <div>ZIP Code: {file.paymentId.bookingDetails.additionalAddresses.zipCode || "N/A"}</div>
+                    </div>
+                  )}
 
-              </div>
+                </div>
 
 
                 {/* Payment Date with Time */}
