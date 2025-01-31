@@ -65,27 +65,29 @@ const UserDocuments: React.FC = () => {
       ? "http://localhost:3000"
       : "https://daizyexserver.vercel.app";
 
-  useEffect(() => {
-    const fetchUserFiles = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}/details`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const result = await response.json();
-        if (result.status === "success") {
-          setFiles(result.data.files);
-        } else {
-          toast.error(`Error fetching files: ${result.message}`);
-        }
-      } catch (error) {
-        toast.error("Error fetching files. Please try again later.");
-      } finally {
-        setLoading(false);
+  const fetchUserFiles = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}/details`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        setFiles(result.data.files);
+      } else {
+        toast.error(`Error fetching files: ${result.message}`);
       }
-    };
+    } catch (error) {
+      toast.error("Error fetching files. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUserFiles();
-  }, [id, token, API_BASE_URL]);
+  }, [id, token, API_BASE_URL])
+
 
   const handleDownload = async (fileId: string, fileName: string) => {
     try {
@@ -141,6 +143,8 @@ const UserDocuments: React.FC = () => {
             file._id === fileId ? { ...file, status: newStatus } : file
           )
         );
+
+        await fetchUserFiles();
 
         if (newStatus === "processed") {
           setSelectedFileId(fileId);
@@ -231,59 +235,71 @@ const UserDocuments: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index}>
-                  <td colSpan={6} className="px-4 py-2 text-center">
-                    <Skeleton.Input style={{ width: "100%" }} active />
+            {loading
+              ? Array.from({ length: Math.max(1, files.length) }).map((_, index) => (
+                <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "30px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "120px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "90px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "80px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Button active size="small" style={{ width: "100px" }} />
                   </td>
                 </tr>
               ))
-            ) : filteredFiles.length > 0 ? (
-              filteredFiles.map((file, index) => (
-                <tr key={file._id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                  <td className="px-4 py-2 border border-gray-300">{index + 1}</td>
-                  <td className="px-4 py-2 border border-gray-300">{file.fileName}</td>
-                  <td className="px-4 py-2 border border-gray-300">
-                    {new Date(file.uploadedAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-300">
-                    {statusLoading.has(file._id) ? (
-                      <Skeleton.Button active size="small" style={{ width: "80px" }} />
-                    ) : (
-                      <Select
-                        defaultValue={file.status || "not processed"}
-                        onChange={(value) => handleStatusChange(file._id, value)}
-                      >
-                        <Option value="not processed">Not Processed</Option>
-                        <Option value="in process">In Process</Option>
-                        <Option value="processed">Processed</Option>
-                      </Select>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-300">
-                    <button
-                      onClick={() => handleDownload(file._id, file.fileName)}
-                      className="px-4 py-2 text-black bg-white-500 rounded-lg hover:bg-white-600 focus:outline-none"
-                    >
-                      {isDownloading === file._id ? (
-                        <>
-                          Download <Spin size="small" style={{ marginLeft: "8px" }} />
-                        </>
+              : filteredFiles.length > 0 ? (
+                filteredFiles.map((file, index) => (
+                  <tr key={file._id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                    <td className="px-4 py-2 border border-gray-300">{index + 1}</td>
+                    <td className="px-4 py-2 border border-gray-300">{file.fileName}</td>
+                    <td className="px-4 py-2 border border-gray-300">
+                      {new Date(file.uploadedAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300">
+                      {statusLoading.has(file._id) ? (
+                        <Skeleton.Button active size="small" style={{ width: "80px" }} />
                       ) : (
-                        "Download"
+                        <Select
+                          defaultValue={file.status || "not processed"}
+                          onChange={(value) => handleStatusChange(file._id, value)}
+                        >
+                          <Option value="not processed">Not Processed</Option>
+                          <Option value="in process">In Process</Option>
+                          <Option value="processed">Processed</Option>
+                        </Select>
                       )}
-                    </button>
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300">
+                      <button
+                        onClick={() => handleDownload(file._id, file.fileName)}
+                        className="px-4 py-2 text-black bg-white-500 rounded-lg hover:bg-white-600 focus:outline-none"
+                      >
+                        {isDownloading === file._id ? (
+                          <>
+                            Download <Spin size="small" style={{ marginLeft: "8px" }} />
+                          </>
+                        ) : (
+                          "Download"
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-4 py-2 text-center border border-gray-300">
+                    No documents found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="px-4 py-2 text-center border border-gray-300">
-                  No documents found
-                </td>
-              </tr>
-            )}
+              )}
           </tbody>
         </table>
       </div>

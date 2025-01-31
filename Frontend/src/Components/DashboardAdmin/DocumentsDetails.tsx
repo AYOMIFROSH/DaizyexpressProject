@@ -24,9 +24,9 @@ const DocumentDetails: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [debouncedSearchText, setDebouncedSearchText] = useState(searchText);
   const Base_Url =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3000" 
-    : "https://daizyexserver.vercel.app"; 
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://daizyexserver.vercel.app";
 
   useEffect(() => {
     const fetchUsersWithFiles = async () => {
@@ -44,7 +44,7 @@ const DocumentDetails: React.FC = () => {
         setIsLoading(false);
       }
     };
-    if(token){
+    if (token) {
       fetchUsersWithFiles();
     }
   }, [token]);
@@ -89,27 +89,27 @@ const DocumentDetails: React.FC = () => {
           </thead>
           <tbody>
             {isLoading
-              ? Array.from({ length: 5 }).map((_, index) => (
-                  <tr key={index} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
-                    <td className="px-4 py-2 border border-gray-300">
-                      <Skeleton.Input active size="small" />
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      <Skeleton.Input active size="small" />
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      <Skeleton.Input active size="small" />
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      <Skeleton.Input active size="small" />
-                    </td>
-                    <td className="px-4 py-2 border border-gray-300">
-                      <Skeleton.Input active size="small" />
-                    </td>
-                  </tr>
-                ))
+              ? Array.from({ length: Math.max(1, length) }).map((_, index) => (
+                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" />
+                  </td>
+                </tr>
+              ))
               : filteredData.length > 0
-              ? (() => {
+                ? (() => {
                   let rowIndex = 0;
                   return filteredData.flatMap((user) =>
                     user.files.map((file) => {
@@ -134,8 +134,8 @@ const DocumentDetails: React.FC = () => {
                               ${file.status === "not processed"
                                 ? "bg-red-100 text-red-600"
                                 : file.status === "in process"
-                                ? "bg-orange-100 text-orange-600"
-                                : "bg-green-100 text-green-600"}`}
+                                  ? "bg-orange-100 text-orange-600"
+                                  : "bg-green-100 text-green-600"}`}
                           >
                             {file.status}
                           </td>
@@ -144,13 +144,13 @@ const DocumentDetails: React.FC = () => {
                     })
                   );
                 })()
-              : (
-                <tr>
-                  <td colSpan={5} className="px-4 py-2 text-center border border-gray-300">
-                    No matching files found
-                  </td>
-                </tr>
-              )}
+                : (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-2 text-center border border-gray-300">
+                      No matching files found
+                    </td>
+                  </tr>
+                )}
           </tbody>
         </table>
       </div>
