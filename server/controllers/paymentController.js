@@ -328,6 +328,7 @@ router.get('/verify-payment', async (req, res) => {
 
             console.log('Generating Invoice & Sending Email...');
             await generatePDF(paymentDetails);
+            console.log('sending generated Invoice')
             await sendInvoiceEmail(user.email, user.userName, paymentDetails);
             console.log('Invoice sent successfully.');
         } else {
