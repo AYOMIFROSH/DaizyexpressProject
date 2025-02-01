@@ -403,7 +403,8 @@ router.post(
           return res.status(400).send('Unhandled event type');
       }
     }
-  );
+);
+
 
 // PAYMENT FETCH MECHANISM
 
