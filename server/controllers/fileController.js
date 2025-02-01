@@ -386,6 +386,48 @@ exports.updateFileStatus = async (req, res) => {
       return res.status(500).json({ status: 'error', message: 'Internal server error.' });
     }
   };
+
+  exports.updateFileAttempt = async (req, res) => {
+    const { fileId } = req.params;
+    const { attempts } = req.body;
+  
+    // Allowed attempt values as defined in your File model.
+    const allowedAttempts = ['not attempted', 'attempted 1', 'attempted 2', 'attempted 3'];
+  
+    if (!allowedAttempts.includes(attempts)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Invalid attempt value.',
+      });
+    }
+  
+    try {
+      const file = await File.findByIdAndUpdate(
+        fileId,
+        { attempts },
+        { new: true }
+      );
+  
+      if (!file) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'File not found.',
+        });
+      }
+  
+      return res.status(200).json({
+        status: 'success',
+        message: 'File attempt updated.',
+        file,
+      });
+    } catch (error) {
+      console.error('Error updating file attempt:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Internal server error.',
+      });
+    }
+  };
   
   exports.replaceFileData = async (req, res) => {
     const { fileId } = req.params;

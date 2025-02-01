@@ -7,6 +7,8 @@ const notifyWebSocketServer = require('../utils/websocket.oihandler')
 const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 const nodemailer = require('nodemailer');
+const path = require('path');
+const ejs = require('ejs');
 
 require('dotenv').config();
 
@@ -139,38 +141,40 @@ router.post('/card-payment', authenticate, async (req, res) => {
     }
 });
 
-async function generatePDF(paymentDetails, res) {
-
+async function generatePDF(paymentDetails) {
     const browser = await puppeteer.launch({
-        args: chromium.args,
-        executablePath: process.env.NODE_ENV === 'production'
-            ? await chromium.executablePath() 
-            : "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-            headless: 'new'
-        });
-
-    const page = await browser.newPage();
-    const html = await new Promise((resolve, reject) => {
-        res.render(`invoice`, { paymentDetails }, (err, renderedHtml) => {
-            if (err) reject(err);
-            else resolve(renderedHtml);
-        });
+      args: chromium.args,
+      executablePath: process.env.NODE_ENV === 'production'
+          ? await chromium.executablePath()
+          : "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+      headless: true
     });
-
+  
+    const page = await browser.newPage();
+    const invoicePath = path.join(__dirname, '..', 'views', 'invoice.ejs');
+    
+    const html = await new Promise((resolve, reject) => {
+      ejs.renderFile(invoicePath, { paymentDetails }, (err, str) => {
+        if (err) reject(err);
+        else resolve(str);
+      });
+    });
+  
     await page.setContent(html);
     const pdfBuffer = await page.pdf({ 
-        format: 'A4', 
-        printBackground: true,
-        margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' } 
+      format: 'A4', 
+      printBackground: true,
+      margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' }
     });
-
+  
     await browser.close();
-
+  
     paymentDetails.paidInvoice = { data: Buffer.from(pdfBuffer), contentType: 'application/pdf' };
     await paymentDetails.save();
-
+  
     return pdfBuffer;
-}
+  }
+
 // Helper function to send email with PDF
 async function sendInvoiceEmail(userEmail, userName, updatedPaymentDetails) {
     console.log('UserEmail: ', userEmail);
@@ -297,128 +301,129 @@ async function sendInvoiceEmail(userEmail, userName, updatedPaymentDetails) {
 router.get('/verify-payment', async (req, res) => {
     console.log('Verify payment hit');
     const { paymentId } = req.query;
-
+  
     if (!paymentId) {
-        return res.status(400).json({ error: 'Payment ID is required' });
+      return res.status(400).json({ error: 'Payment ID is required' });
     }
-
+  
     try {
-        const paymentDetails = await PaymentDetails.findById(paymentId);
-        if (!paymentDetails) {
-            return res.status(404).json({ error: 'Payment details not found' });
-        }
-
-        const userId = paymentDetails.userId;
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
-
-
-        if (paymentDetails.activePlan == true) {
-            console.log('plan is active')
-
-            try {
-                // Generate PDF and send the invoice
-                await generatePDF(updatedPaymentDetails, res);
-                await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
-            } catch (err) {
-                console.error('Error generating/sending invoice:', err);
-                // Log error, but do not halt the process
-                return res.redirect(`${FRONT_URL}/upload`);
-            }
-
-        }
-        const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
-        if (session.payment_status === 'paid') {
-            // Update the payment details with activePlan and PayedAt
-            await PaymentDetails.findByIdAndUpdate(paymentId, {
-                activePlan: true,
-                PayedAt: new Date(),
-            });
-
-            console.log(`Payment ${paymentId} verified and activated.`);
-
-            // Retrieve the updated payment details
-            const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
-
-            try {
-                // Generate PDF and send the invoice
-                await generatePDF(updatedPaymentDetails, res);
-                await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
-            } catch (err) {
-                console.error('Error generating/sending invoice:', err);
-                // Log error, but do not halt the process
-            }
-
-            return res.redirect(`${FRONT_URL}/upload`);
-        }
-
-        console.log(`Payment ${paymentId} not completed.`);
-        return res.redirect(`${FRONT_URL}/upload`);
+      let paymentDetails = await PaymentDetails.findById(paymentId);
+      if (!paymentDetails) {
+        return res.status(404).json({ error: 'Payment details not found' });
+      }
+  
+      const userId = paymentDetails.userId;
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      // Retrieve the latest payment details from the DB
+      // (This object may be outdated until we update it)
+      let updatedPaymentDetails = await PaymentDetails.findById(paymentId);
+  
+      const session = await stripe.checkout.sessions.retrieve(paymentDetails.stripeSessionId);
+      if (session.payment_status === 'paid') {
+        // Update payment details first
+        await PaymentDetails.findByIdAndUpdate(paymentId, {
+          activePlan: true,
+          PayedAt: new Date(),
+        });
+  
+        console.log(`Payment ${paymentId} verified and activated.`);
+  
+        // Immediately redirect the user
+        res.redirect(`${FRONT_URL}/upload`);
+  
+        // Re-fetch the payment details after the update
+        updatedPaymentDetails = await PaymentDetails.findById(paymentId);
+  
+        // Fire-and-forget the heavy tasks so as not to delay the response.
+        setImmediate(async () => {
+          try {
+            // Generate the PDF using the updated details
+            await generatePDF(updatedPaymentDetails);
+            await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
+            console.log('Invoice generated and email sent.');
+          } catch (err) {
+            console.error('Error generating/sending invoice:', err);
+          }
+        });
+        return;
+      }
+  
+      console.log(`Payment ${paymentId} not completed.`);
+      return res.redirect(`${FRONT_URL}/upload`);
     } catch (error) {
-        console.error('Error verifying payment:', error);
-        res.status(500).json({ error: 'Failed to verify payment' });
+      console.error('Error verifying payment:', error);
+      res.status(500).json({ error: 'Failed to verify payment' });
     }
-});
-
+  });
+  
 
 // Webhook Route
-router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-
-    let event;
-
-    try {
+router.post(
+    '/webhook',
+    express.raw({ type: 'application/json' }),
+    async (req, res) => {
+      const sig = req.headers['stripe-signature'];
+  
+      let event;
+  
+      try {
         event = stripe.webhooks.constructEvent(req.body, sig, webHookSecret);
-    } catch (err) {
+      } catch (err) {
         console.error('Webhook signature verification failed:', err.message);
         return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    switch (event.type) {
-        case 'checkout.session.completed':
-            const session = event.data.object;
-            const paymentId = session.metadata.paymentId;
-
-            try {
-                await PaymentDetails.findByIdAndUpdate(paymentId, {
-                    activePlan: true,
-                    PayedAt: new Date(),
-                });
-                console.log(`Payment ${paymentId} completed successfully.`);
-
-                const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
-                const userId = updatedPaymentDetails.userId;
-                const user = await User.findById(userId);
-                if (!user) {
-                    return res.status(404).json({ error: 'User not found' });
-                }
-
-                try {
-                    // Generate PDF and send the invoice
-                    await generatePDF(updatedPaymentDetails, res);
-                    await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
-                } catch (err) {
-                    console.error('Error generating/sending invoice:', err);
-                    // Log error, but do not halt the process
-                }
-                res.status(200).send();
-            } catch (error) {
-                console.error('Error updating payment details:', error);
-                res.status(500).send();
+      }
+  
+      switch (event.type) {
+        case 'checkout.session.completed': {
+          const session = event.data.object;
+          const paymentId = session.metadata.paymentId;
+  
+          try {
+            // Update the payment record (mark as active and set PayedAt)
+            await PaymentDetails.findByIdAndUpdate(paymentId, {
+              activePlan: true,
+              PayedAt: new Date(),
+            });
+            console.log(`Payment ${paymentId} updated to active.`);
+  
+            // Re-fetch the updated payment details
+            const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
+            const userId = updatedPaymentDetails.userId;
+            const user = await User.findById(userId);
+            if (!user) {
+              return res.status(404).json({ error: 'User not found' });
             }
-            break;
-
+  
+            // Fire-and-forget the heavy tasks (invoice generation & email)
+            setImmediate(async () => {
+              try {
+                // Generate PDF using the updated payment details
+                await generatePDF(updatedPaymentDetails);
+                await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
+                console.log('Invoice generated and email sent (via webhook).');
+              } catch (err) {
+                console.error('Error generating/sending invoice (webhook):', err);
+                // Log the error without interrupting the webhook response.
+              }
+            });
+  
+            // Respond to Stripe promptly
+            return res.status(200).send();
+          } catch (error) {
+            console.error('Error updating payment details in webhook:', error);
+            return res.status(500).send();
+          }
+        }
         default:
-            console.log(`Unhandled event type: ${event.type}`);
-            res.status(400).send('Unhandled event type');
-            break;
+          console.log(`Unhandled event type: ${event.type}`);
+          return res.status(400).send('Unhandled event type');
+      }
     }
-});
-
+  );
 
 // PAYMENT FETCH MECHANISM
 

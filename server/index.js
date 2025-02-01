@@ -48,10 +48,9 @@ app.use('/api/files', fileRouter);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoute); 
 
-app.set('views', path.join(__dirname, 'views'));  
 app.set('view engine', 'ejs'); 
-
-app.use(express.static(path.join(__dirname, 'server')));
+app.set('views', path.join(__dirname, '..', 'views')); 
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 
 
 // General Global Error Handler

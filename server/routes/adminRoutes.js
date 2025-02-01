@@ -12,6 +12,7 @@ router.get('/users/:id/details', verifyAdmin, fileController.getUserByIdWithFile
 router.get('/users/:id', verifyAdmin, fileController.getUserById);
 router.get('/users-with-documents', verifyAdmin, fileController.getUsersWithDocuments);
 router.patch('/files/:fileId/update-status', verifyAdmin, fileController.updateFileStatus);
+router.patch('/files/:fileId/update-attempts', verifyAdmin, fileController.updateFileAttempt);
 router.post('/files/:fileId/replace', verifyAdmin, upload.single('file'), fileController.replaceFileData);
 
 module.exports = router;

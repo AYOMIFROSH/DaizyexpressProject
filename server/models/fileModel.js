@@ -30,13 +30,18 @@ const fileSchema = new mongoose.Schema({
         type: String,
         enum: ['morning', 'evening', 'new day', 'saturday']
     },
-    statusProcessedTime: {    // New field
+    statusProcessedTime: {
         type: Date
     },
-    processedTimeFrame: {     // New field
+    processedTimeFrame: {
         type: String,
         enum: ['morning', 'evening', 'new day', 'saturday']
     },
+    attempts: {
+        type: String,
+        enum: ['not attempted', 'attempted 1', 'attempted 2', 'attempted 3'],
+        default: 'not attempted',
+      },   
     hasBeenReplaced: {
         type: Boolean,
         default: false
