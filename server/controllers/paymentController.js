@@ -341,69 +341,69 @@ router.get('/verify-payment', async (req, res) => {
     }
 });
 
-// Webhook Route
-router.post(
-    '/webhook',
-    express.raw({ type: 'application/json' }),
-    async (req, res) => {
-      const sig = req.headers['stripe-signature'];
+// // Webhook Route
+// router.post(
+//     '/webhook',
+//     express.raw({ type: 'application/json' }),
+//     async (req, res) => {
+//       const sig = req.headers['stripe-signature'];
   
-      let event;
+//       let event;
   
-      try {
-        event = stripe.webhooks.constructEvent(req.body, sig, webHookSecret);
-      } catch (err) {
-        console.error('Webhook signature verification failed:', err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-      }
+//       try {
+//         event = stripe.webhooks.constructEvent(req.body, sig, webHookSecret);
+//       } catch (err) {
+//         console.error('Webhook signature verification failed:', err.message);
+//         return res.status(400).send(`Webhook Error: ${err.message}`);
+//       }
   
-      switch (event.type) {
-        case 'checkout.session.completed': {
-          const session = event.data.object;
-          const paymentId = session.metadata.paymentId;
+//       switch (event.type) {
+//         case 'checkout.session.completed': {
+//           const session = event.data.object;
+//           const paymentId = session.metadata.paymentId;
   
-          try {
-            // Update the payment record (mark as active and set PayedAt)
-            await PaymentDetails.findByIdAndUpdate(paymentId, {
-              activePlan: true,
-              PayedAt: new Date(),
-            });
-            console.log(`Payment ${paymentId} updated to active.`);
+//           try {
+//             // Update the payment record (mark as active and set PayedAt)
+//             await PaymentDetails.findByIdAndUpdate(paymentId, {
+//               activePlan: true,
+//               PayedAt: new Date(),
+//             });
+//             console.log(`Payment ${paymentId} updated to active.`);
   
-            // Re-fetch the updated payment details
-            const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
-            const userId = updatedPaymentDetails.userId;
-            const user = await User.findById(userId);
-            if (!user) {
-              return res.status(404).json({ error: 'User not found' });
-            }
+//             // Re-fetch the updated payment details
+//             const updatedPaymentDetails = await PaymentDetails.findById(paymentId);
+//             const userId = updatedPaymentDetails.userId;
+//             const user = await User.findById(userId);
+//             if (!user) {
+//               return res.status(404).json({ error: 'User not found' });
+//             }
   
-            // Fire-and-forget the heavy tasks (invoice generation & email)
-            setImmediate(async () => {
-              try {
-                // Generate PDF using the updated payment details
-                await generatePDF(updatedPaymentDetails);
-                await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
-                console.log('Invoice generated and email sent (via webhook).');
-              } catch (err) {
-                console.error('Error generating/sending invoice (webhook):', err);
-                // Log the error without interrupting the webhook response.
-              }
-            });
+//             // Fire-and-forget the heavy tasks (invoice generation & email)
+//             setImmediate(async () => {
+//               try {
+//                 // Generate PDF using the updated payment details
+//                 await generatePDF(updatedPaymentDetails);
+//                 await sendInvoiceEmail(user.email, user.userName, updatedPaymentDetails);
+//                 console.log('Invoice generated and email sent (via webhook).');
+//               } catch (err) {
+//                 console.error('Error generating/sending invoice (webhook):', err);
+//                 // Log the error without interrupting the webhook response.
+//               }
+//             });
   
-            // Respond to Stripe promptly
-            return res.status(200).send();
-          } catch (error) {
-            console.error('Error updating payment details in webhook:', error);
-            return res.status(500).send();
-          }
-        }
-        default:
-          console.log(`Unhandled event type: ${event.type}`);
-          return res.status(400).send('Unhandled event type');
-      }
-    }
-);
+//             // Respond to Stripe promptly
+//             return res.status(200).send();
+//           } catch (error) {
+//             console.error('Error updating payment details in webhook:', error);
+//             return res.status(500).send();
+//           }
+//         }
+//         default:
+//           console.log(`Unhandled event type: ${event.type}`);
+//           return res.status(400).send('Unhandled event type');
+//       }
+//     }
+// );
 
 
 // PAYMENT FETCH MECHANISM

@@ -8,6 +8,7 @@ const authRouter = require('./routes/authRoutes');
 const fileRouter = require('./routes/fileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const paymentRoute = require('./controllers/paymentController');
+const webhookRouter = require('./controllers/webhookController');
 
 const app = express();
 require('dotenv').config();
@@ -26,6 +27,9 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/api/payment/webhook', webhookRouter);
+
 app.use(express.json());
 
 app.use(
