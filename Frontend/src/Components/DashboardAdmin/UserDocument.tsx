@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../Context/useContext";
 import { Skeleton, Spin, Select, Modal } from "antd";
-import "../../index.css"
+import "../../index.css";
 
 const { Option } = Select;
 
@@ -24,7 +24,6 @@ interface BookingDetails {
   preferredTime?: string;
 }
 
-
 interface PaymentDetails {
   serviceType: string;
   totalPrice: string;
@@ -39,13 +38,13 @@ interface File {
   fileName: string;
   uploadedAt: string;
   status: string;
-  statusInProgressTime?: Date;  // Add this
+  attempts: string;
+  statusInProgressTime?: Date;
   timeFrame?: string;
-  statusProcessedTime?: Date;  // Add this
+  statusProcessedTime?: Date;
   processedTimeFrame?: string;
   paymentId: PaymentDetails;
 }
-
 
 const UserDocuments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -86,8 +85,7 @@ const UserDocuments: React.FC = () => {
 
   useEffect(() => {
     fetchUserFiles();
-  }, [id, token, API_BASE_URL])
-
+  }, [id, token, API_BASE_URL]);
 
   const handleDownload = async (fileId: string, fileName: string) => {
     try {
@@ -134,18 +132,45 @@ const UserDocuments: React.FC = () => {
         },
         body: JSON.stringify({ status: newStatus }),
       });
-
+  
       const result = await response.json();
       if (result.status === "success") {
         toast.success("Status updated successfully!");
+        // Update the file's status in local state
         setFiles((prevFiles) =>
           prevFiles.map((file) =>
             file._id === fileId ? { ...file, status: newStatus } : file
           )
         );
-
+  
+        // If the new status is "not processed", reset attempts to the default value
+        if (newStatus === "not processed") {
+          const attemptResponse = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/update-attempts`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ attempts: "not attempted" }),
+          });
+  
+          const attemptResult = await attemptResponse.json();
+          if (attemptResult.status === "success") {
+            // Update local state with reset attempts
+            setFiles((prevFiles) =>
+              prevFiles.map((file) =>
+                file._id === fileId ? { ...file, attempts: "not attempted" } : file
+              )
+            );
+            toast.info("Attempts reset to 'Not Attempted'.");
+          } else {
+            toast.error(`Failed to reset attempts: ${attemptResult.message}`);
+          }
+        }
+  
+        // Refresh files list (if needed)
         await fetchUserFiles();
-
+  
         if (newStatus === "processed") {
           setSelectedFileId(fileId);
           setIsModalVisible(true);
@@ -155,6 +180,42 @@ const UserDocuments: React.FC = () => {
       }
     } catch (error) {
       toast.error("Error updating status. Please try again later.");
+    } finally {
+      setStatusLoading((prev) => {
+        const updated = new Set(prev);
+        updated.delete(fileId);
+        return updated;
+      });
+    }
+  };
+  
+
+  // New function to handle attempts change using a dropdown similar to status.
+  const handleAttemptChange = async (fileId: string, newAttempt: string) => {
+    try {
+      setStatusLoading((prev) => new Set(prev.add(fileId)));
+      const response = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/update-attempts`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ attempts: newAttempt }),
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        toast.success("Attempt updated successfully!");
+        setFiles((prevFiles) =>
+          prevFiles.map((file) =>
+            file._id === fileId ? { ...file, attempts: newAttempt } : file
+          )
+        );
+      } else {
+        toast.error(`Failed to update attempt: ${result.message}`);
+      }
+    } catch (error) {
+      toast.error("Error updating attempt. Please try again later.");
     } finally {
       setStatusLoading((prev) => {
         const updated = new Set(prev);
@@ -176,7 +237,7 @@ const UserDocuments: React.FC = () => {
     formData.append("file", uploadedFile as unknown as Blob);
 
     try {
-      setUploading(true); // Start the spinner
+      setUploading(true);
       const response = await fetch(`${API_BASE_URL}/api/admin/files/${selectedFileId}/replace`, {
         method: "POST",
         headers: {
@@ -231,6 +292,7 @@ const UserDocuments: React.FC = () => {
               <th className="px-4 py-2 border border-gray-300">File Name</th>
               <th className="px-4 py-2 border border-gray-300">Date</th>
               <th className="px-4 py-2 border border-gray-300">Status</th>
+              <th className="px-4 py-2 border border-gray-300">Attempts</th>
               <th className="px-4 py-2 border border-gray-300">Action</th>
             </tr>
           </thead>
@@ -278,6 +340,24 @@ const UserDocuments: React.FC = () => {
                       )}
                     </td>
                     <td className="px-4 py-2 border border-gray-300">
+                      {statusLoading.has(file._id) ? (
+                        <Skeleton.Button active size="small" style={{ width: "120px" }} />
+                      ) : (
+                        <Select
+                          defaultValue={file.attempts || "not attempted"}
+                          onChange={(value) => handleAttemptChange(file._id, value)}
+                          // Enable attempts only when status is 'in process'
+                          disabled={file.status !== "in process"}
+                        >
+                          <Option value="not attempted">Not Attempted</Option>
+                          <Option value="attempted 1">Attempted 1</Option>
+                          <Option value="attempted 2">Attempted 2</Option>
+                          <Option value="attempted 3">Attempted 3</Option>
+                        </Select>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-2 border border-gray-300">
                       <button
                         onClick={() => handleDownload(file._id, file.fileName)}
                         className="px-4 py-2 text-black bg-white-500 rounded-lg hover:bg-white-600 focus:outline-none"
@@ -307,138 +387,151 @@ const UserDocuments: React.FC = () => {
       {/* Enhanced Payment Details Section */}
       <div className="mt-8">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Payment Details</h2>
-        {filteredFiles.length > 0 && filteredFiles.map((file) => (
-          <div key={file._id} className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md">
-            {file.paymentId ? (
-              <>
-                {/* File Name Label */}
-                <div className="flex justify-between items-center mb-4 gap-4">
-                  <div className="font-semibold text-10px">Payment for: {file.fileName}</div>
-                  <div className="flex items-center gap-2">
-                    {statusLoading.has(file._id) ? (
-                      <div className="flex items-center gap-2">
-                        <Skeleton.Input active size="small" style={{ width: 100 }} />
-                        <Skeleton.Input active size="small" style={{ width: 120 }} />
-                      </div>
-                    ) : (
-                      <>
-                        {/* Always show processing timeframe if it exists */}
-                        {file.timeFrame && file.status !== 'not processed' && (
-                          <div className="flex items-center gap-2">
-                            <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
-                              {file.timeFrame === 'saturday'
-                                ? 'Saturday Process'
-                                : `${file.timeFrame} Shift`}
-                            </span>
-                            {file.statusInProgressTime && (
-                              <span className="text-gray-600 text-sm">
-                                {new Date(file.statusInProgressTime).toLocaleDateString('en-GB')}
-                                <span className="mx-1">•</span>
-                                {new Date(file.statusInProgressTime).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}
+        {filteredFiles.length > 0 &&
+          filteredFiles.map((file) => (
+            <div key={file._id} className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md">
+              {file.paymentId ? (
+                <>
+                  <div className="flex justify-between items-center mb-4 gap-4">
+                    <div className="font-semibold text-10px">Payment for: {file.fileName}</div>
+                    <div className="flex items-center gap-2">
+                      {statusLoading.has(file._id) ? (
+                        <div className="flex items-center gap-2">
+                          <Skeleton.Input active size="small" style={{ width: 100 }} />
+                          <Skeleton.Input active size="small" style={{ width: 120 }} />
+                        </div>
+                      ) : (
+                        <>
+                          {file.timeFrame && file.status !== "not processed" && (
+                            <div className="flex items-center gap-2">
+                              <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {file.timeFrame === "saturday"
+                                  ? "Saturday Process"
+                                  : `${file.timeFrame} Shift`}
                               </span>
-                            )}
-                          </div>
-                        )}
+                              {file.statusInProgressTime && (
+                                <span className="text-gray-600 text-sm">
+                                  {new Date(file.statusInProgressTime).toLocaleDateString("en-GB")}
+                                  <span className="mx-1">•</span>
+                                  {new Date(file.statusInProgressTime).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          )}
 
-                        {/* Show completion timeframe only for processed status */}
-                        {file.status === 'processed' && file.processedTimeFrame && (
-                          <div className="flex items-center gap-2">
-                            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                              {file.processedTimeFrame === 'saturday'
-                                ? 'Saturday Completion'
-                                : `${file.processedTimeFrame} Completion`}
-                            </span>
-                            {file.statusProcessedTime && (
-                              <span className="text-gray-600 text-sm">
-                                {new Date(file.statusProcessedTime).toLocaleDateString('en-GB')}
-                                <span className="mx-1">•</span>
-                                {new Date(file.statusProcessedTime).toLocaleTimeString('en-US', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}
+                          {file.status === "processed" && file.processedTimeFrame && (
+                            <div className="flex items-center gap-2">
+                              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {file.processedTimeFrame === "saturday"
+                                  ? "Saturday Completion"
+                                  : `${file.processedTimeFrame} Completion`}
                               </span>
-                            )}
-                          </div>
-                        )}
-                      </>
+                              {file.statusProcessedTime && (
+                                <span className="text-gray-600 text-sm">
+                                  {new Date(file.statusProcessedTime).toLocaleDateString("en-GB")}
+                                  <span className="mx-1">•</span>
+                                  {new Date(file.statusProcessedTime).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <br />
+
+                  <div className="flex flex-wrap gap-6">
+                    <div className="flex-1">
+                      <div className="font-semibold">Service Type:</div>
+                      <div>{file.paymentId.serviceType}</div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold">Total Price:</div>
+                      <div>${file.paymentId.totalPrice}</div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold">Add-Ons:</div>
+                      <div>
+                        {Array.isArray(file.paymentId.addOns)
+                          ? file.paymentId.addOns.join(", ")
+                          : file.paymentId.addOns}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold">Payment Method:</div>
+                      <div>{file.paymentId.paymentMethod}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-6">
+                    <div className="flex-1 p-4">
+                      <div className="font-semibold">Booking Address:</div>
+                      <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
+                      <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
+                      <div>City: {file.paymentId.bookingDetails.city}</div>
+                      <div>State: {file.paymentId.bookingDetails.state}</div>
+                      <div>ZIP Code: {file.paymentId.bookingDetails.zipCode}</div>
+                      <div>
+                        <strong>Preferred Date: </strong>
+                        {new Date(file.paymentId.bookingDetails.preferredServiceDate)
+                          .toISOString()
+                          .split("T")[0]}
+                      </div>
+                      <div>
+                        <strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}
+                      </div>
+                    </div>
+
+                    {file.paymentId.bookingDetails.additionalAddresses && (
+                      <div className="flex-1 p-4">
+                        <div className="font-semibold">Additional Address:</div>
+                        <div>
+                          Recipient:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.recipientName || "N/A"}
+                        </div>
+                        <div>
+                          Address:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.serviceAddress || "N/A"}
+                        </div>
+                        <div>
+                          City:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.city || "N/A"}
+                        </div>
+                        <div>
+                          State:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.state || "N/A"}
+                        </div>
+                        <div>
+                          ZIP Code:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.zipCode || "N/A"}
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
-                <br />
 
-                {/* Using Ant Design's Card Component for styling */}
-                <div className="flex flex-wrap gap-6">
-                  <div className="flex-1">
-                    <div className="font-semibold">Service Type:</div>
-                    <div>{file.paymentId.serviceType}</div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold">Total Price:</div>
-                    <div>${file.paymentId.totalPrice}</div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold">Add-Ons:</div>
-                    <div>{Array.isArray(file.paymentId.addOns) ? file.paymentId.addOns.join(", ") : file.paymentId.addOns}</div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold">Payment Method:</div>
-                    <div>{file.paymentId.paymentMethod}</div>
-                  </div>
-                </div>
-
-                {/* Payment Address and Details */}
-                <div className="mt-4 flex flex-wrap gap-6">
-                  <div className="flex-1 p-4 ">
-                    <div className="font-semibold">Booking Address:</div>
-                    <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
-                    <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
-                    <div>City: {file.paymentId.bookingDetails.city}</div>
-                    <div>State: {file.paymentId.bookingDetails.state}</div>
-                    <div>ZIP Code: {file.paymentId.bookingDetails.zipCode}</div>
+                  <div className="mt-4">
+                    <div className="font-semibold">Payment Date:</div>
                     <div>
-                      <strong>Preferred Date: </strong>
-                      {new Date(file.paymentId.bookingDetails.preferredServiceDate).toISOString().split('T')[0]}
+                      {new Date(file.paymentId.PayedAt).toLocaleDateString("en-GB")}, Time{" "}
+                      {new Date(file.paymentId.PayedAt).toLocaleTimeString("en-GB", { hour12: true })}
                     </div>
-                    <div><strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}</div>
                   </div>
-
-                  {/* Additional Address (if available) */}
-                  {file.paymentId.bookingDetails.additionalAddresses && (
-                    <div className="flex-1 p-4  ">
-                      <div className="font-semibold">Additional Address:</div>
-                      <div>Recipient: {file.paymentId.bookingDetails.additionalAddresses.recipientName || "N/A"}</div>
-                      <div>Address: {file.paymentId.bookingDetails.additionalAddresses.serviceAddress || "N/A"}</div>
-                      <div>City: {file.paymentId.bookingDetails.additionalAddresses.city || "N/A"}</div>
-                      <div>State: {file.paymentId.bookingDetails.additionalAddresses.state || "N/A"}</div>
-                      <div>ZIP Code: {file.paymentId.bookingDetails.additionalAddresses.zipCode || "N/A"}</div>
-                    </div>
-                  )}
-
-                </div>
-
-
-                {/* Payment Date with Time */}
-                <div className="mt-4">
-                  <div className="font-semibold">Payment Date:</div>
-                  <div>
-                    {new Date(file.paymentId.PayedAt).toLocaleDateString("en-GB")},
-                    Time {new Date(file.paymentId.PayedAt).toLocaleTimeString("en-GB", { hour12: true })}
-                  </div>
-                </div>
-
-              </>
-            ) : (
-              <span>No Payment Details</span>
-            )}
-          </div>
-        ))}
+                </>
+              ) : (
+                <span>No Payment Details</span>
+              )}
+            </div>
+          ))}
       </div>
-
 
       <Modal
         title="Upload New Document"
@@ -457,9 +550,6 @@ const UserDocuments: React.FC = () => {
       </Modal>
     </div>
   );
-
 };
 
 export default UserDocuments;
-
-
