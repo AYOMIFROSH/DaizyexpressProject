@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Table, Button, Skeleton, Empty, Spin } from "antd";
-import { DownloadOutlined } from "@ant-design/icons";
+import React, { useEffect, useState} from "react";
 import { useAuth } from "../../Context/useContext";
 import { toast } from "react-toastify";
+import { DownloadOutlined } from "@ant-design/icons";
+import { Skeleton } from "antd";
 
 interface File {
   key: string;
@@ -30,7 +30,6 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
     const fetchFiles = async () => {
       try {
         setLoading(true);
-
         const response = await fetch(`${API_BASE_URL}/api/files/user-files`, {
           method: "GET",
           headers: {
@@ -53,21 +52,18 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
           toast.error(error.message || "Failed to fetch files.");
         }
       } catch (error) {
-        console.error("Error fetching files:", error);
         toast.error("An error occurred while fetching files.");
       } finally {
         setLoading(false);
       }
     };
-    if(token){
-      fetchFiles();
-    }
+
+    if (token) fetchFiles();
   }, [token]);
 
   const downloadFile = async (fileId: string, name: string) => {
     try {
       setLoadingDownload(fileId);
-
       const response = await fetch(`${API_BASE_URL}/api/files/download/${fileId}`, {
         method: "GET",
         headers: {
@@ -88,92 +84,91 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
         toast.error(error.message || "Failed to download file.");
       }
     } catch (error) {
-      console.error("Error downloading file:", error);
       toast.error("An error occurred while downloading the file.");
     } finally {
       setLoadingDownload(null);
     }
   };
 
-  const columns = [
-    {
-      title: "File Name",
-      dataIndex: "name",
-      key: "name",
-      render: (name: string) => (
-        <span className="text-gray-800 font-semibold text-sm sm:text-base">{name}</span>
-      ),
-    },
-    {
-      title: "Date and Time",
-      dataIndex: "date",
-      key: "date",
-      render: (date: string) => (
-        <span className="text-gray-500 text-sm sm:text-base">{date}</span>
-      ),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => (
-        <span
-          className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${status === "processed"
-              ? "bg-green-200 text-green-800"
-              : status === "in process"
-                ? "bg-yellow-200 text-yellow-800"
-                : "bg-red-200 text-red-800"
-            }`}
-        >
-          {status}
-        </span>
-      ),
-    },
-    {
-      title: "Action",
-      key: "action",
-      render: (_: any, record: File) => (
-        <Button
-          type="link"
-          icon={<DownloadOutlined />}
-          disabled={record.status !== "processed" || loadingDownload === record.fileId}
-          onClick={() => downloadFile(record.fileId, record.name)}
-          className="text-blue-600 hover:text-blue-800"
-        >
-          {loadingDownload === record.fileId ? <Spin size="small" /> : "Download"}
-        </Button>
-      ),
-    },
-  ];
-
   return (
-    
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 py-2 px-40">
-      <div className="w-full max-w-4xl p-10 bg-white rounded-xl shadow-lg">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-700 text-center mb-6">
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-5xl">
+        <h4 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center p-4 border-b">
           Document Table {isHome ? "Overview" : ""}
-        </h2>
-        <Table
-          dataSource={loading ? [] : files}
-          columns={columns}
-          pagination={{ pageSize: 5 }}
-          className="rounded-lg overflow-hidden"
-          locale={{
-            emptyText: loading ? (
-              <div className="flex items-center justify-center">
-                <Skeleton active paragraph={{ rows: 4 }} />
-              </div>
-            ) : (
-              <Empty description="No files found" />
-            ),
-          }}
-          loading={loading}
-        />
+        </h4>
+        <div className="overflow-x-auto mt-6 bg-white rounded-lg shadow-lg">
+          <table className="w-full table-auto border border-gray-300">
+            <thead>
+              <tr className="bg-gray-100 text-gray-700 uppercase text-sm border-b">
+                <th className="px-4 py-3 text-left">File Name</th>
+                <th className="px-4 py-3 text-left">Date and Time</th>
+                <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-left">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading
+                ? Array.from({ length: 5 }).map((_, index) => (
+                    <tr key={index} className="border-b">
+                      <td className="px-4 py-3"><Skeleton.Input active size="small" /></td>
+                      <td className="px-4 py-3"><Skeleton.Input active size="small" /></td>
+                      <td className="px-4 py-3"><Skeleton.Input active size="small" /></td>
+                      <td className="px-4 py-3"><Skeleton.Button active size="small" /></td>
+                    </tr>
+                  ))
+                : files.map((file) => (
+                    <tr key={file.key} className="border-b">
+                      <td className="px-4 py-3 text-gray-800 font-semibold truncate">
+                        {file.name}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">{file.date}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                            file.status === "processed"
+                              ? "bg-green-100 text-green-800"
+                              : file.status === "in process"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {file.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          className={`flex items-center ${
+                            file.status !== "processed" || loadingDownload === file.fileId
+                              ? "text-gray-400 cursor-not-allowed"
+                              : "text-blue-600 hover:text-blue-800"
+                          }`}
+                          onClick={() => downloadFile(file.fileId, file.name)}
+                          disabled={file.status !== "processed" || loadingDownload === file.fileId}
+                        >
+                          <DownloadOutlined className="mr-1" />
+                          {loadingDownload === file.fileId ? (
+                            <Skeleton.Input 
+                              active 
+                              size="small" 
+                              style={{ 
+                                width: 70, 
+                                display: 'inline-block',
+                                verticalAlign: 'middle'
+                              }} 
+                            />
+                          ) : (
+                            "Download"
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 };
 
 export default FileList;
-
-
