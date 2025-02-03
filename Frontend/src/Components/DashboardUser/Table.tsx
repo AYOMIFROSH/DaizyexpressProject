@@ -24,15 +24,11 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
     setSelectedFile(null);
   };
 
-  // Updated renderAttempts logic:
-  // - If the attempts is "not attempted", display "not attempted".
-  // - If it is "attempted 1" or "attempted 2", display "attempts on progress".
-  // - If it is "attempted 3", display "attempt completed".
   const renderAttempts = (attempts: string) => {
     if (attempts === "not attempted") {
       return "not attempted";
     } else if (attempts === "attempted 3") {
-      return "attempt completed";
+      return "Attempts completed";
     } else {
       return "attempts on progress";
     }
@@ -104,6 +100,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                         <button
                           className={`flex items-center ${
                             file.status !== "processed" ||
+                            !file.hasBeenReplaced ||
                             loadingDownload === file.fileId
                               ? "text-gray-400 cursor-not-allowed"
                               : "text-blue-600 hover:text-blue-800"
@@ -111,6 +108,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                           onClick={() => downloadFile(file.fileId, file.name)}
                           disabled={
                             file.status !== "processed" ||
+                            !file.hasBeenReplaced ||
                             loadingDownload === file.fileId
                           }
                         >

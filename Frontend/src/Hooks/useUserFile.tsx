@@ -8,6 +8,7 @@ export interface File {
   date: string;
   status: string;
   attempts: string,
+  hasBeenReplaced: boolean,
   fileId: string;
 }
 
@@ -40,6 +41,7 @@ export const useFiles = () => {
           date: new Date(file.uploadedAt).toLocaleString(),
           status: file.status,
           attempts: file.attempts,
+          hasBeenReplaced: file.hasBeenReplaced,
           fileId: file._id,
         }));
         setFiles(formattedFiles);
