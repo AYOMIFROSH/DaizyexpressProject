@@ -1,100 +1,42 @@
-import React, { useEffect, useState} from "react";
-import { useAuth } from "../../Context/useContext";
-import { toast } from "react-toastify";
+import React, { useState } from "react";
+import { Modal, Button, Skeleton, Timeline } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
-import { Skeleton } from "antd";
+import { useFiles, File as FileType } from "../../Hooks/useUserFile";
 
-interface File {
-  key: string;
-  name: string;
-  date: string;
-  status: string;
-  fileId: string;
-}
+const FileList: React.FC = () => {
+  const { files, loading, loadingDownload, downloadFile } = useFiles();
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
 
-interface FileListProps {
-  isHome: boolean;
-}
+  // Open modal and set the currently selected file.
+  const openModal = (file: FileType) => {
+    setSelectedFile(file);
+    setModalVisible(true);
+  };
 
-const FileList: React.FC<FileListProps> = ({ isHome }) => {
-  const { token } = useAuth();
-  const [files, setFiles] = useState<File[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [loadingDownload, setLoadingDownload] = useState<string | null>(null);
-  const API_BASE_URL =
-    window.location.hostname === "localhost"
-      ? "http://localhost:3000"
-      : "https://daizyexserver.vercel.app";
+  // Close modal and clear selected file.
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedFile(null);
+  };
 
-  useEffect(() => {
-    const fetchFiles = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/files/user-files`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  // Render the Attempts text according to your logic.
+  const renderAttempts = (attempts: string) => {
+    return attempts === "attempted 3"
+      ? "attempted"
+      : `${attempts} on process`;
+  };
 
-        if (response.ok) {
-          const data = await response.json();
-          const formattedFiles = data.files.map((file: any, index: number) => ({
-            key: String(index + 1),
-            name: file.fileName,
-            date: new Date(file.uploadedAt).toLocaleString(),
-            status: file.status,
-            fileId: file._id,
-          }));
-          setFiles(formattedFiles);
-        } else {
-          const error = await response.json();
-          toast.error(error.message || "Failed to fetch files.");
-        }
-      } catch (error) {
-        toast.error("An error occurred while fetching files.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (token) fetchFiles();
-  }, [token]);
-
-  const downloadFile = async (fileId: string, name: string) => {
-    try {
-      setLoadingDownload(fileId);
-      const response = await fetch(`${API_BASE_URL}/api/files/download/${fileId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = name;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      } else {
-        const error = await response.json();
-        toast.error(error.message || "Failed to download file.");
-      }
-    } catch (error) {
-      toast.error("An error occurred while downloading the file.");
-    } finally {
-      setLoadingDownload(null);
-    }
+  // Render Final Stage: only show "Completed" when the status is processed.
+  const renderFinalStage = (status: string) => {
+    return status === "processed" ? "Completed" : "";
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-5xl">
         <h4 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center p-4 border-b">
-          Document Table {isHome ? "Overview" : ""}
+          Document Table Overview
         </h4>
         <div className="overflow-x-auto mt-6 bg-white rounded-lg shadow-lg">
           <table className="w-full table-auto border border-gray-300">
@@ -104,16 +46,28 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                 <th className="px-4 py-3 text-left">Date and Time</th>
                 <th className="px-4 py-3 text-left">Status</th>
                 <th className="px-4 py-3 text-left">Action</th>
+                <th className="px-4 py-3 text-left">Track File</th>
               </tr>
             </thead>
             <tbody>
               {loading
                 ? Array.from({ length: 5 }).map((_, index) => (
                     <tr key={index} className="border-b">
-                      <td className="px-4 py-3"><Skeleton.Input active size="small" /></td>
-                      <td className="px-4 py-3"><Skeleton.Input active size="small" /></td>
-                      <td className="px-4 py-3"><Skeleton.Input active size="small" /></td>
-                      <td className="px-4 py-3"><Skeleton.Button active size="small" /></td>
+                      <td className="px-4 py-3">
+                        <Skeleton.Input active size="small" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton.Input active size="small" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton.Input active size="small" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton.Button active size="small" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton.Button active size="small" />
+                      </td>
                     </tr>
                   ))
                 : files.map((file) => (
@@ -138,28 +92,39 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                       <td className="px-4 py-3">
                         <button
                           className={`flex items-center ${
-                            file.status !== "processed" || loadingDownload === file.fileId
+                            file.status !== "processed" ||
+                            loadingDownload === file.fileId
                               ? "text-gray-400 cursor-not-allowed"
                               : "text-blue-600 hover:text-blue-800"
                           }`}
-                          onClick={() => downloadFile(file.fileId, file.name)}
-                          disabled={file.status !== "processed" || loadingDownload === file.fileId}
+                          onClick={() =>
+                            downloadFile(file.fileId, file.name)
+                          }
+                          disabled={
+                            file.status !== "processed" ||
+                            loadingDownload === file.fileId
+                          }
                         >
                           <DownloadOutlined className="mr-1" />
                           {loadingDownload === file.fileId ? (
-                            <Skeleton.Input 
-                              active 
-                              size="small" 
-                              style={{ 
-                                width: 70, 
-                                display: 'inline-block',
-                                verticalAlign: 'middle'
-                              }} 
+                            <Skeleton.Input
+                              active
+                              size="small"
+                              style={{
+                                width: 70,
+                                display: "inline-block",
+                                verticalAlign: "middle",
+                              }}
                             />
                           ) : (
                             "Download"
                           )}
                         </button>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button type="dashed" onClick={() => openModal(file)}>
+                          View
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -167,8 +132,41 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
           </table>
         </div>
       </div>
+
+      {/* Modal to display file details in a connected timeline */}
+      <Modal
+        open={modalVisible}
+        title="File Details"
+        onCancel={closeModal}
+        footer={[
+          <Button key="close" type="default" onClick={closeModal}>
+            Close
+          </Button>,
+        ]}
+      >
+        {selectedFile && (
+          <div className="p-4">
+            {/* Timeline creates a visual connection between the fields */}
+            <Timeline mode="left">
+              <Timeline.Item color="blue">
+                <strong>File Name:</strong> {selectedFile.name}
+              </Timeline.Item>
+              <Timeline.Item color="green">
+                <strong>Status:</strong> {selectedFile.status}
+              </Timeline.Item>
+              <Timeline.Item color="orange">
+                <strong>Attempts:</strong> {renderAttempts(selectedFile.attempts)}
+              </Timeline.Item>
+              <Timeline.Item color="purple">
+                <strong>Final Stage:</strong>{" "}
+                {renderFinalStage(selectedFile.status) || "Not Completed"}
+              </Timeline.Item>
+            </Timeline>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
 
-export default FileList;
+export default FileList

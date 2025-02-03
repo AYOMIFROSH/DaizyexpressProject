@@ -54,6 +54,7 @@ const UserDocuments: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState<Set<string>>(new Set());
+  const [attemptLoading, setAttemptLoading] = useState<Set<string>>(new Set());
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -193,7 +194,7 @@ const UserDocuments: React.FC = () => {
   // New function to handle attempts change using a dropdown similar to status.
   const handleAttemptChange = async (fileId: string, newAttempt: string) => {
     try {
-      setStatusLoading((prev) => new Set(prev.add(fileId)));
+      setAttemptLoading((prev) => new Set(prev.add(fileId)));
       const response = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/update-attempts`, {
         method: "PATCH",
         headers: {
@@ -217,7 +218,7 @@ const UserDocuments: React.FC = () => {
     } catch (error) {
       toast.error("Error updating attempt. Please try again later.");
     } finally {
-      setStatusLoading((prev) => {
+      setAttemptLoading((prev) => {
         const updated = new Set(prev);
         updated.delete(fileId);
         return updated;
@@ -335,12 +336,12 @@ const UserDocuments: React.FC = () => {
                         >
                           <Option value="not processed">Not Processed</Option>
                           <Option value="in process">In Process</Option>
-                          <Option value="processed">Processed</Option>
+                          <Option value="processed" disabled={file.attempts !== "attempted 3"}>Processed</Option>
                         </Select>
                       )}
                     </td>
                     <td className="px-4 py-2 border border-gray-300">
-                      {statusLoading.has(file._id) ? (
+                      {attemptLoading.has(file._id) ? (
                         <Skeleton.Button active size="small" style={{ width: "120px" }} />
                       ) : (
                         <Select
@@ -350,9 +351,9 @@ const UserDocuments: React.FC = () => {
                           disabled={file.status !== "in process"}
                         >
                           <Option value="not attempted">Not Attempted</Option>
-                          <Option value="attempted 1">Attempted 1</Option>
-                          <Option value="attempted 2">Attempted 2</Option>
-                          <Option value="attempted 3">Attempted 3</Option>
+                          <Option value="attempted 1">Attempt 1</Option>
+                          <Option value="attempted 2">Attempt 2</Option>
+                          <Option value="attempted 3">Attempt 3</Option>
                         </Select>
                       )}
                     </td>
