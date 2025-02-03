@@ -24,11 +24,18 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
     setSelectedFile(null);
   };
 
-  // Render the Attempts text according to your logic.
+  // Updated renderAttempts logic:
+  // - If the attempts is "not attempted", display "not attempted".
+  // - If it is "attempted 1" or "attempted 2", display "attempts on progress".
+  // - If it is "attempted 3", display "attempt completed".
   const renderAttempts = (attempts: string) => {
-    return attempts === "attempted 3"
-      ? "attempted"
-      : `${attempts} on process`;
+    if (attempts === "not attempted") {
+      return "not attempted";
+    } else if (attempts === "attempted 3") {
+      return "attempt completed";
+    } else {
+      return "attempts on progress";
+    }
   };
 
   // Render Final Stage: only show "Completed" when the status is processed.
@@ -101,9 +108,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                               ? "text-gray-400 cursor-not-allowed"
                               : "text-blue-600 hover:text-blue-800"
                           }`}
-                          onClick={() =>
-                            downloadFile(file.fileId, file.name)
-                          }
+                          onClick={() => downloadFile(file.fileId, file.name)}
                           disabled={
                             file.status !== "processed" ||
                             loadingDownload === file.fileId
@@ -150,7 +155,6 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
       >
         {selectedFile && (
           <div className="p-4">
-            {/* Timeline creates a visual connection between the fields */}
             <Timeline mode="left">
               <Timeline.Item color="blue">
                 <strong>File Name:</strong> {selectedFile.name}
@@ -173,4 +177,4 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
   );
 };
 
-export default FileList
+export default FileList;
