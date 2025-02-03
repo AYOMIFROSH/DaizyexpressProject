@@ -3,7 +3,11 @@ import { Modal, Button, Skeleton, Timeline } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { useFiles, File as FileType } from "../../Hooks/useUserFile";
 
-const FileList: React.FC = () => {
+interface FileListProps {
+  isHome: boolean;
+}
+
+const FileList: React.FC<FileListProps> = ({ isHome }) => {
   const { files, loading, loadingDownload, downloadFile } = useFiles();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
@@ -36,7 +40,7 @@ const FileList: React.FC = () => {
     <div className="flex items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-5xl">
         <h4 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center p-4 border-b">
-          Document Table Overview
+          Document Table {isHome ? "Overview" : ""}
         </h4>
         <div className="overflow-x-auto mt-6 bg-white rounded-lg shadow-lg">
           <table className="w-full table-auto border border-gray-300">
