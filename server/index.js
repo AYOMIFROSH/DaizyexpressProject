@@ -8,6 +8,7 @@ const authRouter = require('./routes/authRoutes');
 const fileRouter = require('./routes/fileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const paymentRoute = require('./controllers/paymentController');
+const paypalPaymentRoute = require('./controllers/paypalController');
 const webhookRouter = require('./controllers/webhookController');
 
 const app = express();
@@ -51,6 +52,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/files', fileRouter);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoute); 
+app.use('/api/paypal', paypalPaymentRoute);
 
 app.set('view engine', 'ejs'); 
 app.set('views', path.join(__dirname, '..', 'views')); 
@@ -73,6 +75,9 @@ app.use((err, req, res, next) => {
         message: err.message,
     });
 });
+
+console.log(app._router.stack.map(r => r.route?.path).filter(Boolean));
+
 
 // Start the server
 const startServer = async () => {

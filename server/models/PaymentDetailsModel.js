@@ -70,6 +70,7 @@ const PaymentDetailsSchema = new mongoose.Schema({
         data: Buffer,
         contentType: String,
     },
+    paypalOrderId: {type: String},
     stripeSessionId: { type: String },
 }, { timestamps: true });
 
