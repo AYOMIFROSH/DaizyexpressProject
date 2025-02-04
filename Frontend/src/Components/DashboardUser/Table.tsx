@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Button, Skeleton, Timeline } from "antd";
+import { Modal, Button, Skeleton, Timeline, Empty } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { useFiles, File as FileType } from "../../Hooks/useUserFile";
 
@@ -57,85 +57,93 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
               </tr>
             </thead>
             <tbody>
-              {loading
-                ? Array.from({ length: 5 }).map((_, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="px-4 py-3">
-                        <Skeleton.Input active size="small" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <Skeleton.Input active size="small" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <Skeleton.Input active size="small" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <Skeleton.Button active size="small" />
-                      </td>
-                      <td className="px-4 py-3">
-                        <Skeleton.Button active size="small" />
-                      </td>
-                    </tr>
-                  ))
-                : files.map((file) => (
-                    <tr key={file.key} className="border-b">
-                      <td className="px-4 py-3 text-gray-800 font-semibold truncate">
-                        {file.name}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600">{file.date}</td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                            file.status === "processed"
-                              ? "bg-green-100 text-green-800"
-                              : file.status === "in process"
+              {loading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={index} className="border-b">
+                    <td className="px-4 py-3">
+                      <Skeleton.Input active size="small" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Skeleton.Input active size="small" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Skeleton.Input active size="small" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Skeleton.Button active size="small" />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Skeleton.Button active size="small" />
+                    </td>
+                  </tr>
+                ))
+              ) : files.length === 0 ? (
+                // Show Empty state when no files are available
+                <tr>
+                  <td colSpan={5} className="text-center py-6">
+                    <Empty description="No Documents Found" />
+                  </td>
+                </tr>
+              ) : (
+                files.map((file) => (
+                  <tr key={file.key} className="border-b">
+                    <td className="px-4 py-3 text-gray-800 font-semibold truncate">
+                      {file.name}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{file.date}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-semibold ${file.status === "processed"
+                            ? "bg-green-100 text-green-800"
+                            : file.status === "in process"
                               ? "bg-yellow-100 text-yellow-800"
                               : "bg-red-100 text-red-800"
                           }`}
-                        >
-                          {file.status}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          className={`flex items-center ${
-                            file.status !== "processed" ||
+                      >
+                        {file.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        className={`flex items-center ${file.status !== "processed" ||
                             !file.hasBeenReplaced ||
                             loadingDownload === file.fileId
-                              ? "text-gray-400 cursor-not-allowed"
-                              : "text-blue-600 hover:text-blue-800"
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-blue-600 hover:text-blue-800"
                           }`}
-                          onClick={() => downloadFile(file.fileId, file.name)}
-                          disabled={
-                            file.status !== "processed" ||
-                            !file.hasBeenReplaced ||
-                            loadingDownload === file.fileId
-                          }
-                        >
-                          <DownloadOutlined className="mr-1" />
-                          {loadingDownload === file.fileId ? (
-                            <Skeleton.Input
-                              active
-                              size="small"
-                              style={{
-                                width: 70,
-                                display: "inline-block",
-                                verticalAlign: "middle",
-                              }}
-                            />
-                          ) : (
-                            "Download"
-                          )}
-                        </button>
-                      </td>
-                      <td className="px-4 py-3">
-                        <Button type="dashed" onClick={() => openModal(file)}>
-                          View
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                        onClick={() => downloadFile(file.fileId, file.name)}
+                        disabled={
+                          file.status !== "processed" ||
+                          !file.hasBeenReplaced ||
+                          loadingDownload === file.fileId
+                        }
+                      >
+                        <DownloadOutlined className="mr-1" />
+                        {loadingDownload === file.fileId ? (
+                          <Skeleton.Input
+                            active
+                            size="small"
+                            style={{
+                              width: 70,
+                              display: "inline-block",
+                              verticalAlign: "middle",
+                            }}
+                          />
+                        ) : (
+                          "Download"
+                        )}
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button type="dashed" onClick={() => openModal(file)}>
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
+
           </table>
         </div>
       </div>
