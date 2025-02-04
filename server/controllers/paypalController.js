@@ -8,17 +8,11 @@ require('dotenv').config();
 const router = express.Router();
 
 // Setup PayPal environment (Sandbox for development, Live for production)
-const environment =
-  process.env.NODE_ENV === 'production'
-    ? new paypal.core.LiveEnvironment(
-        process.env.PAYPAL_CLIENT_ID,
-        process.env.PAYPAL_CLIENT_SECRET
-      )
-    : new paypal.core.SandboxEnvironment(
-        process.env.PAYPAL_SANDBOX_CLIENT_ID,
-        process.env.PAYPAL_SANDBOX_CLIENT_SECRET
-      );
-const client = new paypal.core.PayPalHttpClient(environment);
+const environment = new paypal.core.SandboxEnvironment(
+    process.env.PAYPAL_SANDBOX_CLIENT_ID,
+    process.env.PAYPAL_SANDBOX_CLIENT_SECRET
+  );
+  const client = new paypal.core.PayPalHttpClient(environment);  
 
 // Define your front-end URL (for redirects after payment approval or cancellation)
 const BASE_URL =
