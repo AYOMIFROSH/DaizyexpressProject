@@ -12,7 +12,7 @@ const environment = new paypal.core.SandboxEnvironment(
     process.env.PAYPAL_SANDBOX_CLIENT_ID,
     process.env.PAYPAL_SANDBOX_CLIENT_SECRET
   );
-  const client = new paypal.core.PayPalHttpClient(environment);  
+const client = new paypal.core.PayPalHttpClient(environment);  
 
 // Define your front-end URL (for redirects after payment approval or cancellation)
 const BASE_URL =
@@ -22,7 +22,7 @@ const BASE_URL =
 
 const FRONT_URL =
   process.env.NODE_ENV === 'production'
-    ? process.env.FRONT_URL_PRODUCTION || 'https://daizyexpress.vercel.app'
+    ? process.env.FRONT_URL_PRODUCTION || 'https://deizyexpress.com'
     : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173';
 
 // Create Payment Route for PayPal

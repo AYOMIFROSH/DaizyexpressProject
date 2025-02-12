@@ -18,7 +18,7 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // MIDDLEWARES
 const corsOptions = {
-    origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173', 'https://websocket-oideizy.onrender.com'], 
+    origin: ['https://deizyexpress.com', 'http://localhost:5173', 'https://websocket-oideizy.onrender.com'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -61,7 +61,7 @@ app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 
 // General Global Error Handler
 app.use((err, req, res, next) => {
-    const allowedOrigins = ['https://daizyexpress.vercel.app', 'http://localhost:5173'];
+    const allowedOrigins = ['https://deizyexpress.com', 'http://localhost:5173'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
