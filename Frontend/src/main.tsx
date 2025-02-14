@@ -24,6 +24,7 @@ import VerificationPage from "./Pages/AuthorizedPages/VerificationPage.tsx";
 import CheckEmailPage from "./Pages/PasswordReset.tsx";
 import ContactUs from "./Components/LandingPage/Pages/ContactUs.tsx";
 import AboutUs from "./Components/LandingPage/pages/AboutUS.tsx";
+import Pricing from "./Components/LandingPage/pages/Pricing.tsx";
 
 function AppRouter() {
   const { isAuthenticated, userRole, isVerified } = useAuth();
@@ -54,6 +55,10 @@ function AppRouter() {
         {
           path: "/about-us",
           element: <AboutUs />,
+        },
+        {
+          path: "/pricing",
+          element: <Pricing />,
         },
         {
           path: "/login",

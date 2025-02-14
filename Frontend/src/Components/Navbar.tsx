@@ -20,8 +20,7 @@ const Navbar = () => {
 
   // Move MenuLink inside the component
   const menuLinks = [
-    { paths: "/", link: "For Process Servers" },
-    { paths: "/", link: "Pricing" },
+    { paths: "/pricing", link: "Pricing" },
     { paths: "/", link: "Products" },
     { paths: "/about-us", link: "About Us" },
     { paths: "/contact", link: "Contact Us" },
