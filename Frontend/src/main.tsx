@@ -22,6 +22,8 @@ import ManageUsers from "./Pages/AuthorizedPages/ManageUserss.tsx";
 import UserDetails from "./Pages/AuthorizedPages/UserDetails.tsx";
 import VerificationPage from "./Pages/AuthorizedPages/VerificationPage.tsx";
 import CheckEmailPage from "./Pages/PasswordReset.tsx";
+import ContactUs from "./Components/LandingPage/Pages/ContactUs.tsx";
+import AboutUs from "./Components/LandingPage/pages/AboutUS.tsx";
 
 function AppRouter() {
   const { isAuthenticated, userRole, isVerified } = useAuth();
@@ -36,7 +38,7 @@ function AppRouter() {
           path: "/",
           element: <LandingPage />,
         },
-      
+
         {
           path: "/forgot",
           element: <ForgottenPwd />,
@@ -44,6 +46,14 @@ function AppRouter() {
         {
           path: "/check-email",
           element: <CheckEmailPage />,
+        },
+        {
+          path: "/contact",
+          element: <ContactUs />,
+        },
+        {
+          path: "/about-us",
+          element: <AboutUs />,
         },
         {
           path: "/login",
@@ -146,7 +156,7 @@ function AppRouter() {
         },
 
       ],
-      
+
     },
   ]);
 
@@ -157,7 +167,7 @@ function AppRouter() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider>
-     <AppRouter />
+      <AppRouter />
     </AuthProvider>
   </StrictMode>
 );

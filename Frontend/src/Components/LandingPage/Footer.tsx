@@ -23,7 +23,7 @@ const Footer = () => {
 							<p className="cursor-pointer hover:text-gray-600">Our Story</p>
 							<p className="cursor-pointer hover:text-gray-600">Team</p>
 							<p className="cursor-pointer hover:text-gray-600">Careers</p>
-							<p className="cursor-pointer hover:text-gray-600">Contact</p>
+							<Link to="/about-us" className="cursor-pointer hover:text-gray-600">Contact</Link>
 						</div>
 					</div>
 					<div>
