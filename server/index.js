@@ -8,6 +8,8 @@ const authRouter = require('./routes/authRoutes');
 const fileRouter = require('./routes/fileRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const paymentRoute = require('./controllers/paymentController');
+const paypalPaymentRoute = require('./controllers/paypalController');
+const webhookRouter = require('./controllers/webhookController');
 
 const app = express();
 require('dotenv').config();
@@ -16,7 +18,7 @@ const dbAltHost = process.env.DB_ALT_HOST;
 
 // MIDDLEWARES
 const corsOptions = {
-    origin: ['https://daizyexpress.vercel.app', 'http://localhost:5173', 'https://websocket-oideizy.onrender.com'], 
+    origin: ['https://deizyexpress.com', 'http://localhost:5173', 'https://websocket-oideizy.onrender.com'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -26,6 +28,9 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/api/payment/webhook', webhookRouter);
+
 app.use(express.json());
 
 app.use(
@@ -41,18 +46,22 @@ app.get('/', (req, res) => {
     res.send('Welcome to the API!');
 });
 
+
 // ROUTES
 app.use('/api/auth', authRouter);
 app.use('/api/files', fileRouter);
 app.use('/api/admin', adminRoutes);
-app.use('/api/payment', paymentRoute);  
+app.use('/api/payment', paymentRoute); 
+app.use('/api/paypal', paypalPaymentRoute);
 
-app.set('views', path.join(__dirname, 'views'));  
 app.set('view engine', 'ejs'); 
+app.set('views', path.join(__dirname, '..', 'views')); 
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
+
 
 // General Global Error Handler
 app.use((err, req, res, next) => {
-    const allowedOrigins = ['https://daizyexpress.vercel.app', 'http://localhost:5173'];
+    const allowedOrigins = ['https://deizyexpress.com', 'http://localhost:5173'];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
@@ -67,26 +76,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-// let io;
+console.log(app._router.stack.map(r => r.route?.path).filter(Boolean));
 
-// app.set('socketio', io); 
-
-
-// // Socket.io connection
-// io.on('connection', (socket) => {
-//     console.log('New client connected');
-
-//     socket.on('disconnect', () => {
-//         console.log('Client disconnected');
-//     });
-
-//     socket.on('error', (error) => {
-//         console.error('Socket error:', error);
-//     });
-// });
-
-
-// module.exports = { io };
 
 // Start the server
 const startServer = async () => {
@@ -95,7 +86,6 @@ const startServer = async () => {
         await mongoose.connect(dbAltHost, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            socketTimeoutMS: 45000,
             autoIndex: true,
         });
         console.log('Connected to MongoDB successfully');
@@ -110,13 +100,6 @@ const startServer = async () => {
     }
 };
 
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-});
 
 // Call the startServer function to run the application
 startServer();

@@ -23,11 +23,30 @@ const fileSchema = new mongoose.Schema({
         enum: ['not processed', 'in process', 'processed'],
         default: 'not processed',
     },
-    hasBeenReplaced: { 
-        type: Boolean, 
-        default: false 
-    }, 
-    paymentId: {  
+    statusInProgressTime: {
+        type: Date
+    },
+    timeFrame: {
+        type: String,
+        enum: ['morning', 'evening', 'new day', 'saturday']
+    },
+    statusProcessedTime: {
+        type: Date
+    },
+    processedTimeFrame: {
+        type: String,
+        enum: ['morning', 'evening', 'new day', 'saturday']
+    },
+    attempts: {
+        type: String,
+        enum: ['not attempted', 'attempted 1', 'attempted 2', 'attempted 3'],
+        default: 'not attempted',
+      },   
+    hasBeenReplaced: {
+        type: Boolean,
+        default: false
+    },
+    paymentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'PaymentDetails',
         required: true,

@@ -10,7 +10,7 @@ function App() {
   
   
   useEffect(() => {
-    const lastRoute = localStorage.getItem("lastRoute");
+    const lastRoute = sessionStorage.getItem("lastRoute");
     if (isAuthenticated && isVerified && lastRoute) {
       navigate(lastRoute, { replace: true });
     }

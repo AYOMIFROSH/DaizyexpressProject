@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../Context/useContext";
 import { Skeleton, Spin, Select, Modal } from "antd";
+import "../../index.css";
 
 const { Option } = Select;
 
@@ -12,7 +13,7 @@ interface BookingDetails {
   city: string;
   state: string;
   zipCode: string;
-  additionalAddress?: {
+  additionalAddresses?: {
     recipientName?: string;
     serviceAddress?: string;
     city?: string;
@@ -22,7 +23,6 @@ interface BookingDetails {
   preferredServiceDate: Date;
   preferredTime?: string;
 }
-
 
 interface PaymentDetails {
   serviceType: string;
@@ -38,9 +38,13 @@ interface File {
   fileName: string;
   uploadedAt: string;
   status: string;
+  attempts: string;
+  statusInProgressTime?: Date;
+  timeFrame?: string;
+  statusProcessedTime?: Date;
+  processedTimeFrame?: string;
   paymentId: PaymentDetails;
 }
-
 
 const UserDocuments: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,6 +54,7 @@ const UserDocuments: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState<Set<string>>(new Set());
+  const [attemptLoading, setAttemptLoading] = useState<Set<string>>(new Set());
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -60,25 +65,26 @@ const UserDocuments: React.FC = () => {
       ? "http://localhost:3000"
       : "https://daizyexserver.vercel.app";
 
-  useEffect(() => {
-    const fetchUserFiles = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}/details`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const result = await response.json();
-        if (result.status === "success") {
-          setFiles(result.data.files);
-        } else {
-          toast.error(`Error fetching files: ${result.message}`);
-        }
-      } catch (error) {
-        toast.error("Error fetching files. Please try again later.");
-      } finally {
-        setLoading(false);
+  const fetchUserFiles = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/admin/users/${id}/details`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        setFiles(result.data.files);
+      } else {
+        toast.error(`Error fetching files: ${result.message}`);
       }
-    };
+    } catch (error) {
+      toast.error("Error fetching files. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUserFiles();
   }, [id, token, API_BASE_URL]);
 
@@ -127,16 +133,45 @@ const UserDocuments: React.FC = () => {
         },
         body: JSON.stringify({ status: newStatus }),
       });
-
+  
       const result = await response.json();
       if (result.status === "success") {
         toast.success("Status updated successfully!");
+        // Update the file's status in local state
         setFiles((prevFiles) =>
           prevFiles.map((file) =>
             file._id === fileId ? { ...file, status: newStatus } : file
           )
         );
-
+  
+        // If the new status is "not processed", reset attempts to the default value
+        if (newStatus === "not processed") {
+          const attemptResponse = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/update-attempts`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ attempts: "not attempted" }),
+          });
+  
+          const attemptResult = await attemptResponse.json();
+          if (attemptResult.status === "success") {
+            // Update local state with reset attempts
+            setFiles((prevFiles) =>
+              prevFiles.map((file) =>
+                file._id === fileId ? { ...file, attempts: "not attempted" } : file
+              )
+            );
+            toast.info("Attempts reset to 'Not Attempted'.");
+          } else {
+            toast.error(`Failed to reset attempts: ${attemptResult.message}`);
+          }
+        }
+  
+        // Refresh files list (if needed)
+        await fetchUserFiles();
+  
         if (newStatus === "processed") {
           setSelectedFileId(fileId);
           setIsModalVisible(true);
@@ -148,6 +183,42 @@ const UserDocuments: React.FC = () => {
       toast.error("Error updating status. Please try again later.");
     } finally {
       setStatusLoading((prev) => {
+        const updated = new Set(prev);
+        updated.delete(fileId);
+        return updated;
+      });
+    }
+  };
+  
+
+  // New function to handle attempts change using a dropdown similar to status.
+  const handleAttemptChange = async (fileId: string, newAttempt: string) => {
+    try {
+      setAttemptLoading((prev) => new Set(prev.add(fileId)));
+      const response = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/update-attempts`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ attempts: newAttempt }),
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        toast.success("Attempt updated successfully!");
+        setFiles((prevFiles) =>
+          prevFiles.map((file) =>
+            file._id === fileId ? { ...file, attempts: newAttempt } : file
+          )
+        );
+      } else {
+        toast.error(`Failed to update attempt: ${result.message}`);
+      }
+    } catch (error) {
+      toast.error("Error updating attempt. Please try again later.");
+    } finally {
+      setAttemptLoading((prev) => {
         const updated = new Set(prev);
         updated.delete(fileId);
         return updated;
@@ -167,7 +238,7 @@ const UserDocuments: React.FC = () => {
     formData.append("file", uploadedFile as unknown as Blob);
 
     try {
-      setUploading(true); // Start the spinner
+      setUploading(true);
       const response = await fetch(`${API_BASE_URL}/api/admin/files/${selectedFileId}/replace`, {
         method: "POST",
         headers: {
@@ -222,63 +293,94 @@ const UserDocuments: React.FC = () => {
               <th className="px-4 py-2 border border-gray-300">File Name</th>
               <th className="px-4 py-2 border border-gray-300">Date</th>
               <th className="px-4 py-2 border border-gray-300">Status</th>
+              <th className="px-4 py-2 border border-gray-300">Attempts</th>
               <th className="px-4 py-2 border border-gray-300">Action</th>
             </tr>
           </thead>
           <tbody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, index) => (
-                <tr key={index}>
-                  <td colSpan={6} className="px-4 py-2 text-center">
-                    <Skeleton.Input style={{ width: "100%" }} active />
+            {loading
+              ? Array.from({ length: Math.max(1, files.length) }).map((_, index) => (
+                <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "30px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "120px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "90px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Input active size="small" style={{ width: "80px" }} />
+                  </td>
+                  <td className="px-4 py-2 border border-gray-300">
+                    <Skeleton.Button active size="small" style={{ width: "100px" }} />
                   </td>
                 </tr>
               ))
-            ) : filteredFiles.length > 0 ? (
-              filteredFiles.map((file, index) => (
-                <tr key={file._id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                  <td className="px-4 py-2 border border-gray-300">{index + 1}</td>
-                  <td className="px-4 py-2 border border-gray-300">{file.fileName}</td>
-                  <td className="px-4 py-2 border border-gray-300">
-                    {new Date(file.uploadedAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-300">
-                    {statusLoading.has(file._id) ? (
-                      <Skeleton.Button active size="small" style={{ width: "80px" }} />
-                    ) : (
-                      <Select
-                        defaultValue={file.status || "not processed"}
-                        onChange={(value) => handleStatusChange(file._id, value)}
-                      >
-                        <Option value="not processed">Not Processed</Option>
-                        <Option value="in process">In Process</Option>
-                        <Option value="processed">Processed</Option>
-                      </Select>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-300">
-                    <button
-                      onClick={() => handleDownload(file._id, file.fileName)}
-                      className="px-4 py-2 text-black bg-white-500 rounded-lg hover:bg-white-600 focus:outline-none"
-                    >
-                      {isDownloading === file._id ? (
-                        <>
-                          Download <Spin size="small" style={{ marginLeft: "8px" }} />
-                        </>
+              : filteredFiles.length > 0 ? (
+                filteredFiles.map((file, index) => (
+                  <tr key={file._id} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
+                    <td className="px-4 py-2 border border-gray-300">{index + 1}</td>
+                    <td className="px-4 py-2 border border-gray-300">{file.fileName}</td>
+                    <td className="px-4 py-2 border border-gray-300">
+                      {new Date(file.uploadedAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300">
+                      {statusLoading.has(file._id) ? (
+                        <Skeleton.Button active size="small" style={{ width: "80px" }} />
                       ) : (
-                        "Download"
+                        <Select
+                          defaultValue={file.status || "not processed"}
+                          onChange={(value) => handleStatusChange(file._id, value)}
+                        >
+                          <Option value="not processed">Not Processed</Option>
+                          <Option value="in process">In Process</Option>
+                          <Option value="processed" disabled={file.attempts !== "attempted 3"}>Processed</Option>
+                        </Select>
                       )}
-                    </button>
+                    </td>
+                    <td className="px-4 py-2 border border-gray-300">
+                      {attemptLoading.has(file._id) ? (
+                        <Skeleton.Button active size="small" style={{ width: "120px" }} />
+                      ) : (
+                        <Select
+                          defaultValue={file.attempts || "not attempted"}
+                          onChange={(value) => handleAttemptChange(file._id, value)}
+                          // Enable attempts only when status is 'in process'
+                          disabled={file.status !== "in process"}
+                        >
+                          <Option value="not attempted">Not Attempted</Option>
+                          <Option value="attempted 1">Attempt 1</Option>
+                          <Option value="attempted 2">Attempt 2</Option>
+                          <Option value="attempted 3">Attempt 3</Option>
+                        </Select>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-2 border border-gray-300">
+                      <button
+                        onClick={() => handleDownload(file._id, file.fileName)}
+                        className="px-4 py-2 text-black bg-white-500 rounded-lg hover:bg-white-600 focus:outline-none"
+                      >
+                        {isDownloading === file._id ? (
+                          <>
+                            Download <Spin size="small" style={{ marginLeft: "8px" }} />
+                          </>
+                        ) : (
+                          "Download"
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-4 py-2 text-center border border-gray-300">
+                    No documents found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="px-4 py-2 text-center border border-gray-300">
-                  No documents found
-                </td>
-              </tr>
-            )}
+              )}
           </tbody>
         </table>
       </div>
@@ -286,65 +388,151 @@ const UserDocuments: React.FC = () => {
       {/* Enhanced Payment Details Section */}
       <div className="mt-8">
         <h2 className="text-xl font-bold text-gray-800 mb-4">Payment Details</h2>
-        {filteredFiles.length > 0 && filteredFiles.map((file) => (
-          <div key={file._id} className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md">
-            {file.paymentId ? (
-              <>
-                {/* File Name Label */}
-                <div className="font-semibold text-lg">Payment for: {file.fileName}</div><br/>
+        {filteredFiles.length > 0 &&
+          filteredFiles.map((file) => (
+            <div key={file._id} className="mt-4 p-4 bg-gray-50 rounded-lg shadow-md">
+              {file.paymentId ? (
+                <>
+                  <div className="flex justify-between items-center mb-4 gap-4">
+                    <div className="font-semibold text-10px">Payment for: {file.fileName}</div>
+                    <div className="flex items-center gap-2">
+                      {statusLoading.has(file._id) ? (
+                        <div className="flex items-center gap-2">
+                          <Skeleton.Input active size="small" style={{ width: 100 }} />
+                          <Skeleton.Input active size="small" style={{ width: 120 }} />
+                        </div>
+                      ) : (
+                        <>
+                          {file.timeFrame && file.status !== "not processed" && (
+                            <div className="flex items-center gap-2">
+                              <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {file.timeFrame === "saturday"
+                                  ? "Saturday Process"
+                                  : `${file.timeFrame} Shift`}
+                              </span>
+                              {file.statusInProgressTime && (
+                                <span className="text-gray-600 text-sm">
+                                  {new Date(file.statusInProgressTime).toLocaleDateString("en-GB")}
+                                  <span className="mx-1">•</span>
+                                  {new Date(file.statusInProgressTime).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          )}
 
-                {/* Using Ant Design's Card Component for styling */}
-                <div className="flex flex-wrap gap-6">
-                  <div className="flex-1">
-                    <div className="font-semibold">Service Type:</div>
-                    <div>{file.paymentId.serviceType}</div>
+                          {file.status === "processed" && file.processedTimeFrame && (
+                            <div className="flex items-center gap-2">
+                              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {file.processedTimeFrame === "saturday"
+                                  ? "Saturday Completion"
+                                  : `${file.processedTimeFrame} Completion`}
+                              </span>
+                              {file.statusProcessedTime && (
+                                <span className="text-gray-600 text-sm">
+                                  {new Date(file.statusProcessedTime).toLocaleDateString("en-GB")}
+                                  <span className="mx-1">•</span>
+                                  {new Date(file.statusProcessedTime).toLocaleTimeString("en-US", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold">Total Price:</div>
-                    <div>${file.paymentId.totalPrice}</div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold">Add-Ons:</div>
-                    <div>{Array.isArray(file.paymentId.addOns) ? file.paymentId.addOns.join(", ") : file.paymentId.addOns}</div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold">Payment Method:</div>
-                    <div>{file.paymentId.paymentMethod}</div>
-                  </div>
-                </div>
+                  <br />
 
-                {/* Payment Address and Details */}
-                <div className="mt-4">
-                  <div className="font-semibold">Booking Address:</div>
-                  <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
-                  <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
-                  <div>City: {file.paymentId.bookingDetails.city}</div>
-                  <div>State: {file.paymentId.bookingDetails.state}</div>
-                  <div>ZIP Code: {file.paymentId.bookingDetails.zipCode}</div>
-                  <div>
-                    <strong>Preferred Date: </strong>
-                    {new Date(file.paymentId.bookingDetails.preferredServiceDate).toISOString().split('T')[0]}
+                  <div className="flex flex-wrap gap-6">
+                    <div className="flex-1">
+                      <div className="font-semibold">Service Type:</div>
+                      <div>{file.paymentId.serviceType}</div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold">Total Price:</div>
+                      <div>${file.paymentId.totalPrice}</div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold">Add-Ons:</div>
+                      <div>
+                        {Array.isArray(file.paymentId.addOns)
+                          ? file.paymentId.addOns.join(", ")
+                          : file.paymentId.addOns}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold">Payment Method:</div>
+                      <div>{file.paymentId.paymentMethod}</div>
+                    </div>
                   </div>
-                  <div><strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}</div>
-                </div>
 
-                {/* Payment Date with Time */}
-                <div className="mt-4">
-                  <div className="font-semibold">Payment Date:</div>
-                  <div>
-                    {new Date(file.paymentId.PayedAt).toLocaleDateString("en-GB")},
-                    Time {new Date(file.paymentId.PayedAt).toLocaleTimeString("en-GB", { hour12: true })}
+                  <div className="mt-4 flex flex-wrap gap-6">
+                    <div className="flex-1 p-4">
+                      <div className="font-semibold">Booking Address:</div>
+                      <div>Recipient: {file.paymentId.bookingDetails.recipientName}</div>
+                      <div>Address: {file.paymentId.bookingDetails.serviceAddress}</div>
+                      <div>City: {file.paymentId.bookingDetails.city}</div>
+                      <div>State: {file.paymentId.bookingDetails.state}</div>
+                      <div>ZIP Code: {file.paymentId.bookingDetails.zipCode}</div>
+                      <div>
+                        <strong>Preferred Date: </strong>
+                        {new Date(file.paymentId.bookingDetails.preferredServiceDate)
+                          .toISOString()
+                          .split("T")[0]}
+                      </div>
+                      <div>
+                        <strong>Preferred Time:</strong> {file.paymentId.bookingDetails.preferredTime}
+                      </div>
+                    </div>
+
+                    {file.paymentId.bookingDetails.additionalAddresses && (
+                      <div className="flex-1 p-4">
+                        <div className="font-semibold">Additional Address:</div>
+                        <div>
+                          Recipient:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.recipientName || "N/A"}
+                        </div>
+                        <div>
+                          Address:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.serviceAddress || "N/A"}
+                        </div>
+                        <div>
+                          City:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.city || "N/A"}
+                        </div>
+                        <div>
+                          State:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.state || "N/A"}
+                        </div>
+                        <div>
+                          ZIP Code:{" "}
+                          {file.paymentId.bookingDetails.additionalAddresses.zipCode || "N/A"}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
 
-              </>
-            ) : (
-              <span>No Payment Details</span>
-            )}
-          </div>
-        ))}
+                  <div className="mt-4">
+                    <div className="font-semibold">Payment Date:</div>
+                    <div>
+                      {new Date(file.paymentId.PayedAt).toLocaleDateString("en-GB")}, Time{" "}
+                      {new Date(file.paymentId.PayedAt).toLocaleTimeString("en-GB", { hour12: true })}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <span>No Payment Details</span>
+              )}
+            </div>
+          ))}
       </div>
-
 
       <Modal
         title="Upload New Document"
@@ -363,9 +551,6 @@ const UserDocuments: React.FC = () => {
       </Modal>
     </div>
   );
-
 };
 
 export default UserDocuments;
-
-

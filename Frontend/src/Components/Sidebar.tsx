@@ -35,7 +35,7 @@ const Sidebar = ({ isAdmin }: { isAdmin: boolean }) => {
   ];
 
   const handleLinkClick = (path: string) => {
-    localStorage.setItem("lastRoute", path);
+    sessionStorage.setItem("lastRoute", path);
   };
   
   const linkclass = ({ isActive }: { isActive: boolean }) =>

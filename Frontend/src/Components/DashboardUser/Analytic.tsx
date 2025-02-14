@@ -8,8 +8,8 @@ import { message, Spin } from "antd";
 
 const Analytic = () => {
   const { token } = useAuth();
-  const [fileUploadCount, setFileUploadCount] = useState<number | null>(null); // Store the count here
-  const [processedDocument, setProcessedDocument] = useState<number | null>(null); // Store the count here
+  const [fileUploadCount, setFileUploadCount] = useState<number | null>(null); // Store the count here 
+  const [processedDocument, setProcessedDocument] = useState<number | null>(null); // Store the count here 
   const [loadingFileUploadCount, setLoadingFileUploadCount] = useState<boolean>(true); // Loading state for file upload count
   const [loadingProcessedDocument, setLoadingProcessedDocument] = useState<boolean>(true); // Loading state for processed document
   const [error, setError] = useState<string | null>(null); 

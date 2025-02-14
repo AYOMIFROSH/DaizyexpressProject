@@ -2,18 +2,18 @@ const mongoose = require('mongoose');
 
 const PaymentDetailsSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
     serviceType: {
-        type: String, 
+        type: String,
         required: true,
     },
     addOns: [
         {
-            type: String, 
-        }
+            type: String,
+        },
     ],
     bookingDetails: {
         recipientName: { type: String, required: true },
@@ -21,7 +21,7 @@ const PaymentDetailsSchema = new mongoose.Schema({
         city: { type: String, required: true },
         state: { type: String, required: true },
         zipCode: { type: String, required: true },
-        additionalAddress: {
+        additionalAddresses: {
             recipientName: { type: String },
             serviceAddress: { type: String },
             city: { type: String },
@@ -29,10 +29,21 @@ const PaymentDetailsSchema = new mongoose.Schema({
             zipCode: { type: String },
         },
         preferredServiceDate: { type: Date, required: true },
-        preferredTime: { type: String }, 
+        preferredTime: {
+            type: String,
+            required: false,
+            set: function (value) {
+                // Convert and validate time to 12-hour AM/PM format
+                const match = /^([0]?[1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/i.test(value);
+                if (!match) {
+                    throw new Error('Invalid time format. Use "HH:MM AM/PM" format.');
+                }
+                return value.toUpperCase(); 
+            },
+        },
     },
     totalPrice: {
-        type: Number, 
+        type: Number,
         required: true,
     },
     paymentMethod: {
@@ -54,8 +65,13 @@ const PaymentDetailsSchema = new mongoose.Schema({
     PayedAt: {
         type: Date,
         default: null,
-    },    
-    stripeSessionId: { type: String }, 
+    },
+    paidInvoice: {
+        data: Buffer,
+        contentType: String,
+    },
+    paypalOrderId: {type: String},
+    stripeSessionId: { type: String },
 }, { timestamps: true });
 
 const PaymentDetails = mongoose.model('PaymentDetails', PaymentDetailsSchema);

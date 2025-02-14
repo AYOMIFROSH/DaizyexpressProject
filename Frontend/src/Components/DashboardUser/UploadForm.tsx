@@ -39,7 +39,6 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
         setActivePayment(data.payments);
       } else {
         setActivePayment([]);
-        onUploadComplete(); // Trigger the callback after upload
       }
     });
 
