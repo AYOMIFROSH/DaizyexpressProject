@@ -59,9 +59,9 @@ const Navbar = () => {
         <LiaTimesSolid onClick={() => setNav(false)} className="absolute top-8 right-8 size-7" />
         <div className="flex flex-col pt-20 items-center gap-y-5">
           {menuLinks.map((item, index) => (
-            <p key={index} className="font-medium hover:text-yellow-300 duration-500 cursor-pointer">
+            <Link to={item.paths} key={index} className="font-medium hover:text-yellow-300 duration-500 cursor-pointer">
               {item.link}
-            </p>
+            </Link>
           ))}
         </div>
         <div className="flex flex-col pt-8 items-center gap-y-3">

@@ -22,9 +22,9 @@ import ManageUsers from "./Pages/AuthorizedPages/ManageUserss.tsx";
 import UserDetails from "./Pages/AuthorizedPages/UserDetails.tsx";
 import VerificationPage from "./Pages/AuthorizedPages/VerificationPage.tsx";
 import CheckEmailPage from "./Pages/PasswordReset.tsx";
-import ContactUs from "./Components/LandingPage/Pages/ContactUs.tsx";
 import AboutUs from "./Components/LandingPage/pages/AboutUS.tsx";
 import Pricing from "./Components/LandingPage/pages/Pricing.tsx";
+import ContactUs from "./Components/LandingPage/pages/ContactUs.tsx";
 
 function AppRouter() {
   const { isAuthenticated, userRole, isVerified } = useAuth();
