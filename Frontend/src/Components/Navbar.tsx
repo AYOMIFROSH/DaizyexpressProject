@@ -19,7 +19,7 @@ const Navbar = () => {
   });
 
   // Move MenuLink inside the component
-  const menuLinks = [
+  const menuLinks: { paths: string; link: string }[] = [
     { paths: "/pricing", link: "Pricing" },
     { paths: "/", link: "Products" },
     { paths: "/about-us", link: "About Us" },
