@@ -193,7 +193,7 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
             // Critical validation checks
             if (session.payment_status !== 'paid') {
                 console.log('⚠️ Payment not completed, skipping processing');
-                return res.status(200).send(); // Still acknowledge receipt
+                return res.status(200).send(); 
             }
 
             const paymentId = session.metadata.paymentId;
