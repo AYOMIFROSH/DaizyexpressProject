@@ -62,7 +62,7 @@ const Footer = () => {
 					</div>
 				</div>
 			</div>
-			<p className="text-center mt-10">© {new Date().getFullYear()} Appmosphere LLC. All rights reserved.</p>
+			<p className="text-center mt-10">© {new Date().getFullYear()} Deizy Express LLC. All rights reserved.</p>
 		</div>
 	);
 };
