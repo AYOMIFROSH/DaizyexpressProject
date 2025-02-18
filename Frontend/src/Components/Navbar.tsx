@@ -21,7 +21,6 @@ const Navbar = () => {
   // Move MenuLink inside the component
   const menuLinks: { paths: string; link: string }[] = [
     { paths: "/pricing", link: "Pricing" },
-    { paths: "/", link: "Products" },
     { paths: "/about-us", link: "About Us" },
     { paths: "/contact", link: "Contact Us" },
   ];
@@ -71,7 +70,7 @@ const Navbar = () => {
           <button onClick={() => navigate("/register")} className="px-5 py-2.5 w-full rounded-[5px] bg-yellow-300 font-semibold">
             Get started
           </button>
-          <p>© Copyright 2024  Deizy Express Inc.</p>
+          <p>© Copyright {new Date().getFullYear()}  Deizy Express Inc.</p>
         </div>
       </div>
     </div>
