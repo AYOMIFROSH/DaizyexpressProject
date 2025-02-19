@@ -27,7 +27,7 @@ const Footer = () => {
 					<div>
 						<h2 className="font-semibold">Legal</h2>
 						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-gray-600">Privacy Policy</p>
+							<Link to={'/privacy-policy'} className="cursor-pointer hover:text-gray-600">Privacy Policy</Link>
 							<p className="cursor-pointer hover:text-gray-600">Terms of Service</p>
 							<p className="cursor-pointer hover:text-gray-600">Cookie Policy</p>
 						</div>
