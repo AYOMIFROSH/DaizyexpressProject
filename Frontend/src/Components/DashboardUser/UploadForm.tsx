@@ -1,23 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../Context/useContext";
-import { Spin, Select } from "antd";
-import { io } from "socket.io-client";
-
-const { Option } = Select;
+import { Spin } from "antd";
 
 interface UploadFormProps {
+  paymentId: string | null;
   onUploadComplete: () => void;
 }
 
-const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
+const UploadForm: React.FC<UploadFormProps> = ({ paymentId, onUploadComplete }) => {
   const [name, setName] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
-  const [activePayment, setActivePayment] = useState<any[]>([]);
   const [selectedPaymentId, setSelectedPaymentId] = useState<string>("");
   const { token } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectLoading, setSelectLoading] = useState<boolean>(false);
 
   const Base_Url =
     window.location.hostname === "localhost"
@@ -26,56 +22,12 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const WEB_SOCKET_OI_LIVE_URL = "https://websocket-oideizy.onrender.com";
-
-  // Socket connection for real-time updates
+  // If a paymentId is passed from the parent, use it.
   useEffect(() => {
-    fetchActivePlans();
-    const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ["websocket"] });
-
-    // Listen for the 'activePlansUpdated' event to update the payment plans
-    socket.on("activePlansUpdated", (data) => {
-      if (data.activePlan) {
-        setActivePayment(data.payments);
-      } else {
-        setActivePayment([]);
-      }
-    });
-
-    // Cleanup the socket connection on component unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, [WEB_SOCKET_OI_LIVE_URL]);
-
-  const fetchActivePlans = async () => {
-    setSelectLoading(true);
-    try {
-      const response = await fetch(`${Base_Url}/api/payment/active-plans`, {
-        headers: { Authorization: `Bearer ${token || ""}` },
-      });
-
-      const data = await response.json();
-      if (response.ok && Array.isArray(data.payments)) {
-        setActivePayment(data.payments);
-      } else {
-        setActivePayment([]); // Handle empty response or incorrect structure
-        toast.warn("No active plans found.");
-      }
-    } catch (error) {
-      console.error("Error fetching active payments:", error);
-      toast.error("Failed to fetch active plans.");
-      setActivePayment([]); // Ensure activePayment is empty on error
-    } finally {
-      setSelectLoading(false);
+    if (paymentId) {
+      setSelectedPaymentId(paymentId);
     }
-  };
-
-  useEffect(() => {
-    if (token) {
-      fetchActivePlans();
-    }
-  }, [token]);
+  }, [paymentId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -87,7 +39,7 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
     e.preventDefault();
 
     if (!name || !file || !selectedPaymentId) {
-      toast.error("Please provide a name, upload a file, and select a payment.");
+      toast.error("Please provide a name, upload a file, and ensure a valid payment is selected.");
       return;
     }
 
@@ -108,8 +60,8 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
       const result = await response.json();
       if (response.ok) {
         toast.success(result.message || "File uploaded successfully.");
-        fetchActivePlans(); // Re-fetch active plans after upload
-        onUploadComplete(); // Trigger the callback after upload
+        // Call onUploadComplete to trigger the parent to recheck active payments and redirect.
+        onUploadComplete();
       } else {
         toast.error(result.message || "Failed to upload file.");
       }
@@ -120,10 +72,9 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
       setLoading(false);
     }
 
-    // Clear input fields after submission
+    // Clear form inputs after submission
     setName("");
     setFile(null);
-    setSelectedPaymentId("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -162,39 +113,13 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
           />
         </div>
 
-        <div className="mb-10">
-          <label htmlFor="payment" className="block text-sm font-medium text-gray-700">Select Active Plan</label>
-          <Select
-            id="payment"
-            placeholder={selectLoading ? "Loading..." : "Select Active Plan"}
-            className="w-full"
-            value={selectedPaymentId || undefined}
-            onChange={(value) => setSelectedPaymentId(value)}
-            disabled={selectLoading}
-          >
-            {selectLoading ? (
-              <Option disabled>
-                <Spin size="small" />
-              </Option>
-            ) : (
-              activePayment?.map((payment) => (
-                <Option key={payment._id} value={payment._id}>
-                  {payment.serviceType} - ${payment.totalPrice}
-                </Option>
-              ))
-            )}
-            {!selectLoading && activePayment.length === 0 && (
-              <Option disabled>No active plans available</Option>
-            )}
-          </Select>
-        </div>
-
         <button
           type="submit"
-          className={`w-full py-2 px-4 rounded-md ${loading || !name || !file || !selectedPaymentId
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-yellow-400 hover:bg-yellow-500 text-white"
-            }`}
+          className={`w-full py-2 px-4 rounded-md ${
+            loading || !name || !file || !selectedPaymentId
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-yellow-400 hover:bg-yellow-500 text-white"
+          }`}
           disabled={loading || !name || !file || !selectedPaymentId}
         >
           {loading ? <Spin size="small" /> : "Upload"}
@@ -205,3 +130,4 @@ const UploadForm: React.FC<UploadFormProps> = ({ onUploadComplete }) => {
 };
 
 export default UploadForm;
+

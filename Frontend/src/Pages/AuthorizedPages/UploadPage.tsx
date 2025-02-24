@@ -11,9 +11,7 @@ import io from "socket.io-client";
 
 const UploadPage = () => {
   const { token } = useAuth();
-  const [currentView, setCurrentView] = useState<
-    "services" | "booking" | "upload"
-  >("services");
+  const [currentView, setCurrentView] = useState<"services" | "booking" | "upload">("services");
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
@@ -25,51 +23,49 @@ const UploadPage = () => {
       : "https://daizyexserver.vercel.app";
 
   const WEB_SOCKET_OI_LIVE_URL = "https://websocket-oideizy.onrender.com";
+  const [paymentId, setPaymentId] = useState<string | null>(null);
 
-  // Socket connection setup
-  useEffect(() => {
-    fetchActivePayment();
-    const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ["websocket"] });
-
-    socket.on("activePaymentsUpdated", (data) => {
-      setCurrentView(data.activePlan ? "upload" : "services");
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []); // Removed dependency
-
-  const fetchActivePayment = async () => {
-    setLoading(true);
+  // When upload completes, check if there are any active (pending) payments.
+  // If not, redirect immediately back to the services page.
+  const handleUploadComplete = async () => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/payment/active-payments`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-          credentials: "include",
-        }
-      );
-
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/payment/active-payments`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
-        const { activePlan } = await response.json();
-        setCurrentView(activePlan ? "upload" : "services");
+        const { hasPending } = await response.json();
+        // Redirect to services if there is no pending payment.
+        if (!hasPending) {
+          setCurrentView("services");
+        }
       } else {
-        console.error("Failed to fetch payment data.");
-        setCurrentView("services");
+        console.error("Failed to fetch active payments:", response.statusText);
       }
     } catch (error) {
-      console.error("Error fetching payment data:", error);
-      setCurrentView("services");
+      console.error("Error fetching active payments:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUploadComplete = async () => {
-    await fetchActivePayment(); // Re-fetch payment data and navigate accordingly
-  };
+  useEffect(() => {
+    // Initial check on load
+    handleUploadComplete();
+    const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ["websocket"] });
+    socket.on("activePaymentsUpdated", (data: { hasPending: boolean }) => {
+      // When no pending payments remain, redirect to services.
+      if (!data.hasPending) {
+        setCurrentView("services");
+      }
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [WEB_SOCKET_OI_LIVE_URL, token]);
 
   const handleProceedToBooking = (
     service: string | null,
@@ -86,7 +82,8 @@ const UploadPage = () => {
     setCurrentView("services");
   };
 
-  const handleProceedToUpload = () => {
+  const handleProceedToUpload = (paymentId: string) => {
+    setPaymentId(paymentId);
     setCurrentView("upload");
   };
 
@@ -126,7 +123,7 @@ const UploadPage = () => {
                 />
               )}
               {currentView === "upload" && (
-                <UploadForm onUploadComplete={handleUploadComplete} />
+                <UploadForm paymentId={paymentId} onUploadComplete={handleUploadComplete} />
               )}
             </motion.div>
           )}

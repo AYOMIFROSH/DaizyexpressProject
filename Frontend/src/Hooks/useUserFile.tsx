@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../Context/useContext";
+import axios from "axios";
 
 export interface File {
   key: string;
   name: string;
   date: string;
   status: string;
-  attempts: string,
-  hasBeenReplaced: boolean,
+  attempts: string;
+  hasBeenReplaced: boolean;
   fileId: string;
+  paymentId: string;
+  activePlan: boolean;
+  paymentMethod: string;
 }
 
 const API_BASE_URL =
@@ -21,7 +25,9 @@ export const useFiles = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingDownload, setLoadingDownload] = useState<string | null>(null);
-  const {token } = useAuth();
+  // We'll track the fileId for which payment is processing.
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState<string | null>(null);
+  const { token } = useAuth();
 
   const fetchFiles = async () => {
     try {
@@ -43,6 +49,9 @@ export const useFiles = () => {
           attempts: file.attempts,
           hasBeenReplaced: file.hasBeenReplaced,
           fileId: file._id,
+          paymentId: file.paymentId, // either an object or a string
+          paymentMethod: file.paymentId?.paymentMethod, // if populated
+          activePlan: file.paymentId?.activePlan || false,
         }));
         setFiles(formattedFiles);
       } else {
@@ -92,5 +101,34 @@ export const useFiles = () => {
     }
   };
 
-  return { files, loading, loadingDownload, fetchFiles, downloadFile };
+  const initiatePayment = async (file: File) => {
+    try {
+      // Set the payment processing state using the file's fileId.
+      setIsPaymentProcessing(file.fileId);
+      if (file.paymentMethod === "creditCard") {
+        const { data } = await axios.post(
+          `${API_BASE_URL}/api/payment/initiate-card-payment`,
+          { paymentId: file.paymentId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        // Optionally, change button text to "Redirecting..." before redirection.
+        window.location.href = data.url;
+      } else if (file.paymentMethod === "paypal") {
+        const { data } = await axios.post(
+          `${API_BASE_URL}/api/paypal/initiate-paypal-payment`,
+          { paymentId: file.paymentId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        window.location.href = data.url;
+      }
+    } catch (error: any) {
+      console.error("Payment initiation failed:", error);
+      toast.error(error.response?.data?.message || "Payment initiation failed.");
+    } finally {
+      // Note: In most cases, the redirect will occur before this is reached.
+      setIsPaymentProcessing(null);
+    }
+  };
+
+  return { files, loading, loadingDownload, fetchFiles, downloadFile, initiatePayment, isPaymentProcessing };
 };

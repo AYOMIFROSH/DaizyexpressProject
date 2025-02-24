@@ -14,7 +14,7 @@ export const useForgotPassword = () => {
     try {
       setLoading(true);
       // const response = await fetch(`http://localhost:3000/api/auth/forgotpassword`, {
-      const response = await fetch(`https://daizyexserver.vercel.app/api/auth/forgotpassword`, {
+      const response = await fetch(`https://deizyexpress.com/api/auth/forgotpassword`, {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },

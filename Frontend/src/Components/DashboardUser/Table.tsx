@@ -8,7 +8,7 @@ interface FileListProps {
 }
 
 const FileList: React.FC<FileListProps> = ({ isHome }) => {
-  const { files, loading, loadingDownload, downloadFile } = useFiles();
+  const { files, loading, loadingDownload, downloadFile, initiatePayment, isPaymentProcessing } = useFiles();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<FileType | null>(null);
 
@@ -40,7 +40,9 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
+    <div className="flex flex-col items-center p-4">
+      {/* Global Loader at the top if any payment is processing */}
+      
       <div className="w-full max-w-5xl">
         <h4 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center p-4 border-b">
           Document Table {isHome ? "Overview" : ""}
@@ -53,6 +55,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                 <th className="px-4 py-3 text-left">Date and Time</th>
                 <th className="px-4 py-3 text-left">Status</th>
                 <th className="px-4 py-3 text-left">Action</th>
+                <th className="px-4 py-3 text-left">Pay Now</th>
                 <th className="px-4 py-3 text-left">Track File</th>
               </tr>
             </thead>
@@ -80,7 +83,7 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
               ) : files.length === 0 ? (
                 // Show Empty state when no files are available
                 <tr>
-                  <td colSpan={5} className="text-center py-6">
+                  <td colSpan={6} className="text-center py-6">
                     <Empty description="No Documents Found" />
                   </td>
                 </tr>
@@ -93,28 +96,30 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                     <td className="px-4 py-3 text-gray-600">{file.date}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-semibold ${file.status === "processed"
+                        className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                          file.status === "processed"
                             ? "bg-green-100 text-green-800"
                             : file.status === "in process"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
                       >
                         {file.status}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <button
-                        className={`flex items-center ${file.status !== "processed" ||
-                            !file.hasBeenReplaced ||
-                            loadingDownload === file.fileId
+                        className={`flex items-center ${
+                          file.status !== "processed" || 
+                          !file.hasBeenReplaced || !file.activePlan ||
+                          loadingDownload === file.fileId
                             ? "text-gray-400 cursor-not-allowed"
                             : "text-blue-600 hover:text-blue-800"
-                          }`}
+                        }`}
                         onClick={() => downloadFile(file.fileId, file.name)}
                         disabled={
                           file.status !== "processed" ||
-                          !file.hasBeenReplaced ||
+                          !file.hasBeenReplaced || 
                           loadingDownload === file.fileId
                         }
                       >
@@ -135,6 +140,20 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                       </button>
                     </td>
                     <td className="px-4 py-3">
+                      <Button
+                        type="primary"
+                        disabled={file.status !== "processed" || file.activePlan}
+                        loading={isPaymentProcessing === file.fileId}
+                        onClick={() => initiatePayment(file)}
+                      >
+                        {file.activePlan
+                          ? "Payed"
+                          : isPaymentProcessing === file.fileId
+                          ? "Redirecting..."
+                          : "Make Payment"}
+                      </Button>
+                    </td>
+                    <td className="px-4 py-3">
                       <Button type="dashed" onClick={() => openModal(file)}>
                         View
                       </Button>
@@ -143,7 +162,6 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
                 ))
               )}
             </tbody>
-
           </table>
         </div>
       </div>
@@ -184,3 +202,4 @@ const FileList: React.FC<FileListProps> = ({ isHome }) => {
 };
 
 export default FileList;
+
