@@ -23,6 +23,10 @@ const fileSchema = new mongoose.Schema({
         enum: ['not processed', 'in process', 'processed'],
         default: 'not processed',
     },
+    inProgress: {
+        type: Boolean,
+        default: false,
+    },
     statusInProgressTime: {
         type: Date
     },

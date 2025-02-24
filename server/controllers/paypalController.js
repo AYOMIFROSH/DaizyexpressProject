@@ -25,91 +25,21 @@ const FRONT_URL =
     ? process.env.FRONT_URL_PRODUCTION || 'https://deizyexpress.com'
     : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173';
 
-// Create Payment Route for PayPal
-router.post('/paypal-payment', authenticate, async (req, res) => {
-  console.log('PayPal payment endpoint hit');
-  console.log('Request Body:', req.body);
 
-  // Destructure expected fields from request body
-  const {
-    selectedService,
-    selectedAddOns,
-    recipientName,
-    serviceAddress,
-    city,
-    state,
-    zipCode,
-    recipientName_additional,
-    serviceAddress_additional,
-    city_additional,
-    state_additional,
-    zipCode_additional,
-    serviceDate,
-    preferredTime,
-    paymentMethod,
-    terms: termsAgreed,
-    signature,
-    totalPrice,
-  } = req.body;
-
-  // Validate required fields
-  if (
-    !selectedService ||
-    !selectedAddOns ||
-    !recipientName ||
-    !serviceAddress ||
-    !city ||
-    !state ||
-    !zipCode ||
-    !serviceDate ||
-    !paymentMethod ||
-    !termsAgreed ||
-    !signature ||
-    totalPrice === undefined
-  ) {
-    return res.status(400).json({ message: 'Payment Details not valid' });
-  }
+router.post('/initiate-paypal-payment', authenticate, async (req, res) => {
+  const { paymentId } = req.body;
+  if (!paymentId) return res.status(400).json({ message: 'Payment ID is required' });
 
   const userId = req.user._id;
-
   try {
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+    }
 
-    // Transform additional address data
-    const transformedAdditionalAddress = {
-      recipientName: recipientName_additional || '',
-      serviceAddress: serviceAddress_additional || '',
-      city: city_additional || '',
-      state: state_additional || '',
-      zipCode: zipCode_additional || '',
-    };
-
-    // Create a new PaymentDetails record
-    const paymentDetails = new PaymentDetails({
-      userId,
-      serviceType: selectedService,
-      addOns: selectedAddOns,
-      bookingDetails: {
-        recipientName,
-        serviceAddress,
-        city,
-        state,
-        zipCode,
-        additionalAddresses: transformedAdditionalAddress,
-        preferredServiceDate: new Date(serviceDate),
-        preferredTime,
-      },
-      totalPrice,
-      paymentMethod,
-      termsAgreed,
-      signature,
-      activePlan: false,
-    });
-
-    const savedPayment = await paymentDetails.save();
-
-    // Build PayPal order creation request
+    const paymentDetails = await PaymentDetails.findById(paymentId);
+    if (!paymentDetails) return res.status(404).json({ message: 'Payment details not found' });
+    
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer('return=representation');
     request.requestBody({
@@ -117,43 +47,37 @@ router.post('/paypal-payment', authenticate, async (req, res) => {
       purchase_units: [
         {
           amount: {
-            // Ensure totalPrice is a string with 2 decimal places
             currency_code: 'USD',
-            value: parseFloat(totalPrice).toFixed(2),
+            value: parseFloat(paymentDetails.totalPrice).toFixed(2),
           },
-          description: `Service: ${selectedService} | Add-ons: ${selectedAddOns.join(', ')}`,
-          custom_id: savedPayment._id ? savedPayment._id.toString() : undefined, // Ensure this is set
-          reference_id: savedPayment._id.toString(), // Backup reference        
+          description: `Service: ${paymentDetails.serviceType} | Add-ons: ${paymentDetails.addOns.join(', ')}`,
+          custom_id: paymentDetails._id.toString(),
+          reference_id: paymentDetails._id.toString(),
         },
       ],
       application_context: {
-        brand_name: 'Diezyexpress', // adjust as needed
+        brand_name: 'Deizyexpress',
         landing_page: 'BILLING',
         user_action: 'PAY_NOW',
-        return_url: `${BASE_URL}/api/paypal/paypal-success`, // Redirect here after payment approval
-        cancel_url: `${FRONT_URL}/upload?cancelled=true`,
+        return_url: `${BASE_URL}/api/paypal/paypal-success`,
+        cancel_url: `${FRONT_URL}/payment-cancel`,
       },
     });
 
-    // Execute the PayPal order creation
     const order = await client.execute(request);
+    paymentDetails.paypalOrderId = order.result.id;
+    await paymentDetails.save();
 
-    // Save the PayPal order ID to your payment record
-    savedPayment.paypalOrderId = order.result.id;
-    await savedPayment.save();
-
-    // Extract the approval URL from the response links
-    const approvalLink = order.result.links.find((link) => link.rel === 'approve');
-    if (!approvalLink) {
-      return res.status(500).json({ error: 'Approval link not found in PayPal order' });
-    }
+    const approvalLink = order.result.links.find(link => link.rel === 'approve');
+    if (!approvalLink) return res.status(500).json({ message: 'Approval link not found' });
 
     res.status(200).json({ url: approvalLink.href });
   } catch (error) {
-    console.error('Error creating PayPal order:', error);
-    res.status(500).json({ error: 'Failed to create PayPal order' });
+    console.error('Error initiating PayPal payment:', error);
+    res.status(500).json({ message: 'Failed to initiate PayPal payment', error: error.message });
   }
 });
+
 
 // ------------------------------------------------------------------
 // New Endpoint: Capture the PayPal order and update payment record
@@ -194,7 +118,7 @@ router.get('/paypal-success', async (req, res) => {
             return res.status(400).send("Missing purchase_units in PayPal response");
         }
 
-        console.log(`🆔 purchaseUnit:`, JSON.stringify(purchaseUnit, null, 2));
+        // console.log(`🆔 purchaseUnit:`, JSON.stringify(purchaseUnit, null, 2));
 
         let paymentId = purchaseUnit.custom_id || purchaseUnit.reference_id; // Fallback to reference_id
         if (!paymentId) {
@@ -220,7 +144,7 @@ router.get('/paypal-success', async (req, res) => {
         console.log(`✅ Payment record updated successfully: ${paymentId}`);
 
         // Redirect the user to the front-end with a success flag.
-        res.redirect(`${FRONT_URL}/upload?paymentSuccess=true`);
+        res.redirect(`${FRONT_URL}/document?paymentSuccess=true`);
     } catch (error) {
         console.error("❌ Error capturing PayPal order:", error);
         res.status(500).send("Internal server error during payment capture");

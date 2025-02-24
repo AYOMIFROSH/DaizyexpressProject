@@ -2,6 +2,23 @@ const zlib = require('zlib');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
 const PaymentDetails = require('../models/PaymentDetailsModel');
+const { generateInProgressEmail } = require('../utils/emailTemplate');
+const nodemailer = require('nodemailer');
+
+require('dotenv').config();
+
+const Auth_email = process.env.AUTH_EMAIL || 'deizyexpress@gmail.com';
+const Auth_Password = process.env.AUTH_PASSWORD || 'usykstcamwpujyvp';
+
+// NODEMAILER TRANSPORTER
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: Auth_email,
+        pass: Auth_Password,
+    },
+});
+
 
 exports.uploadFile = async (req, res) => {
     const userId = req.user._id;
@@ -12,11 +29,12 @@ exports.uploadFile = async (req, res) => {
     }
 
     try {
-        const paymentDetails = await PaymentDetails.findOne({ _id: paymentId, userId, activePlan: true });
+        const payment = await PaymentDetails.findOne({
+            _id: paymentId,
+            isPending: true
+        });
 
-        if (!paymentDetails) {
-            return res.status(400).json({ message: 'Invalid or inactive payment plan.' });
-        }
+        if (!payment) return res.status(400).json({ message: 'Invalid payment' });
 
         // Check file size limit (e.g., 5MB)
         if (req.file.size > 5 * 1024 * 1024) {
@@ -30,16 +48,16 @@ exports.uploadFile = async (req, res) => {
         const file = new File({
             user: userId,
             fileName: name,
-            fileData: compressedData, 
+            fileData: compressedData,
             uploadedAt: new Date(),
             status: 'not processed',
-            paymentId: paymentId, 
+            paymentId: paymentId,
         });
 
         // Save the file
         await file.save();
 
-        await PaymentDetails.findByIdAndUpdate(paymentId, { activePlan: false });
+        await PaymentDetails.findByIdAndUpdate(paymentId, { isPending: false });
 
         // Increment fileUploadCount in the User model
         await User.findByIdAndUpdate(
@@ -56,7 +74,7 @@ exports.uploadFile = async (req, res) => {
                 fileName: file.fileName,
                 uploadedAt: file.uploadedAt,
                 status: file.status,
-                paymentId: file.paymentId, 
+                paymentId: file.paymentId,
             },
         });
     } catch (error) {
@@ -67,11 +85,11 @@ exports.uploadFile = async (req, res) => {
 
 exports.getUserFiles = async (req, res) => {
     const userId = req.user._id;
-
     try {
-        // Find all files associated with the user
-        const files = await File.find({ user: userId }).select('-fileData'); // Exclude binary data unless needed
-
+        // Populate the paymentId field so that it returns the full PaymentDetails document.
+        const files = await File.find({ user: userId })
+            .select('-fileData')
+            .populate('paymentId');
         return res.status(200).json({
             status: 'success',
             files,
@@ -81,6 +99,7 @@ exports.getUserFiles = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error.' });
     }
 };
+
 
 exports.getFileUploadCount = async (req, res) => {
     const userId = req.user._id;
@@ -111,27 +130,27 @@ exports.getFileUploadCount = async (req, res) => {
 
 exports.downloadFileForUser = async (req, res) => {
     const { fileId } = req.params;
-  
+
     try {
-      // Find the file by its ID and ensure it has been processed
-      const file = await File.findById(fileId);
-  
-      if (!file || file.status !== "processed") {
-        return res.status(404).json({ message: "File not found or not processed." });
-      }
-  
-      // Decompress the file data before sending it
-      const decompressedData = zlib.gunzipSync(file.fileData);
-  
-      // Set the appropriate headers for downloading the file
-      res.setHeader("Content-Disposition", `attachment; filename=${file.fileName}`);
-      res.setHeader("Content-Type", "application/octet-stream");
-      res.send(decompressedData);
+        // Find the file by its ID and ensure it has been processed
+        const file = await File.findById(fileId);
+
+        if (!file || file.status !== "processed") {
+            return res.status(404).json({ message: "File not found or not processed." });
+        }
+
+        // Decompress the file data before sending it
+        const decompressedData = zlib.gunzipSync(file.fileData);
+
+        // Set the appropriate headers for downloading the file
+        res.setHeader("Content-Disposition", `attachment; filename=${file.fileName}`);
+        res.setHeader("Content-Type", "application/octet-stream");
+        res.send(decompressedData);
     } catch (error) {
-      console.error("Error downloading file:", error);
-      res.status(500).json({ message: "Failed to download file." });
+        console.error("Error downloading file:", error);
+        res.status(500).json({ message: "Failed to download file." });
     }
-  };
+};
 
 // Controller to fetch platform usage metrics
 exports.getPlatformUsageMetrics = async (req, res) => {
@@ -178,7 +197,7 @@ exports.getAllUsers = async (req, res) => {
     try {
         // Fetch all users and select the required fields
         const users = await User.find()
-            .select('userName email role fileUploadCount'); 
+            .select('userName email role fileUploadCount');
 
         return res.status(200).json({
             status: 'success',
@@ -285,10 +304,10 @@ exports.getUsersWithDocuments = async (req, res) => {
             {
                 // Lookup to join User model with File model based on the user field
                 $lookup: {
-                    from: 'users',  
+                    from: 'users',
                     localField: 'user',
                     foreignField: '_id',
-                    as: 'userDetails', 
+                    as: 'userDetails',
                 },
             },
             {
@@ -298,8 +317,8 @@ exports.getUsersWithDocuments = async (req, res) => {
             {
                 // Group by user ID, gathering all their files and related data
                 $group: {
-                    _id: '$user',  
-                    userName: { $first: '$userDetails.userName' }, 
+                    _id: '$user',
+                    userName: { $first: '$userDetails.userName' },
                     files: {
                         $push: {  // Collect files for each user
                             fileName: '$fileName',
@@ -312,7 +331,7 @@ exports.getUsersWithDocuments = async (req, res) => {
             {
                 // Optionally, filter out users who have no files (if needed)
                 $match: {
-                    'files.0': { $exists: true },  
+                    'files.0': { $exists: true },
                 },
             },
         ]);
@@ -333,103 +352,141 @@ exports.getUsersWithDocuments = async (req, res) => {
 exports.updateFileStatus = async (req, res) => {
     const { fileId } = req.params;
     const { status } = req.body;
-  
-    if (!['not processed', 'in process', 'processed'].includes(status)) {
-      return res.status(400).json({ status: 'error', message: 'Invalid status.' });
-    }
-  
-    try {
-      const update = { status };
-      const now = new Date();
-  
-      // Handle "in process" status
-      if (status === 'in process') {
-        update.statusInProgressTime = now;
-        
-        if (now.getDay() === 6) { // Saturday
-          update.timeFrame = 'saturday';
-        } else {
-          const hour = now.getHours();
-          if (hour >= 7 && hour < 11) update.timeFrame = 'morning';
-          else if (hour >= 18 && hour < 22) update.timeFrame = 'evening';
-          else if (hour >= 0 && hour < 7) update.timeFrame = 'new day';
-        }
-      }
-  
-      // Handle "processed" status 
-      if (status === 'processed') {
-        update.statusProcessedTime = now;
-        
-        if (now.getDay() === 6) { // Saturday
-          update.processedTimeFrame = 'saturday';
-        } else {
-          const hour = now.getHours();
-          if (hour >= 7 && hour < 11) update.processedTimeFrame = 'morning';
-          else if (hour >= 18 && hour < 22) update.processedTimeFrame = 'evening';
-          else if (hour >= 0 && hour < 7) update.processedTimeFrame = 'new day';
-        }
-      }
-  
-      const file = await File.findByIdAndUpdate(
-        fileId,
-        update,
-        { new: true }
-      );
-  
-      if (!file) {
-        return res.status(404).json({ status: 'error', message: 'File not found.' });
-      }
-  
-      return res.status(200).json({ status: 'success', message: 'File status updated.', file });
-    } catch (error) {
-      console.error('Error updating file status:', error);
-      return res.status(500).json({ status: 'error', message: 'Internal server error.' });
-    }
-  };
 
-  exports.updateFileAttempt = async (req, res) => {
+    if (!['not processed', 'in process', 'processed'].includes(status)) {
+        return res.status(400).json({ status: 'error', message: 'Invalid status.' });
+    }
+
+    try {
+        const file = await File.findById(fileId);
+        if (!file) {
+            return res.status(404).json({ status: 'error', message: 'File not found.' });
+        }
+
+        const now = new Date();
+        let sendEmail = false;
+
+        // Check if status is changing to 'in process' and inProgress is false
+        if (status === 'in process' && file.inProgress === false) {
+            sendEmail = true;
+        }
+
+        // Update file properties based on status
+        file.status = status;
+
+        if (status === 'in process') {
+            file.statusInProgressTime = now;
+
+            if (now.getDay() === 6) { // Saturday
+                file.timeFrame = 'saturday';
+            } else {
+                const hour = now.getHours();
+                if (hour >= 7 && hour < 11) file.timeFrame = 'morning';
+                else if (hour >= 18 && hour < 22) file.timeFrame = 'evening';
+                else if (hour >= 0 && hour < 7) file.timeFrame = 'new day';
+            }
+        } else if (status === 'processed') {
+            file.statusProcessedTime = now;
+
+            if (now.getDay() === 6) { // Saturday
+                file.processedTimeFrame = 'saturday';
+            } else {
+                const hour = now.getHours();
+                if (hour >= 7 && hour < 11) file.processedTimeFrame = 'morning';
+                else if (hour >= 18 && hour < 22) file.processedTimeFrame = 'evening';
+                else if (hour >= 0 && hour < 7) file.processedTimeFrame = 'new day';
+            }
+        }
+
+        // Save the initial updates (without inProgress to prevent premature flagging)
+        await file.save();
+
+
+        // Send email and update inProgress if needed
+        if (sendEmail) {
+            try {
+
+                const user = await User.findById(file.user);
+                const AdminId = req.user._id
+
+                if (user) {
+                    const Admin = await User.findById(AdminId);
+                    if (!Admin) {
+                        return res.status(404).json({ error: 'User not found' });
+                    }
+                    const adminName = Admin.firstName && Admin.lastName || 'Deizy Express Team'; // Admin from request
+                    const mailOptions = {
+                        from: `Deizy Express <${Auth_email}>`, // Add formal sender name
+                        to: user.email,
+                        subject: `Document Update: ${file.fileName} in Process`, // More specific subject
+                        html: generateInProgressEmail(adminName, user.firstName, file.fileName),
+                        text: `Hi ${user.firstName}, we're working on your document "${file.fileName}". Track status in your account.`, // Add text version
+                        headers: {
+                            'Message-ID': `<${file._id}-${Date.now()}@deizyexpress.com>` // Unique ID
+                        }
+                    };
+                    await transporter.sendMail(mailOptions);
+
+                    // Mark email as sent
+                    file.inProgress = true;
+                    await file.save();
+                }
+            } catch (emailError) {
+                console.error('Failed to send email:', emailError);
+            }
+        }
+
+        return res.status(200).json({ status: 'success', message: 'File status updated.', file });
+    } catch (error) {
+        console.error('Error updating file status:', error);
+        return res.status(500).json({ status: 'error', message: 'Internal server error.' });
+    }
+};
+
+
+exports.updateFileAttempt = async (req, res) => {
     const { fileId } = req.params;
     const { attempts } = req.body;
-  
+
     // Allowed attempt values as defined in your File model.
     const allowedAttempts = ['not attempted', 'attempted 1', 'attempted 2', 'attempted 3'];
-  
+
     if (!allowedAttempts.includes(attempts)) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Invalid attempt value.',
-      });
-    }
-  
-    try {
-      const file = await File.findByIdAndUpdate(
-        fileId,
-        { attempts },
-        { new: true }
-      );
-  
-      if (!file) {
-        return res.status(404).json({
-          status: 'error',
-          message: 'File not found.',
+        return res.status(400).json({
+            status: 'error',
+            message: 'Invalid attempt value.',
         });
-      }
-  
-      return res.status(200).json({
-        status: 'success',
-        message: 'File attempt updated.',
-        file,
-      });
-    } catch (error) {
-      console.error('Error updating file attempt:', error);
-      return res.status(500).json({
-        status: 'error',
-        message: 'Internal server error.',
-      });
     }
-  };
-  
-  exports.replaceFileData = async (req, res) => {
+
+    try {
+        const file = await File.findByIdAndUpdate(
+            fileId,
+            { attempts },
+            { new: true }
+        );
+
+        if (!file) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'File not found.',
+            });
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            message: 'File attempt updated.',
+            file,
+        });
+    } catch (error) {
+        console.error('Error updating file attempt:', error);
+        return res.status(500).json({
+            status: 'error',
+            message: 'Internal server error.',
+        });
+    }
+};
+
+exports.replaceFileData = async (req, res) => {
     const { fileId } = req.params;
 
     if (!req.file) {

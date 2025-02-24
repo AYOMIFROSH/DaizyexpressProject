@@ -30,6 +30,7 @@ const PaymentDetailsSchema = new mongoose.Schema({
         },
         preferredServiceDate: { type: Date, required: true },
         preferredTime: {
+            
             type: String,
             required: false,
             set: function (value) {
@@ -57,6 +58,10 @@ const PaymentDetailsSchema = new mongoose.Schema({
     signature: {
         type: String,
         required: true,
+    },
+    isPending: {
+        type: Boolean,
+        default: false,
     },
     activePlan: {
         type: Boolean,
