@@ -6,9 +6,9 @@ const AboutUs = () => {
     <>
       <NavBar />
       <div className="flex flex-col items-center justify-center min-h-screen p-6 my-[2rem]">
-        <h2 className="text-4xl font-extrabold text-gray-800 my-[2rem] md:mt-[4rem]">About Daizy Express</h2>
+        <h2 className="text-4xl font-extrabold text-gray-800 my-[2rem] md:mt-[4rem]">About  Deizy Express</h2>
         <p className="text-gray-700 text-lg mb-6 leading-relaxed text-center max-w-3xl">
-          At Daizy Express, we specialize in providing comprehensive and efficient legal document processing services. 
+          At  Deizy Express, we specialize in providing comprehensive and efficient legal document processing services. 
           Our dedicated team of professionals ensures that your paperwork is handled with the utmost care, accuracy, and confidentiality. 
           Whether you're an individual, a business, or a legal professional, we simplify the document filing process so you can focus on your priorities.
         </p>
@@ -27,15 +27,15 @@ const AboutUs = () => {
           <li><strong>Customer-Centric Approach:</strong> Prioritizing client needs and delivering personalized service solutions.</li>
         </ul>
         
-        <h3 className="text-2xl font-semibold text-gray-800 mb-4">Why Choose Daizy Express?</h3>
+        <h3 className="text-2xl font-semibold text-gray-800 mb-4">Why Choose  Deizy Express?</h3>
         <p className="text-gray-700 text-lg leading-relaxed mb-6 text-center max-w-3xl">
-          Choosing Daizy Express means partnering with a trusted leader in legal document processing. 
+          Choosing  Deizy Express means partnering with a trusted leader in legal document processing. 
           Our team is committed to delivering high-quality, prompt, and professional services tailored to your needs. 
           With years of experience in the industry, we have built a reputation for excellence and reliability.
         </p>
         
         <p className="text-gray-700 text-lg leading-relaxed text-center max-w-3xl">
-          Let Daizy Express handle your legal paperwork while you focus on what truly matters. 
+          Let  Deizy Express handle your legal paperwork while you focus on what truly matters. 
           Contact us today to learn more about our services and how we can assist you.
         </p>
       </div>

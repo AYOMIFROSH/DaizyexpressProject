@@ -12,9 +12,7 @@ const Footer = () => {
 					<p className="lg:text-[30px] text-[20px] mb-8 lg:w-[400px] lg:leading-[35px] leading-[25px] font-semibold">
 						Connecting the world through innovative solutions
 					</p>
-					<button className="px-5 py-2.5 rounded-[5px] bg-yellow-500 text-white font-semibold">
-						<Link to='/register'>Learn more</Link>
-					</button>
+					
 				</div>
 				<div className="grid grid-cols-2 lg:grid-cols-3 text-wrap lg:gap-x-3 gap-y-16">
 					<div>
@@ -27,27 +25,9 @@ const Footer = () => {
 						</div>
 					</div>
 					<div>
-						<h2 className="font-semibold">Services</h2>
-						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-gray-600">Consulting</p>
-							<p className="cursor-pointer hover:text-gray-600">Development</p>
-							<p className="cursor-pointer hover:text-gray-600">Design</p>
-							<p className="cursor-pointer hover:text-gray-600">Marketing</p>
-						</div>
-					</div>
-					<div>
-						<h2 className="font-semibold">Resources</h2>
-						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-gray-600">Blog</p>
-							<p className="cursor-pointer hover:text-gray-600">Case Studies</p>
-							<p className="cursor-pointer hover:text-gray-600">Guides</p>
-							<p className="cursor-pointer hover:text-gray-600">Help Center</p>
-						</div>
-					</div>
-					<div>
 						<h2 className="font-semibold">Legal</h2>
 						<div className="text-neutral-400 space-y-3 font-medium pt-3 text-[14px]">
-							<p className="cursor-pointer hover:text-gray-600">Privacy Policy</p>
+							<Link to={'/privacy-policy'} className="cursor-pointer hover:text-gray-600">Privacy Policy</Link>
 							<p className="cursor-pointer hover:text-gray-600">Terms of Service</p>
 							<p className="cursor-pointer hover:text-gray-600">Cookie Policy</p>
 						</div>
@@ -62,7 +42,7 @@ const Footer = () => {
 					</div>
 				</div>
 			</div>
-			<p className="text-center mt-10">© {new Date().getFullYear()} Appmosphere LLC. All rights reserved.</p>
+			<p className="text-center mt-10">© {new Date().getFullYear()} Deizy Express LLC. All rights reserved.</p>
 		</div>
 	);
 };
