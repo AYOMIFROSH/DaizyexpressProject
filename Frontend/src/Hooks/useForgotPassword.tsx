@@ -9,12 +9,17 @@ interface ForgotPasswordValues {
 export const useForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const baseURL =
+        window.location.hostname === "localhost"
+          ? "http://localhost:3000" // Localhost environment
+          : "https://daizyexserver.vercel.app"; // Production environment
+
 
   const forgotPassword = async (values: ForgotPasswordValues) => {
     try {
       setLoading(true);
       // const response = await fetch(`http://localhost:3000/api/auth/forgotpassword`, {
-      const response = await fetch(`https://deizyexpress.com/api/auth/forgotpassword`, {
+      const response = await fetch(`${baseURL}api/auth/forgotpassword`, {
 
         method: "POST",
         headers: { "Content-Type": "application/json" },
