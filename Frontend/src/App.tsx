@@ -1,13 +1,14 @@
+// App.tsx
 import { useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from "./Context/useContext";
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const navigate = useNavigate();
-  const {isAuthenticated, isVerified} = useAuth();
-  
+  const { isAuthenticated, isVerified } = useAuth();
   
   useEffect(() => {
     const lastRoute = sessionStorage.getItem("lastRoute");
@@ -20,6 +21,7 @@ function App() {
     <div>
       <Outlet />
       <ToastContainer />
+      <Analytics />
     </div>
   );
 }
