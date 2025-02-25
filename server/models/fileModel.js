@@ -27,6 +27,10 @@ const fileSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    ProgressedEmailSent: {
+        type: Boolean,
+        default: false,
+    },
     statusInProgressTime: {
         type: Date
     },

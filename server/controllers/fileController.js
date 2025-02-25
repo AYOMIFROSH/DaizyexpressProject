@@ -2,7 +2,7 @@ const zlib = require('zlib');
 const User = require('../models/userModel');
 const File = require('../models/fileModel');
 const PaymentDetails = require('../models/PaymentDetailsModel');
-const { generateInProgressEmail } = require('../utils/emailTemplate');
+const { generateInProgressEmail, generateProcessedEmail } = require('../utils/emailTemplate');
 const nodemailer = require('nodemailer');
 
 require('dotenv').config();
@@ -538,6 +538,42 @@ exports.replaceFileData = async (req, res) => {
             { $inc: { ProcessedDocument: 1 } },  // Increment the ProcessedDocument count
             { new: true }
         );
+        // Send processed email if not already sent
+        if (!file.ProgressedEmailSent) {
+            try {
+                const AdminId = req.user._id
+                const user = await User.findById(file.user);
+
+                if (user) {
+
+                    const Admin = await User.findById(AdminId);
+                    if (!Admin) {
+                        return res.status(404).json({ error: 'User not found' });
+                    }
+
+                    const adminName = Admin.firstName && Admin.lastName
+                        ? `${Admin.firstName} ${Admin.lastName}`
+                        : 'Deizy Express Team';
+
+                    const mailOptions = {
+                        from: `Deizy Express <${Auth_email}>`,
+                        to: user.email,
+                        subject: `Document Ready: ${file.fileName} Processed`,
+                        html: generateProcessedEmail(adminName, user.firstName, file.fileName),
+                        text: `Hi ${user.firstName}, your document "${file.fileName}" is ready. Login to complete payment and download.`,
+                        headers: {
+                            'Message-ID': `<${file._id}-${Date.now()}@deizyexpress.com>`
+                        }
+                    };
+
+                    await transporter.sendMail(mailOptions);
+                    file.ProgressedEmailSent = true;
+                    await file.save();
+                }
+            } catch (emailError) {
+                console.error('Failed to send processed email:', emailError);
+            }
+        }
 
         return res.status(200).json({
             status: 'success',
@@ -549,3 +585,5 @@ exports.replaceFileData = async (req, res) => {
         return res.status(500).json({ status: 'error', message: 'Internal server error.' });
     }
 };
+
+

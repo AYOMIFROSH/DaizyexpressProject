@@ -181,7 +181,7 @@ exports.login = async (req, res, next) => {
                 lastName: user.lastName,
                 email: user.email,
                 role: user.role,
-                verified: user.verified, // Make sure you send the verified status here
+                verified: user.verified, 
                 fileUploadCount: user.fileUploadCount,
                 ProcessedDocument: user.ProcessedDocument
 
