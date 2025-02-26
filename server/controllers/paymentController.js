@@ -85,12 +85,15 @@ router.get('/active-payments', authenticate, async (req, res) => {
             // Notify WebSocket server
             notifyWebSocketServer('activePaymentsUpdated', { hasPending: true });
 
-            res.status(200).json({ hasPending: true });
+            // Include the payment id (activePayment._id) in the response.
+            res.status(200).json({ 
+              hasPending: true,
+              payment: { id: activePayment._id } 
+            });
         } else {
             // Notify WebSocket server
             notifyWebSocketServer('activePaymentsUpdated', { hasPending: false });
-
-            res.status(200).json({hasPending: false });
+            res.status(200).json({ hasPending: false });
         }
     } catch (error) {
         console.error('Error fetching active payments:', error);
