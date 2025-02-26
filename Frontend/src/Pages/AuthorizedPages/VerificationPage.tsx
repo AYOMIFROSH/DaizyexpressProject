@@ -1,23 +1,37 @@
 import { Card, Button, message } from "antd";
 import { useState } from "react";
+import { useAuth } from "../../Context/useContext";
 
 const VerificationPage = () => {
   const [loading, setLoading] = useState(false);
+  const { userData } = useAuth();
+  const userEmail = userData?.email; 
+
+  const baseURL =
+    window.location.hostname === "localhost"
+      ? "http://localhost:3000" 
+      : "https://daizyexserver.vercel.app"; 
 
   const resendVerification = async () => {
+    if (!userEmail) {
+      message.error("User email is missing. Please log in again.");
+      return;
+    }
+    
     setLoading(true);
     try {
-       const res = await fetch("http://localhost:3000/api/auth/resend-verification", {
-        //const res = await fetch("https://daizyexserver.vercel.app/api/auth/resend-verification", {
+      const res = await fetch(`${baseURL}/api/auth/resend-verification`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: sessionStorage.getItem("user_email") }),
+        body: JSON.stringify({ email: userEmail }),
       });
 
+      const data = await res.json();
+      
       if (res.ok) {
-        message.success("Verification email resent successfully!");
+        message.success(data.message || "Verification email resent successfully!");
       } else {
-        message.error("Failed to resend verification email.");
+        message.error(data.message || "Failed to resend verification email.");
       }
     } catch (error) {
       message.error("An error occurred.");
