@@ -245,7 +245,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
 
         <Form.Item>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <Button type="primary" htmlType="submit" disabled={!selectedService}>
+            <Button type="default" htmlType="submit" disabled={!selectedService}>
               {loading ? <Spin /> : 'Review'}
             </Button>
             <Button htmlType="button" style={{ width: '100%' }} onClick={onBack}>
