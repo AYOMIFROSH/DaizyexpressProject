@@ -10,6 +10,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const paymentRoute = require('./controllers/paymentController');
 const paypalPaymentRoute = require('./controllers/paypalController');
 const webhookRouter = require('./controllers/webhookController');
+const authController = require('./controllers/authController');
+
 
 const app = express();
 require('dotenv').config();
@@ -46,6 +48,9 @@ app.get('/', (req, res) => {
     res.send('Welcome to the API!');
 });
 
+app.get('/user/verified', authController.verifiedPage);
+
+
 
 // ROUTES
 app.use('/api/auth', authRouter);
@@ -55,7 +60,7 @@ app.use('/api/payment', paymentRoute);
 app.use('/api/paypal', paypalPaymentRoute);
 
 app.set('view engine', 'ejs'); 
-app.set('views', path.join(__dirname, '..', 'views')); 
+app.set('views', path.join(__dirname,  'views')); 
 app.use('/assets', express.static(path.join(__dirname, '..', 'assets')));
 
 

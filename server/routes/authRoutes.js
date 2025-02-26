@@ -45,4 +45,6 @@ router.get('/reset-password/:token', async (req, res) => {
 // Handle password reset form submission
 router.post('/reset-password/:token', authController.resetPassword);
 
+router.post('/resend-verification', authController.resendVerificationEmail);
+
 module.exports = router;

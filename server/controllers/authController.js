@@ -64,13 +64,28 @@ const sendVerificationEmail = async ({ _id, email }) => {
     }
 };
 
+exports.verifiedPage = (req, res) => {
+    const { error, message } = req.query;
+    res.render('verified', { 
+        error: error || 'false',
+        message: message || 'Verification completed successfully'
+    });
+};
+
+// VERIFY EMAIL ROUTE
 // VERIFY EMAIL ROUTE
 exports.verifyEmail = async (req, res) => {
     const { userId, uniqueString } = req.params;
 
     try {
-        const record = await UserVerification.findOne({ userId });
+        // First, fetch the user and check if they're already verified
+        const user = await User.findById(userId);
+        if (user && user.verified) {
+            return res.redirect(`/user/verified?successr=true&message=User is already verified.`);
+        }
 
+        // Continue with the normal verification process
+        const record = await UserVerification.findOne({ userId });
         if (!record) {
             return res.redirect(`/user/verified?error=true&message=Invalid or expired link.`);
         }
@@ -96,10 +111,50 @@ exports.verifyEmail = async (req, res) => {
     }
 };
 
-// VERIFIED PAGE ROUTE
-exports.verifiedPage = (req, res) => {
-    res.sendFile(path.join(__dirname, '../views/verified.html'));
-};
+
+// RESEND VERIFICATION EMAIL ROUTE
+exports.resendVerificationEmail = async (req, res, next) => {
+    const { email } = req.body;
+    try {
+      // 1. Find the user based on the provided email.
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ status: 'FAILED', message: 'User not found.' });
+      }
+      
+      // 2. If the user is already verified, no need to resend.
+      if (user.verified) {
+        return res.status(400).json({ status: 'FAILED', message: 'User is already verified.' });
+      }
+      
+      // 3. Check for an existing verification record.
+      const existingRecord = await UserVerification.findOne({ userId: user._id });
+      
+      // 4. If an active verification record exists, inform the user.
+      if (existingRecord && existingRecord.expiresAt > Date.now()) {
+        return res.status(400).json({
+          status: 'FAILED',
+          message: 'A verification link has already been sent and is still active. Please check your email.'
+        });
+      }
+      
+      // 5. If an expired record exists, remove it.
+      if (existingRecord) {
+        await UserVerification.deleteOne({ userId: user._id });
+      }
+      
+      // 6. Send a new verification email.
+      const emailResponse = await sendVerificationEmail({ _id: user._id, email: user.email });
+      res.status(200).json({
+        status: emailResponse.status,
+        message: 'New verification link has been sent to your email.'
+      });
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      next(error);
+    }
+  };
+  
 
 // REGISTER USER
 exports.signup = async (req, res, next) => {
