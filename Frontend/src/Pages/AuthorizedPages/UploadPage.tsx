@@ -37,9 +37,12 @@ const UploadPage = () => {
         },
       });
       if (response.ok) {
-        const { hasPending } = await response.json();
-        // Redirect to services if there is no pending payment.
-        if (!hasPending) {
+        const data = await response.json();
+        // If a pending payment exists and payment details are returned, update state accordingly.
+        if (data.hasPending && data.payment && data.payment.id) {
+          setPaymentId(data.payment.id);
+          setCurrentView("upload");
+        } else {
           setCurrentView("services");
         }
       } else {
@@ -51,10 +54,12 @@ const UploadPage = () => {
       setLoading(false);
     }
   };
-
+  
+  
   useEffect(() => {
-    // Initial check on load
+    // On component mount, fetch pending payment details.
     handleUploadComplete();
+    
     const socket = io(WEB_SOCKET_OI_LIVE_URL, { transports: ["websocket"] });
     socket.on("activePaymentsUpdated", (data: { hasPending: boolean }) => {
       // When no pending payments remain, redirect to services.
@@ -66,7 +71,7 @@ const UploadPage = () => {
       socket.disconnect();
     };
   }, [WEB_SOCKET_OI_LIVE_URL, token]);
-
+  
   const handleProceedToBooking = (
     service: string | null,
     addOns: string[],

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Form, Input, Button, Checkbox, Typography, Spin, Radio, TimePicker, Modal } from 'antd';
 import { useAuth } from '../../Context/useContext';
 
@@ -21,7 +21,10 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
   const { token } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const [formValues, setFormValues] = useState<any>(null);
+  const [modalValues, setModalValues] = useState<any>(null);
+
+  // Use a ref instead of state for form values
+  const formValuesRef = useRef<any>(null);
 
   const Base_Url =
     window.location.hostname === 'localhost'
@@ -29,29 +32,35 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
       : 'https://daizyexserver.vercel.app';
 
   const onFinish = (values: any) => {
-    // Store the form values for review
-    setFormValues(values);
+
+    setModalValues(values);
+    // Store the form values in a ref for immediate access
+    formValuesRef.current = values;
     setIsModalVisible(true);
   };
 
   const handleConfirm = async () => {
     // Close the modal and then proceed with API call
     setIsModalVisible(false);
-    if (!formValues) return;
+    const values = formValuesRef.current;
+    if (!values) return;
     
     // Build additionalAddresses only if the "secondAddress" add-on is selected
     const additionalAddresses = selectedAddOns.includes('secondAddress')
       ? {
-          recipientName: formValues.recipientName_additional,
-          serviceAddress: formValues.serviceAddress_additional,
-          city: formValues.city_additional,
-          state: formValues.state_additional,
-          zipCode: formValues.zipCode_additional,
+          recipientName: values.recipientName_additional,
+          serviceAddress: values.serviceAddress_additional,
+          city: values.city_additional,
+          state: values.state_additional,
+          zipCode: values.zipCode_additional,
         }
       : undefined;
 
+    // (If needed, convert values.preferredTime here before sending; 
+    // if your server handles it then this may not be necessary.)
+
     const bookingData = {
-      ...formValues,
+      ...values,
       selectedAddOns,
       totalPrice,
       selectedService,
@@ -269,7 +278,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
         <Typography.Paragraph style={{color: 'red', fontWeight: "600"}}>
           Please review your booking details below. If everything looks correct, click "Proceed" to finalize your payment.
         </Typography.Paragraph>
-        {formValues && (
+        {modalValues && (
           <div>
             <Typography.Title level={5}>Service Information</Typography.Title>
             <p><strong>Service Selected:</strong> {selectedService}</p>
@@ -282,38 +291,38 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             <Typography.Title level={5} style={{ marginTop: '1rem' }}>
               Booking Information
             </Typography.Title>
-            <p><strong>Recipient Name:</strong> {formValues.recipientName}</p>
-            <p><strong>Service Address:</strong> {formValues.serviceAddress}</p>
-            <p><strong>City:</strong> {formValues.city}</p>
-            <p><strong>State:</strong> {formValues.state}</p>
-            <p><strong>Zip Code:</strong> {formValues.zipCode}</p>
+            <p><strong>Recipient Name:</strong> {modalValues.recipientName}</p>
+            <p><strong>Service Address:</strong> {modalValues.serviceAddress}</p>
+            <p><strong>City:</strong> {modalValues.city}</p>
+            <p><strong>State:</strong> {modalValues.state}</p>
+            <p><strong>Zip Code:</strong> {modalValues.zipCode}</p>
 
             {selectedAddOns.includes('secondAddress') && (
               <>
                 <Typography.Title level={5} style={{ marginTop: '1rem' }}>
                   Additional Address
                 </Typography.Title>
-                <p><strong>Recipient Name:</strong> {formValues.recipientName_additional}</p>
-                <p><strong>Service Address:</strong> {formValues.serviceAddress_additional}</p>
-                <p><strong>City:</strong> {formValues.city_additional}</p>
-                <p><strong>State:</strong> {formValues.state_additional}</p>
-                <p><strong>Zip Code:</strong> {formValues.zipCode_additional}</p>
+                <p><strong>Recipient Name:</strong> {modalValues.recipientName_additional}</p>
+                <p><strong>Service Address:</strong> {modalValues.serviceAddress_additional}</p>
+                <p><strong>City:</strong> {modalValues.city_additional}</p>
+                <p><strong>State:</strong> {modalValues.state_additional}</p>
+                <p><strong>Zip Code:</strong> {modalValues.zipCode_additional}</p>
               </>
             )}
 
             <Typography.Title level={5} style={{ marginTop: '1rem' }}>
               Schedule & Payment
             </Typography.Title>
-            <p><strong>Preferred Service Date:</strong> {formValues.serviceDate}</p>
+            <p><strong>Preferred Service Date:</strong> {modalValues.serviceDate}</p>
             <p>
               <strong>Preferred Time:</strong>{' '}
-              {formValues.preferredTime && formValues.preferredTime.format
-                ? formValues.preferredTime.format("hh:mm A")
-                : formValues.preferredTime}
+              {modalValues.preferredTime && modalValues.preferredTime.format
+                ? modalValues.preferredTime.format("hh:mm A")
+                : modalValues.preferredTime}
             </p>
-            <p><strong>Payment Method:</strong> {formValues.paymentMethod}</p>
-            <p><strong>Signature:</strong> {formValues.signature}</p>
-            <p><strong>Date:</strong> {formValues.date}</p>
+            <p><strong>Payment Method:</strong> {modalValues.paymentMethod}</p>
+            <p><strong>Signature:</strong> {modalValues.signature}</p>
+            <p><strong>Date:</strong> {modalValues.date}</p>
           </div>
         )}
       </Modal>
