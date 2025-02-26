@@ -133,7 +133,7 @@ const UserDocuments: React.FC = () => {
         },
         body: JSON.stringify({ status: newStatus }),
       });
-  
+
       const result = await response.json();
       if (result.status === "success") {
         toast.success("Status updated successfully!");
@@ -143,7 +143,7 @@ const UserDocuments: React.FC = () => {
             file._id === fileId ? { ...file, status: newStatus } : file
           )
         );
-  
+
         // If the new status is "not processed", reset attempts to the default value
         if (newStatus === "not processed") {
           const attemptResponse = await fetch(`${API_BASE_URL}/api/admin/files/${fileId}/update-attempts`, {
@@ -154,7 +154,7 @@ const UserDocuments: React.FC = () => {
             },
             body: JSON.stringify({ attempts: "not attempted" }),
           });
-  
+
           const attemptResult = await attemptResponse.json();
           if (attemptResult.status === "success") {
             // Update local state with reset attempts
@@ -168,10 +168,10 @@ const UserDocuments: React.FC = () => {
             toast.error(`Failed to reset attempts: ${attemptResult.message}`);
           }
         }
-  
+
         // Refresh files list (if needed)
         await fetchUserFiles();
-  
+
         if (newStatus === "processed") {
           setSelectedFileId(fileId);
           setIsModalVisible(true);
@@ -189,7 +189,7 @@ const UserDocuments: React.FC = () => {
       });
     }
   };
-  
+
 
   // New function to handle attempts change using a dropdown similar to status.
   const handleAttemptChange = async (fileId: string, newAttempt: string) => {
@@ -522,10 +522,17 @@ const UserDocuments: React.FC = () => {
                   <div className="mt-4">
                     <div className="font-semibold">Payment Date:</div>
                     <div>
-                      {new Date(file.paymentId.PayedAt).toLocaleDateString("en-GB")}, Time{" "}
-                      {new Date(file.paymentId.PayedAt).toLocaleTimeString("en-GB", { hour12: true })}
+                      {file.paymentId.PayedAt ? (
+                        <>
+                          {new Date(file.paymentId.PayedAt).toLocaleDateString("en-GB")}, Time{" "}
+                          {new Date(file.paymentId.PayedAt).toLocaleTimeString("en-GB", { hour12: true })}
+                        </>
+                      ) : (
+                        "Not Payed"
+                      )}
                     </div>
                   </div>
+
                 </>
               ) : (
                 <span>No Payment Details</span>
