@@ -11,8 +11,8 @@ const createError = require('../utils/appError');
 require('dotenv').config();
 
 const Secret_Key = process.env.SECRET_KEY;
-const Auth_email = process.env.AUTH_EMAIL || 'taskzenreset@gmail.com';
-const Auth_Password = process.env.AUTH_PASSWORD || 'rhjlcwveeeaktiry';
+const Auth_email = process.env.AUTH_EMAIL || 'deizyexpress@gmail.com';
+const Auth_Password = process.env.AUTH_PASSWORD || 'usykstcamwpujyvp';
 
 const BASE_URL =
   process.env.NODE_ENV === 'production'
