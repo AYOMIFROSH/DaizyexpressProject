@@ -218,6 +218,7 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
           <Radio.Group>
             <Radio value="creditCard">Credit/Debit Card</Radio>
             <Radio value="paypal">PayPal</Radio>
+            <Radio value="check">Check </Radio>
           </Radio.Group>
         </Form.Item>
 
@@ -231,8 +232,8 @@ const BookingDetailsForm: React.FC<BookingDetailsFormProps> = ({
             },
           ]}
         >
-          <Checkbox>
-            I agree to the terms and conditions of DeizyexpressLLC. All payments are due upfront.
+          <Checkbox >
+            I agree to the terms and conditions of DeizyexpressLLC. All payments are due upfront. Charges will not be made until valid proof of service is signed and approved by you as the client.          
           </Checkbox>
         </Form.Item>
 
