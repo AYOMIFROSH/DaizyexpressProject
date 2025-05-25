@@ -22,7 +22,7 @@ const BASE_URL =
 
 const FRONT_URL =
   process.env.NODE_ENV === 'production'
-    ? process.env.FRONT_URL_PRODUCTION || 'https://deizyexpress.com'
+    ? process.env.FRONT_URL_PRODUCTION || 'https://diezyexpress.vercel.app'
     : process.env.FRONT_URL_DEVELOPMENT || 'http://localhost:5173';
 
 

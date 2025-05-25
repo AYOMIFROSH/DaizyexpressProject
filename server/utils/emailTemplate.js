@@ -16,7 +16,7 @@ function generateInProgressEmail(adminName, userName, fileName) {
                     <p><strong>${adminName}</strong><br/>Deizy Express Team</p>
                 </div>
                     <p style="text-align: center; margin: 15px 0;">
-                    <a href="https://deizyexpress.com/unsubscribe" style="color: #666; text-decoration: underline;">
+                    <a href="https://diezyexpress.vercel.app//unsubscribe" style="color: #666; text-decoration: underline;">
                         Unsubscribe from these emails
                     </a>
                     </p>
